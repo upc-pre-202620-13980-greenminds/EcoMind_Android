@@ -1,0 +1,22 @@
+<resources>
+    <!-- Category menu -->
+    <string name="quest_category_energy">Energía</string>
+    <string name="quest_category_water">Agua</string>
+    <string name="quest_category_recycle">Reciclaje</string>
+    <string name="quest_daily_quest">Reto diario</string>
+    <string name="quest_close_menu">Cerrar menú</string>
+
+    <!-- Quest list -->
+    <string name="quest_search_placeholder">Buscar</string>
+    <string name="quest_search_action">Buscar retos</string>
+    <string name="quest_open_filters">Filtros</string>
+    <string name="quest_view">Ver reto</string>
+    <string name="quest_chip_minutes">%1$d min</string>
+    <string name="quest_chip_ecopoints">%1$d ecoPoints</string>
+    <string name="quest_theme_checkbox">casillas</string>
+    <string name="quest_theme_minigame">minijuego</string>
+    <string name="quest_theme_collaborative">colaborativo</string>
+    <string name="quest_list_empty">No se encontraron retos.</string>
+    <string name="quest_list_error">No se pudieron cargar los retos.</string>
+    <string name="quest_try_again">Reintentar</string>
+</resources>
