@@ -151,7 +151,7 @@ private fun OwnershipBadge(text: String, color: Color, modifier: Modifier = Modi
 }
 
 @Composable
-private fun PriceRow(priceInGems: Int) {
+internal fun PriceRow(priceInGems: Int, textColor: Color? = null) {
     val description = stringResource(R.string.top_bar_gems, priceInGems)
 
     Row(
@@ -170,14 +170,19 @@ private fun PriceRow(priceInGems: Int) {
         Text(
             text = priceInGems.toString(),
             style = poppinsTextStyle(10, FontWeight.SemiBold),
-            color = SkyBlue
+            color = textColor ?: SkyBlue
         )
     }
 }
 
 // The pill is small as in the design; the box around it keeps a touch target of 48dp
 @Composable
-private fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
+internal fun ActionButton(
+    text: String,
+    color: Color,
+    onClick: () -> Unit,
+    textColor: Color = White
+) {
     val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
@@ -190,7 +195,7 @@ private fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
         Text(
             text = text,
             style = poppinsTextStyle(10, FontWeight.Bold),
-            color = White,
+            color = textColor,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .heightIn(min = 24.dp)

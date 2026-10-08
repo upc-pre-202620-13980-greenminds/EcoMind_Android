@@ -9,6 +9,7 @@
     <string name="store_subtab_store">Tienda</string>
     <string name="store_subtab_inventory">Mi inventario</string>
     <string name="store_section_cosmetics">Avatares y cosméticos</string>
+    <string name="store_section_multipliers">Multiplicadores y protectores</string>
 
     <!-- Cards -->
     <string name="store_badge_in_inventory">En inventario</string>
@@ -16,6 +17,7 @@
     <string name="store_action_buy">Comprar</string>
     <string name="store_action_equip">Equipar</string>
     <string name="store_action_unequip">Quitar</string>
+    <string name="store_error_insufficient_gems">Gemas insuficientes. Necesitas %1$d 💎 pero tienes %2$d 💎.</string>
     <string name="store_type_avatar">Avatar</string>
     <string name="store_type_head">Sombrero</string>
     <string name="store_type_body">Cuerpo</string>

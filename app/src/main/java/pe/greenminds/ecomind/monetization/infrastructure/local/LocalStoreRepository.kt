@@ -2,6 +2,8 @@ package pe.greenminds.ecomind.monetization.infrastructure.local
 
 import kotlinx.coroutines.delay
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
+import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
 import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
 import pe.greenminds.ecomind.monetization.infrastructure.remote.CosmeticDto
@@ -89,5 +91,53 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
 
     override suspend fun getUserCosmetics(): Result<List<UserCosmetic>> {
         return Result.success(inventory.toDomain())
+    }
+
+    override suspend fun getMultipliers(): Result<List<Multiplier>> {
+        return Result.success(
+            listOf(
+                Multiplier(
+                    id = "20000000-0000-0000-0000-000000000001",
+                    name = "Multiplier x1.5",
+                    description = "Receive 1.5x more ecoPoints for 60 minutes.",
+                    factor = 1.5,
+                    durationMinutes = 60,
+                    priceInGems = 100,
+                    imageReference = "world_happy"
+                ),
+                Multiplier(
+                    id = "20000000-0000-0000-0000-000000000002",
+                    name = "Multiplier x2",
+                    description = "Receive 2x more ecoPoints for 60 minutes.",
+                    factor = 2.0,
+                    durationMinutes = 60,
+                    priceInGems = 250,
+                    imageReference = "world_run"
+                ),
+                Multiplier(
+                    id = "20000000-0000-0000-0000-000000000003",
+                    name = "Multiplier x3",
+                    description = "Receive 3x more ecoPoints for 60 minutes.",
+                    factor = 3.0,
+                    durationMinutes = 60,
+                    priceInGems = 700,
+                    imageReference = "world_trophy"
+                )
+            )
+        )
+    }
+
+    override suspend fun getStreakProtectors(): Result<List<StreakProtector>> {
+        return Result.success(
+            listOf(
+                StreakProtector(
+                    id = "30000000-0000-0000-0000-000000000001",
+                    name = "Streak protector",
+                    description = "Avoid losing your streak for a day.",
+                    priceInGems = 150,
+                    imageReference = "world_streak_protector"
+                )
+            )
+        )
     }
 }
