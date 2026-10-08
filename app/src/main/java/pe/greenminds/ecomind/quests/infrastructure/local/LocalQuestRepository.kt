@@ -6,6 +6,8 @@ import pe.greenminds.ecomind.quests.domain.model.QuestFilter
 import pe.greenminds.ecomind.quests.domain.repositories.QuestRepository
 import pe.greenminds.ecomind.quests.infrastructure.remote.QuestDto
 import pe.greenminds.ecomind.quests.infrastructure.remote.toDomain
+import pe.greenminds.ecomind.shared.infrastructure.remote.ErrorDto
+import pe.greenminds.ecomind.shared.infrastructure.remote.toException
 import javax.inject.Inject
 
 // Demo implementation used until the web services are deployed
@@ -100,8 +102,48 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             ecopoints = 10,
             time = 10,
             assignedDate = "2026-10-08"
+        ),
+        quest(
+            id = 9L,
+            title = "Daily Quest",
+            description = "Complete the eco action of the day.",
+            category = "ENERGY",
+            type = "DAILY_QUEST",
+            theme = "CHECKBOX",
+            ecopoints = 10,
+            time = 10,
+            assignedDate = "2026-10-08"
+        ),
+        quest(
+            id = 10L,
+            title = "Save up water",
+            description = "Reduce the water your family uses at home during the week.",
+            category = "WATER",
+            type = "FAMILY",
+            theme = "CHECKBOX",
+            ecopoints = 40,
+            time = 30
+        ),
+        quest(
+            id = 11L,
+            title = "Build a boat together!",
+            description = "Build a small boat with recycled materials as a family.",
+            category = "RECYCLE",
+            type = "FAMILY",
+            theme = "COLLABORATIVE",
+            ecopoints = 50,
+            time = 60
         )
     )
+
+    // Equivalent to GET /quests/{questId}
+    override suspend fun getQuest(questId: Long): Result<Quest> {
+        val dto = quests.find { it.id == questId }
+            ?: return Result.failure(
+                ErrorDto(code = "QUEST_NOT_FOUND", message = "The quest was not found.").toException()
+            )
+        return Result.success(dto.toDomain())
+    }
 
     // Equivalent to GET /quests/search?title=&category=&questType=
     override suspend fun searchQuests(filter: QuestFilter): Result<List<Quest>> {

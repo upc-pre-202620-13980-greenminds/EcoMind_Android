@@ -22,6 +22,9 @@ val LeafGreenDark = Color(0xFF159E67)
 val CoralRed = Color(0xFFFF552F)
 val CoralRedDark = Color(0xFFD60000)
 
+// Progress
+val PaleGreen = Color(0xFFE5FFD8)
+
 // Store
 val MintTint = Color(0xFFEFFFED)
 val ForestGreen = Color(0xFF3F662D)

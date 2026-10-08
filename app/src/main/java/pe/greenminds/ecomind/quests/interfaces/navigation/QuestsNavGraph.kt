@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.quests.interfaces.list.QuestListScreen
+import pe.greenminds.ecomind.quests.interfaces.progress.ProgressScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
 // Opened from the main menu, not from the bottom bar.
@@ -41,7 +42,7 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
     }
 
     composable<ProgressRoute> {
-        PlaceholderScreen()
+        ProgressScreen()
     }
 
     composable<QuestDetailRoute> { PlaceholderScreen() }

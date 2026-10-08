@@ -19,4 +19,12 @@
     <string name="quest_list_empty">No quests found.</string>
     <string name="quest_list_error">The quests could not be loaded.</string>
     <string name="quest_try_again">Try again</string>
+
+    <!-- Progress -->
+    <string name="progress_in_progress">In Progress</string>
+    <string name="progress_family_quest">Family Quest</string>
+    <string name="progress_finished">Finished</string>
+    <string name="progress_see_more">See more</string>
+    <string name="progress_see_family_quest">See family quest</string>
+    <string name="progress_entry_description">%1$s, %2$d percent</string>
 </resources>
