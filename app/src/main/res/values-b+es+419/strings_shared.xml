@@ -1,0 +1,11 @@
+<resources>
+    <string name="logo_content_description">Logotipo de EcoMind</string>
+    <string name="placeholder_message">Esta sección estará disponible pronto.</string>
+    <string name="loading">Cargando</string>
+    <string name="back">Atrás</string>
+    <string name="top_bar_gems">%1$d gemas</string>
+    <string name="top_bar_ecopoints">%1$d ecopoints</string>
+    <string name="top_bar_notifications">Notificaciones</string>
+    <string name="top_bar_settings">Ajustes</string>
+    <string name="error_unknown">Ocurrió un problema. Inténtalo de nuevo.</string>
+</resources>
