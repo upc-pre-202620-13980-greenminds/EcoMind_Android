@@ -19,4 +19,12 @@
     <string name="quest_list_empty">No se encontraron retos.</string>
     <string name="quest_list_error">No se pudieron cargar los retos.</string>
     <string name="quest_try_again">Reintentar</string>
+
+    <!-- Progress -->
+    <string name="progress_in_progress">En curso</string>
+    <string name="progress_family_quest">Reto familiar</string>
+    <string name="progress_finished">Terminados</string>
+    <string name="progress_see_more">Ver más</string>
+    <string name="progress_see_family_quest">Ver reto familiar</string>
+    <string name="progress_entry_description">%1$s, %2$d por ciento</string>
 </resources>
