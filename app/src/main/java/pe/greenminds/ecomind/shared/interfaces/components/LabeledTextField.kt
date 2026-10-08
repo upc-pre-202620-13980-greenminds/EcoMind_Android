@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ fun LabeledTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
+    labelStyle: TextStyle = MaterialTheme.typography.labelMedium,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None
@@ -42,7 +44,7 @@ fun LabeledTextField(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = labelStyle,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(start = 4.dp)
         )

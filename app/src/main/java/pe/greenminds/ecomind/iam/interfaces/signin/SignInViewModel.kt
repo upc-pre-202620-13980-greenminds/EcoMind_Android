@@ -83,7 +83,7 @@ class SignInViewModel @Inject constructor(
         val error = (exception as? AuthException)?.error ?: AuthError.UNKNOWN
         return when (error) {
             AuthError.INVALID_CREDENTIALS -> R.string.error_invalid_credentials
-            AuthError.UNKNOWN -> R.string.error_unknown
+            else -> R.string.error_unknown
         }
     }
 }
