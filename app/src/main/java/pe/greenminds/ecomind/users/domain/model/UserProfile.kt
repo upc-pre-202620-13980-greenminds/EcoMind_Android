@@ -7,5 +7,7 @@ data class UserProfile(
     val socialRole: SocialRole,
     val streak: Int,
     val ecopoints: Int,
-    val gemBalance: Int
+    val gemBalance: Int,
+    // Provisional: the web services do not return a personal commitment yet
+    val commitment: String? = null
 )

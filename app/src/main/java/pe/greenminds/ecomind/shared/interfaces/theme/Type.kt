@@ -84,3 +84,12 @@ val Typography = Typography(
         fontSize = 10.sp
     )
 )
+
+// Sections such as Profile use Inter in sizes that the Material slots above do not cover
+fun interTextStyle(sizeSp: Int, weight: FontWeight = FontWeight.Normal): TextStyle {
+    return TextStyle(
+        fontFamily = Inter,
+        fontWeight = weight,
+        fontSize = sizeSp.sp
+    )
+}
