@@ -1,0 +1,39 @@
+<resources>
+    <string name="ranking_title">Ranking</string>
+
+    <!-- Types -->
+    <string name="ranking_type_local">Local</string>
+    <string name="ranking_type_global">Global</string>
+    <string name="ranking_type_friends">Amigos</string>
+    <string name="ranking_type_families">Familias</string>
+
+    <!-- Periods -->
+    <string name="ranking_period_daily">Diario</string>
+    <string name="ranking_period_weekly">Semanal</string>
+    <string name="ranking_period_monthly">Mensual</string>
+    <string name="ranking_period_all_time">Histórico</string>
+    <string name="ranking_phrase_today">Hoy</string>
+    <string name="ranking_phrase_week">Esta semana</string>
+    <string name="ranking_phrase_month">Este mes</string>
+    <string name="ranking_phrase_all_time">Histórico</string>
+
+    <!-- List -->
+    <string name="ranking_your_position">Tu posición</string>
+    <string name="ranking_your_family">Tu familia</string>
+    <string name="ranking_position_value">#%1$d · %2$d EcoPoints</string>
+    <string name="ranking_list_top">Top 20 · %1$s</string>
+    <string name="ranking_list_friends">Amigos · %1$s</string>
+    <string name="ranking_list_families">Familias · %1$s</string>
+    <string name="ranking_points_header">EcoPoints</string>
+    <string name="ranking_name_you">%1$s (Tú)</string>
+    <string name="ranking_name_your_family">%1$s (Tu familia)</string>
+    <string name="ranking_row_description">Posición %1$d, %2$s, %3$d EcoPoints</string>
+
+    <!-- States -->
+    <string name="ranking_locked_title">¡Para entrar al ranking debes completar una actividad!</string>
+    <string name="ranking_locked_message">Solo participan en el ranking quienes completan al menos una actividad en el periodo.</string>
+    <string name="ranking_empty">No hay información disponible</string>
+    <string name="ranking_error_title">No pudimos cargar el ranking</string>
+    <string name="ranking_error_message">El ranking no está disponible en este momento.\nReintenta para cargarlo de nuevo.</string>
+    <string name="ranking_try_again">Reintentar</string>
+</resources>
