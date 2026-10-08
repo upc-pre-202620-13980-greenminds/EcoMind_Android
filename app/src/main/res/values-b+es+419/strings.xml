@@ -1,3 +1,4 @@
 <resources>
     <string name="logo_content_description">Logotipo de EcoMind</string>
+    <string name="placeholder_message">Esta sección estará disponible pronto.</string>
 </resources>
