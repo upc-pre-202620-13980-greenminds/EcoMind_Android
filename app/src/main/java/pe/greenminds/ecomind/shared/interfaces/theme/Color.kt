@@ -22,6 +22,12 @@ val LeafGreenDark = Color(0xFF159E67)
 val CoralRed = Color(0xFFFF552F)
 val CoralRedDark = Color(0xFFD60000)
 
+// Community
+val SageGreen = Color(0xFF839E76)
+val MossGreen = Color(0xFF4C7A37)
+// Dark gray at 25 % opacity, used by the tabs that are not selected
+val FadedGray = Color(0x40454141)
+
 // Progress
 val PaleGreen = Color(0xFFE5FFD8)
 
