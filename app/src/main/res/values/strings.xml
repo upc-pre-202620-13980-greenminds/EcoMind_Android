@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">EcoMind</string>
     <string name="logo_content_description">EcoMind logo</string>
+    <string name="placeholder_message">This section will be available soon.</string>
 </resources>
