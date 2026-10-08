@@ -1,0 +1,23 @@
+<resources>
+    <string name="store_title">Tienda</string>
+    <string name="store_subtitle">Personaliza tu experiencia ecológica.</string>
+
+    <!-- Tabs -->
+    <string name="store_tab_cosmetics">Avatares y cosméticos</string>
+    <string name="store_tab_multipliers">Multiplicadores y protectores</string>
+    <string name="store_tab_gems">Gemas</string>
+    <string name="store_subtab_store">Tienda</string>
+    <string name="store_subtab_inventory">Mi inventario</string>
+    <string name="store_section_cosmetics">Avatares y cosméticos</string>
+
+    <!-- Cards -->
+    <string name="store_badge_in_inventory">En inventario</string>
+    <string name="store_badge_equipped">Equipado</string>
+    <string name="store_action_buy">Comprar</string>
+    <string name="store_action_equip">Equipar</string>
+    <string name="store_action_unequip">Quitar</string>
+    <string name="store_type_avatar">Avatar</string>
+    <string name="store_type_head">Sombrero</string>
+    <string name="store_type_body">Cuerpo</string>
+    <string name="store_type_accessory">Accesorio</string>
+</resources>

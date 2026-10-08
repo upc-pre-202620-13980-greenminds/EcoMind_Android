@@ -22,6 +22,13 @@ val LeafGreenDark = Color(0xFF159E67)
 val CoralRed = Color(0xFFFF552F)
 val CoralRedDark = Color(0xFFD60000)
 
+// Store
+val MintTint = Color(0xFFEFFFED)
+val ForestGreen = Color(0xFF3F662D)
+val MutedGray = Color(0xFFA3A1A1)
+val DarkGrayText = Color(0xFF616161)
+val LightGrayText = Color(0xFF8F8F8F)
+
 // Chips of the quest cards
 val ChipGray = Color(0xFFB7B7B7)
 val ChipGreen = Color(0xFF7EB962)

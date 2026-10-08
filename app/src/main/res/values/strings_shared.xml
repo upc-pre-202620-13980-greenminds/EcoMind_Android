@@ -1,6 +1,9 @@
 <resources>
     <string name="logo_content_description">EcoMind logo</string>
     <string name="placeholder_message">This section will be available soon.</string>
+    <string name="coming_soon_title">Coming soon</string>
+    <string name="coming_soon_message">This part of EcoMind is not available yet.</string>
+    <string name="coming_soon_dismiss">OK</string>
     <string name="loading">Loading</string>
     <string name="back">Back</string>
     <string name="top_bar_gems">%1$d gems</string>
