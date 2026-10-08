@@ -4,9 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import pe.greenminds.ecomind.navigation.AppNavHost
+import pe.greenminds.ecomind.main.MainShell
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 
 @AndroidEntryPoint
@@ -15,9 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
             EcoMindTheme {
-                AppNavHost(navController)
+                MainShell()
             }
         }
     }

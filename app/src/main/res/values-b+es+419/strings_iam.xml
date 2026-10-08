@@ -1,16 +1,9 @@
 <resources>
-    <string name="logo_content_description">Logotipo de EcoMind</string>
-    <string name="placeholder_message">Esta sección estará disponible pronto.</string>
-    <string name="loading">Cargando</string>
-
-    <!-- Sign in -->
     <string name="sign_in_email_label">Correo electrónico</string>
     <string name="sign_in_password_label">Contraseña</string>
     <string name="sign_in_button">Iniciar sesión</string>
     <string name="sign_in_no_account">¿No tienes una cuenta?</string>
     <string name="sign_in_sign_up_link">Regístrate</string>
-
-    <!-- Sign up -->
     <string name="sign_up_name_label">Nombre</string>
     <string name="sign_up_role_label">Soy</string>
     <string name="sign_up_role_student">Estudiante</string>
@@ -21,9 +14,6 @@
     <string name="sign_up_terms_checkbox_description">Acepto los términos y la política</string>
     <string name="sign_up_button">Registrarme</string>
     <string name="sign_up_have_account">¿Ya tienes una cuenta?</string>
-
-    <!-- Email verification -->
-    <string name="back">Atrás</string>
     <string name="verify_email_subtitle">¡Ya casi terminas!</string>
     <string name="verify_email_message">Enviamos un correo a %1$s. Revisa tu bandeja de entrada e ingresa el código.</string>
     <string name="verify_email_code_label">Código de confirmación</string>
@@ -31,37 +21,10 @@
     <string name="verify_email_resend">Reenviar código</string>
     <string name="verify_email_code_resent">Te enviamos un código nuevo.</string>
     <string name="verify_email_go_back">Volver</string>
-
-    <!-- Top bar -->
-    <string name="top_bar_gems">%1$d gemas</string>
-    <string name="top_bar_ecopoints">%1$d ecopoints</string>
-    <string name="top_bar_notifications">Notificaciones</string>
-    <string name="top_bar_settings">Ajustes</string>
-
-    <!-- Main menu -->
-    <string name="main_menu_energy">Energía</string>
-    <string name="main_menu_learn_more">Aprende más</string>
-    <string name="main_menu_quests">Retos</string>
-    <string name="main_menu_minigames">Minijuegos</string>
-    <string name="main_menu_collaborative">Retos colaborativos</string>
-    <string name="main_menu_videos">Videos</string>
-    <string name="main_menu_more">Más opciones</string>
-
-    <!-- Bottom bar -->
-    <string name="nav_store">Tienda</string>
-    <string name="nav_ranking">Ranking</string>
-    <string name="nav_main_menu">Menú principal</string>
-    <string name="nav_progress">Progreso</string>
-    <string name="nav_community">Comunidad</string>
-    <string name="nav_profile">Perfil</string>
-
-    <!-- Errors -->
-    <string name="error_profile_load">No se pudo cargar tu progreso.</string>
     <string name="error_email_required">Ingresa tu correo electrónico.</string>
     <string name="error_email_invalid">Ingresa un correo electrónico válido.</string>
     <string name="error_password_required">Ingresa tu contraseña.</string>
     <string name="error_invalid_credentials">El correo o la contraseña son incorrectos.</string>
-    <string name="error_unknown">Ocurrió un problema. Inténtalo de nuevo.</string>
     <string name="error_name_invalid">Ingresa tu nombre (de 2 a 120 caracteres).</string>
     <string name="error_role_required">Selecciona un rol.</string>
     <string name="error_password_policy">La contraseña debe tener entre 8 y 72 caracteres, con al menos una letra y un número.</string>
