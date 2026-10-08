@@ -1,0 +1,30 @@
+<resources>
+    <!-- Category menu -->
+    <string name="quest_category_energy">Energy</string>
+    <string name="quest_category_water">Water</string>
+    <string name="quest_category_recycle">Recycle</string>
+    <string name="quest_daily_quest">Daily Quest</string>
+    <string name="quest_close_menu">Close menu</string>
+
+    <!-- Quest list -->
+    <string name="quest_search_placeholder">Search</string>
+    <string name="quest_search_action">Search quests</string>
+    <string name="quest_open_filters">Filters</string>
+    <string name="quest_view">View Quest</string>
+    <string name="quest_chip_minutes">%1$d min</string>
+    <string name="quest_chip_ecopoints">%1$d ecoPoints</string>
+    <string name="quest_theme_checkbox">checkbox</string>
+    <string name="quest_theme_minigame">minigame</string>
+    <string name="quest_theme_collaborative">collaborative</string>
+    <string name="quest_list_empty">No quests found.</string>
+    <string name="quest_list_error">The quests could not be loaded.</string>
+    <string name="quest_try_again">Try again</string>
+
+    <!-- Progress -->
+    <string name="progress_in_progress">In Progress</string>
+    <string name="progress_family_quest">Family Quest</string>
+    <string name="progress_finished">Finished</string>
+    <string name="progress_see_more">See more</string>
+    <string name="progress_see_family_quest">See family quest</string>
+    <string name="progress_entry_description">%1$s, %2$d percent</string>
+</resources>

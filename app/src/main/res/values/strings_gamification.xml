@@ -1,0 +1,39 @@
+<resources>
+    <string name="ranking_title">Ranking</string>
+
+    <!-- Types -->
+    <string name="ranking_type_local">Local</string>
+    <string name="ranking_type_global">Global</string>
+    <string name="ranking_type_friends">Friends</string>
+    <string name="ranking_type_families">Families</string>
+
+    <!-- Periods -->
+    <string name="ranking_period_daily">Daily</string>
+    <string name="ranking_period_weekly">Weekly</string>
+    <string name="ranking_period_monthly">Monthly</string>
+    <string name="ranking_period_all_time">All-time</string>
+    <string name="ranking_phrase_today">Today</string>
+    <string name="ranking_phrase_week">This week</string>
+    <string name="ranking_phrase_month">This month</string>
+    <string name="ranking_phrase_all_time">All time</string>
+
+    <!-- List -->
+    <string name="ranking_your_position">Your position</string>
+    <string name="ranking_your_family">Your family</string>
+    <string name="ranking_position_value">#%1$d · %2$d EcoPoints</string>
+    <string name="ranking_list_top">Top 20 · %1$s</string>
+    <string name="ranking_list_friends">Friends · %1$s</string>
+    <string name="ranking_list_families">Families · %1$s</string>
+    <string name="ranking_points_header">EcoPoints</string>
+    <string name="ranking_name_you">%1$s (You)</string>
+    <string name="ranking_name_your_family">%1$s (Your family)</string>
+    <string name="ranking_row_description">Position %1$d, %2$s, %3$d EcoPoints</string>
+
+    <!-- States -->
+    <string name="ranking_locked_title">To access the ranking you must complete an activity!</string>
+    <string name="ranking_locked_message">Only users who complete at least one activity in the period take part in the ranking.</string>
+    <string name="ranking_empty">No information available</string>
+    <string name="ranking_error_title">Couldn’t load the ranking</string>
+    <string name="ranking_error_message">The ranking is currently unavailable.\nTry again to reload it.</string>
+    <string name="ranking_try_again">Try again</string>
+</resources>

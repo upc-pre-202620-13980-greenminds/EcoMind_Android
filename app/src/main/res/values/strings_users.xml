@@ -1,0 +1,56 @@
+<resources>
+    <string name="profile_title">Your profile</string>
+    <string name="profile_edit">Edit</string>
+    <string name="profile_role_student">Student</string>
+    <string name="profile_role_parent">Parent</string>
+    <string name="profile_stat_streak">Day streak</string>
+    <string name="profile_stat_ecopoints">EcoPoints</string>
+    <string name="profile_stat_gems">Gems</string>
+    <string name="profile_share">Share</string>
+    <string name="profile_favorites">Favorites</string>
+    <string name="profile_tab_profile">Profile</string>
+    <string name="profile_tab_friends">Friends</string>
+    <string name="profile_tab_family">Family</string>
+    <string name="profile_try_again">Try again</string>
+    <string name="profile_tab_error">This information could not be loaded.</string>
+    <string name="profile_commitment_title">My commitment</string>
+    <string name="profile_commitment_empty">Set a personal commitment to keep you going.</string>
+    <string name="profile_commitment_add">Add commitment</string>
+    <string name="profile_medals_title">Medals and achievements</string>
+    <string name="profile_view_all">View all</string>
+    <string name="profile_weekly_report_title">Family weekly report</string>
+    <string name="profile_view_report">View report</string>
+    <string name="profile_weekly_report_empty">There is no report for this week yet.</string>
+    <string name="profile_weekly_report_quests">%1$d of %2$d quests completed</string>
+    <string name="profile_invite_friends">Invite friends</string>
+    <string name="profile_find_friends">Find friends</string>
+    <string name="profile_friend_requests">Friend requests</string>
+    <string name="profile_friends_empty_title">No friends yet</string>
+    <string name="profile_friends_empty_message">Find a friend or send an invitation.</string>
+    <string name="profile_row_you">You</string>
+    <string name="profile_family_empty_title">No family yet</string>
+    <string name="profile_family_empty_student_message">A parent can create a family and add you as a member.</string>
+    <string name="profile_family_empty_parent_message">Create your family to bring everyone together.</string>
+    <string name="profile_family_create">Create family</string>
+    <string name="profile_family_manage">Manage</string>
+    <string name="profile_family_members">Members · %1$d</string>
+    <string name="profile_family_weekly_report">Weekly report</string>
+    <string name="profile_family_manager">Parent · family manager</string>
+    <string name="profile_family_member_progress">%1$s · %2$d/%3$d activities</string>
+    <string name="profile_relationship_mother">Mother</string>
+    <string name="profile_relationship_father">Father</string>
+    <string name="profile_relationship_daughter">Daughter</string>
+    <string name="profile_relationship_son">Son</string>
+    <string name="profile_error_title">Couldn’t load your profile</string>
+    <string name="profile_error_message">Your information is currently unavailable.\nTry again to reload it.</string>
+    <string name="profile_row_arrow" translatable="false">›</string>
+    <string name="profile_error_back" translatable="false">‹</string>
+    <plurals name="profile_friends_count">
+        <item quantity="one">%d friend</item>
+        <item quantity="other">%d friends</item>
+    </plurals>
+    <plurals name="profile_weekly_report_achievements">
+        <item quantity="one">%d achievement earned this week</item>
+        <item quantity="other">%d achievements earned this week</item>
+    </plurals>
+</resources>

@@ -26,7 +26,9 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
@@ -42,14 +44,19 @@ fun PillButton(
     faceColor: Color,
     baseColor: Color,
     modifier: Modifier = Modifier,
-    @DrawableRes iconRes: Int? = null
+    @DrawableRes iconRes: Int? = null,
+    height: Dp = 63.dp,
+    textStyle: TextStyle = MaterialTheme.typography.headlineSmall
 ) {
     val shape = RoundedCornerShape(percent = 50)
+    // The base and the shine keep the same proportion in the large and the small button
+    val depth = height * 0.1f
+    val shineHeight = height * 0.22f
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(63.dp)
+            .height(height)
             .shadow(elevation = 3.dp, shape = shape)
             .clip(shape)
             .clickable(role = Role.Button, onClick = onClick)
@@ -58,14 +65,14 @@ fun PillButton(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .padding(top = 6.dp)
+                .padding(top = depth)
                 .background(baseColor, shape)
         )
         // Face
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .padding(bottom = 6.dp)
+                .padding(bottom = depth)
                 .clip(shape)
                 .background(faceColor)
         ) {
@@ -73,7 +80,7 @@ fun PillButton(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(14.dp)
+                    .height(shineHeight)
                     .background(White.copy(alpha = 0.35f))
             )
             Row(
@@ -84,7 +91,7 @@ fun PillButton(
                     text = text,
                     color = White,
                     maxLines = 1,
-                    style = MaterialTheme.typography.headlineSmall.copy(
+                    style = textStyle.copy(
                         shadow = Shadow(
                             color = baseColor,
                             offset = Offset(0f, 4f),

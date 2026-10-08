@@ -7,13 +7,16 @@ import pe.greenminds.ecomind.iam.domain.model.PendingRegistration
 import pe.greenminds.ecomind.iam.domain.model.Session
 import pe.greenminds.ecomind.iam.domain.model.SocialRole
 import pe.greenminds.ecomind.iam.domain.repositories.AuthRepository
+import pe.greenminds.ecomind.users.interfaces.acl.UsersContextFacade
 import javax.inject.Inject
 import javax.inject.Singleton
 
 // Demo implementation used until the web services are deployed.
 // It is a singleton because the registered accounts only live in memory.
 @Singleton
-class LocalAuthRepository @Inject constructor() : AuthRepository {
+class LocalAuthRepository @Inject constructor(
+    private val usersContextFacade: UsersContextFacade
+) : AuthRepository {
 
     private data class Account(
         val id: Long,
@@ -41,6 +44,18 @@ class LocalAuthRepository @Inject constructor() : AuthRepository {
             role = SocialRole.STUDENT
         )
 
+        // Second fictional account, made up for this app, to see the screens of a parent
+        private val DEMO_PARENT_ACCOUNT = Account(
+            id = 2L,
+            name = "Robin Green",
+            email = "robin.green@example.com",
+            password = "GreenHome2026",
+            role = SocialRole.PARENT
+        )
+
+        // Ids below this value belong to the sample users of the other contexts
+        private const val FIRST_NEW_ACCOUNT_ID = 100L
+
         // No email is sent, so the code is the example of the web services documentation
         private const val DEMO_VERIFICATION_CODE = "482913"
 
@@ -50,7 +65,8 @@ class LocalAuthRepository @Inject constructor() : AuthRepository {
         private const val CODE_DURATION_MILLIS = 20 * 60 * 1000L
     }
 
-    private val accounts = mutableListOf(DEMO_ACCOUNT)
+    private val accounts = mutableListOf(DEMO_ACCOUNT, DEMO_PARENT_ACCOUNT)
+    private var nextAccountId = FIRST_NEW_ACCOUNT_ID
     private var pendingAccount: PendingAccount? = null
 
     override suspend fun signIn(email: String, password: String): Result<Session> {
@@ -101,16 +117,18 @@ class LocalAuthRepository @Inject constructor() : AuthRepository {
             return Result.failure(AuthException(AuthError.VERIFICATION_CODE_INVALID))
         }
 
-        accounts.add(
-            Account(
-                id = accounts.size + 1L,
-                name = pending.name,
-                email = pending.email,
-                password = pending.password,
-                role = pending.role
-            )
+        val account = Account(
+            id = nextAccountId++,
+            name = pending.name,
+            email = pending.email,
+            password = pending.password,
+            role = pending.role
         )
+        accounts.add(account)
         pendingAccount = null
+
+        // As in the web services, creating the account also creates its profile in Users
+        usersContextFacade.createProfile(account.id, account.name, account.role.name)
         return Result.success(Unit)
     }
 }
