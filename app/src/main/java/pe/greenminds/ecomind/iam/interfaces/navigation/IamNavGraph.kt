@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
+import pe.greenminds.ecomind.iam.interfaces.signin.SignInScreen
 import pe.greenminds.ecomind.iam.interfaces.splash.SplashScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
@@ -12,6 +13,9 @@ data object SplashRoute
 
 @Serializable
 data object SignInRoute
+
+@Serializable
+data object SignUpRoute
 
 fun NavGraphBuilder.iamNavGraph(
     navController: NavController,
@@ -32,6 +36,15 @@ fun NavGraphBuilder.iamNavGraph(
     }
 
     composable<SignInRoute> {
+        SignInScreen(
+            onSignedIn = onAuthenticated,
+            onNavigateToSignUp = {
+                navController.navigate(SignUpRoute)
+            }
+        )
+    }
+
+    composable<SignUpRoute> {
         PlaceholderScreen()
     }
 }
