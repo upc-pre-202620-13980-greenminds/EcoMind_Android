@@ -10,6 +10,12 @@
     <string name="store_subtab_inventory">Mi inventario</string>
     <string name="store_section_cosmetics">Avatares y cosméticos</string>
     <string name="store_section_multipliers">Multiplicadores y protectores</string>
+    <string name="store_section_gems">Gemas</string>
+    <string name="store_gem_amount">%1$,d gemas</string>
+    <string name="store_gem_price">S/. %1$.2f</string>
+    <string name="store_mega_bundle">¡Gran paquete!</string>
+    <string name="store_mega_avatars">3 avatares exclusivos</string>
+    <string name="store_mega_multiplier">Multiplicador x3 por una semana</string>
 
     <!-- Cards -->
     <string name="store_badge_in_inventory">En inventario</string>

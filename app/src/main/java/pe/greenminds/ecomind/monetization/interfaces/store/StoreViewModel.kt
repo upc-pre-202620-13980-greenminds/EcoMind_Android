@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.monetization.application.GetStoreItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetBoostItemsUseCase
+import pe.greenminds.ecomind.monetization.application.GetGemPackagesUseCase
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import javax.inject.Inject
 
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class StoreViewModel @Inject constructor(
     private val getStoreItems: GetStoreItemsUseCase,
     private val getBoostItems: GetBoostItemsUseCase,
+    private val getGemPackages: GetGemPackagesUseCase,
     private val getCurrentProfile: GetCurrentProfileUseCase
 ) : ViewModel() {
 
@@ -73,6 +75,7 @@ class StoreViewModel @Inject constructor(
         viewModelScope.launch {
             val items = getStoreItems().getOrDefault(emptyList())
             val boosts = getBoostItems().getOrNull()
+            val gemPackages = getGemPackages().getOrDefault(emptyList())
             val profile = getCurrentProfile().getOrNull()
 
             _state.update { currentState ->
@@ -81,7 +84,8 @@ class StoreViewModel @Inject constructor(
                     gemBalance = profile?.gemBalance ?: 0,
                     items = items,
                     multipliers = boosts?.multipliers.orEmpty(),
-                    protectors = boosts?.protectors.orEmpty()
+                    protectors = boosts?.protectors.orEmpty(),
+                    gemPackages = gemPackages
                 )
             }
         }

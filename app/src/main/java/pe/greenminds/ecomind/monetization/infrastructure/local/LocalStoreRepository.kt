@@ -2,6 +2,7 @@ package pe.greenminds.ecomind.monetization.infrastructure.local
 
 import kotlinx.coroutines.delay
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
+import pe.greenminds.ecomind.monetization.domain.model.GemPackage
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
@@ -136,6 +137,53 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                     description = "Avoid losing your streak for a day.",
                     priceInGems = 150,
                     imageReference = "world_streak_protector"
+                )
+            )
+        )
+    }
+
+    override suspend fun getGemPackages(): Result<List<GemPackage>> {
+        return Result.success(
+            listOf(
+                GemPackage(
+                    id = "40000000-0000-0000-0000-000000000001",
+                    name = "Eco Pack 500",
+                    gemAmount = 500,
+                    price = 5.99,
+                    currency = "PEN",
+                    imageReference = "gem_pack_0"
+                ),
+                GemPackage(
+                    id = "40000000-0000-0000-0000-000000000002",
+                    name = "Eco Pack 1000",
+                    gemAmount = 1_000,
+                    price = 10.99,
+                    currency = "PEN",
+                    imageReference = "gem_pack_1"
+                ),
+                GemPackage(
+                    id = "40000000-0000-0000-0000-000000000003",
+                    name = "Eco Pack 2000",
+                    gemAmount = 2_000,
+                    price = 21.99,
+                    currency = "PEN",
+                    imageReference = "gem_pack_2"
+                ),
+                GemPackage(
+                    id = "40000000-0000-0000-0000-000000000004",
+                    name = "Eco Pack 5000",
+                    gemAmount = 5_000,
+                    price = 65.99,
+                    currency = "PEN",
+                    imageReference = "gem_pack_3"
+                ),
+                GemPackage(
+                    id = "40000000-0000-0000-0000-000000000005",
+                    name = "Mega Bundle",
+                    gemAmount = 10_000,
+                    price = 149.99,
+                    currency = "PEN",
+                    imageReference = "gem_pack_4"
                 )
             )
         )

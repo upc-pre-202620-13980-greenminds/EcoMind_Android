@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.monetization.domain.model.GemPackage
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.DarkGrayText
@@ -118,7 +119,8 @@ private fun StoreContent(
             StoreTab(
                 text = stringResource(R.string.store_tab_gems),
                 selected = state.selectedCategory == StoreCategory.GEMS,
-                onClick = openComingSoon,
+                onClick = { onCategorySelected(StoreCategory.GEMS) },
+                selectedColor = Color(0xFF3DADFF),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -155,10 +157,10 @@ private fun StoreContent(
 
         Text(
             text = stringResource(
-                if (state.selectedCategory == StoreCategory.BOOSTS) {
-                    R.string.store_section_multipliers
-                } else {
-                    R.string.store_section_cosmetics
+                when (state.selectedCategory) {
+                    StoreCategory.COSMETICS -> R.string.store_section_cosmetics
+                    StoreCategory.BOOSTS -> R.string.store_section_multipliers
+                    StoreCategory.GEMS -> R.string.store_section_gems
                 }
             ),
             style = poppinsTextStyle(14, FontWeight.Bold),
@@ -183,6 +185,11 @@ private fun StoreContent(
                 state = state,
                 onBuy = onPurchaseAttempt
             )
+        } else if (state.selectedCategory == StoreCategory.GEMS) {
+            GemPackagesContent(
+                packages = state.gemPackages,
+                onBuy = { showComingSoon = true }
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -192,6 +199,36 @@ private fun StoreContent(
     }
     if (state.showPurchaseComingSoon) {
         ComingSoonDialog(onDismiss = onDismissPurchaseNotice)
+    }
+}
+
+@Composable
+private fun GemPackagesContent(
+    packages: List<GemPackage>,
+    onBuy: () -> Unit
+) {
+    val regularPackages = packages.filter { it.gemAmount != 10_000 }
+    val megaPackage = packages.firstOrNull { it.gemAmount == 10_000 }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        regularPackages.chunked(2).forEach { rowPackages ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                rowPackages.forEach { gemPackage ->
+                    GemPackageCard(
+                        gemPackage = gemPackage,
+                        onBuy = onBuy,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowPackages.size == 1) Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+        megaPackage?.let {
+            MegaGemPackageCard(gemPackage = it, onBuy = onBuy)
+        }
     }
 }
 
@@ -273,11 +310,12 @@ private fun StoreTab(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    outlined: Boolean = false
+    outlined: Boolean = false,
+    selectedColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val shape = RoundedCornerShape(24.dp)
     val background: Color = when {
-        selected -> MaterialTheme.colorScheme.primary
+        selected -> selectedColor
         outlined -> White
         else -> FieldGray
     }

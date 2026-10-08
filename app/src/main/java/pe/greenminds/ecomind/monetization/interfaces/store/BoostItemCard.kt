@@ -111,7 +111,7 @@ private fun BoostCard(
             )
             Text(
                 text = description,
-                style = poppinsTextStyle(8, FontWeight.Normal),
+                style = poppinsTextStyle(10, FontWeight.Normal),
                 color = contentColor
             )
             Spacer(modifier = Modifier.height(4.dp))

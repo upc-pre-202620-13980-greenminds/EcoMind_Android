@@ -1,7 +1,8 @@
 package pe.greenminds.ecomind.monetization.interfaces.store
 
-import pe.greenminds.ecomind.monetization.domain.model.StoreItem
+import pe.greenminds.ecomind.monetization.domain.model.GemPackage
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 
 enum class StoreCategory {
@@ -18,5 +19,6 @@ data class StoreUiState(
     val showPurchaseComingSoon: Boolean = false,
     val items: List<StoreItem> = emptyList(),
     val multipliers: List<Multiplier> = emptyList(),
-    val protectors: List<StreakProtector> = emptyList()
+    val protectors: List<StreakProtector> = emptyList(),
+    val gemPackages: List<GemPackage> = emptyList()
 )
