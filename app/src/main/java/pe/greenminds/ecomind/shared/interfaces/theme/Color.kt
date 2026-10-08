@@ -20,3 +20,12 @@ val SkyBlueDark = Color(0xFF496BE7)
 
 // Gem balance
 val GemBlue = Color(0xFF23BEE3)
+
+// Sections drawn with the green family of the design
+val EcoGreenDark = Color(0xFF2B824B)
+val TextPrimary = Color(0xFF262626)
+val TextSecondary = Color(0xFF73806A)
+val CardBorder = Color(0xFFE8ECE4)
+val RowDivider = Color(0xFFEDF0E9)
+val SurfaceSoft = Color(0xFFFAFBF9)
+val SurfaceTint = Color(0xFFF7F9F4)
