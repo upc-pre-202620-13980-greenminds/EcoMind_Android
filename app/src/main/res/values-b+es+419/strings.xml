@@ -1,4 +1,19 @@
 <resources>
     <string name="logo_content_description">Logotipo de EcoMind</string>
     <string name="placeholder_message">Esta sección estará disponible pronto.</string>
+    <string name="loading">Cargando</string>
+
+    <!-- Sign in -->
+    <string name="sign_in_email_label">Correo electrónico</string>
+    <string name="sign_in_password_label">Contraseña</string>
+    <string name="sign_in_button">Iniciar sesión</string>
+    <string name="sign_in_no_account">¿No tienes una cuenta?</string>
+    <string name="sign_in_sign_up_link">Regístrate</string>
+
+    <!-- Errors -->
+    <string name="error_email_required">Ingresa tu correo electrónico.</string>
+    <string name="error_email_invalid">Ingresa un correo electrónico válido.</string>
+    <string name="error_password_required">Ingresa tu contraseña.</string>
+    <string name="error_invalid_credentials">El correo o la contraseña son incorrectos.</string>
+    <string name="error_unknown">Ocurrió un problema. Inténtalo de nuevo.</string>
 </resources>
