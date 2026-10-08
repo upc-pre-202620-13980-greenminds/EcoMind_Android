@@ -85,6 +85,15 @@ val Typography = Typography(
     )
 )
 
+// Same idea for the sections drawn with Poppins, such as the store
+fun poppinsTextStyle(sizeSp: Int, weight: FontWeight = FontWeight.Normal): TextStyle {
+    return TextStyle(
+        fontFamily = Poppins,
+        fontWeight = weight,
+        fontSize = sizeSp.sp
+    )
+}
+
 // Sections such as Profile use Inter in sizes that the Material slots above do not cover
 fun interTextStyle(sizeSp: Int, weight: FontWeight = FontWeight.Normal): TextStyle {
     return TextStyle(

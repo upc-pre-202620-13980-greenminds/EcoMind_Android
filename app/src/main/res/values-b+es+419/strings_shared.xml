@@ -1,6 +1,9 @@
 <resources>
     <string name="logo_content_description">Logotipo de EcoMind</string>
     <string name="placeholder_message">Esta sección estará disponible pronto.</string>
+    <string name="coming_soon_title">Disponible próximamente</string>
+    <string name="coming_soon_message">Esta parte de EcoMind todavía no está disponible.</string>
+    <string name="coming_soon_dismiss">Entendido</string>
     <string name="loading">Cargando</string>
     <string name="back">Atrás</string>
     <string name="top_bar_gems">%1$d gemas</string>
