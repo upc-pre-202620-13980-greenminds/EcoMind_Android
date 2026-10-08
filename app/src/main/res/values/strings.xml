@@ -11,10 +11,40 @@
     <string name="sign_in_no_account">Don\'t have an account?</string>
     <string name="sign_in_sign_up_link">Sign up</string>
 
+    <!-- Sign up -->
+    <string name="sign_up_name_label">Name</string>
+    <string name="sign_up_role_label">I am a</string>
+    <string name="sign_up_role_student">Student</string>
+    <string name="sign_up_role_parent">Parent</string>
+    <string name="sign_up_confirm_password_label">Confirm password</string>
+    <string name="sign_up_terms_prefix">I agree to the</string>
+    <string name="sign_up_terms_link">terms &amp; policy</string>
+    <string name="sign_up_terms_checkbox_description">I agree to the terms and policy</string>
+    <string name="sign_up_button">Sign up</string>
+    <string name="sign_up_have_account">Already have an account?</string>
+
+    <!-- Email verification -->
+    <string name="back">Back</string>
+    <string name="verify_email_subtitle">You\'re almost there!</string>
+    <string name="verify_email_message">We\'ve sent an email to %1$s. Please check your inbox and enter the code.</string>
+    <string name="verify_email_code_label">Confirmation code</string>
+    <string name="verify_email_button">Confirm email</string>
+    <string name="verify_email_resend">Resend code</string>
+    <string name="verify_email_code_resent">We sent you a new code.</string>
+    <string name="verify_email_go_back">Go back</string>
+
     <!-- Errors -->
     <string name="error_email_required">Enter your email address.</string>
     <string name="error_email_invalid">Enter a valid email address.</string>
     <string name="error_password_required">Enter your password.</string>
     <string name="error_invalid_credentials">The email or password is incorrect.</string>
     <string name="error_unknown">Something went wrong. Try again.</string>
+    <string name="error_name_invalid">Enter your name (2 to 120 characters).</string>
+    <string name="error_role_required">Select a role.</string>
+    <string name="error_password_policy">The password must have 8 to 72 characters, with at least one letter and one digit.</string>
+    <string name="error_password_mismatch">The passwords do not match.</string>
+    <string name="error_terms_required">You must accept the terms and policy.</string>
+    <string name="error_email_conflict">This email address is already registered.</string>
+    <string name="error_code_format">Enter the 6-digit code.</string>
+    <string name="error_code_invalid">The verification code is not valid.</string>
 </resources>

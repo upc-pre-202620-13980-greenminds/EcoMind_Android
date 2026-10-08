@@ -10,10 +10,40 @@
     <string name="sign_in_no_account">¿No tienes una cuenta?</string>
     <string name="sign_in_sign_up_link">Regístrate</string>
 
+    <!-- Sign up -->
+    <string name="sign_up_name_label">Nombre</string>
+    <string name="sign_up_role_label">Soy</string>
+    <string name="sign_up_role_student">Estudiante</string>
+    <string name="sign_up_role_parent">Madre o padre</string>
+    <string name="sign_up_confirm_password_label">Confirmar contraseña</string>
+    <string name="sign_up_terms_prefix">Acepto los</string>
+    <string name="sign_up_terms_link">términos y la política</string>
+    <string name="sign_up_terms_checkbox_description">Acepto los términos y la política</string>
+    <string name="sign_up_button">Registrarme</string>
+    <string name="sign_up_have_account">¿Ya tienes una cuenta?</string>
+
+    <!-- Email verification -->
+    <string name="back">Atrás</string>
+    <string name="verify_email_subtitle">¡Ya casi terminas!</string>
+    <string name="verify_email_message">Enviamos un correo a %1$s. Revisa tu bandeja de entrada e ingresa el código.</string>
+    <string name="verify_email_code_label">Código de confirmación</string>
+    <string name="verify_email_button">Confirmar correo</string>
+    <string name="verify_email_resend">Reenviar código</string>
+    <string name="verify_email_code_resent">Te enviamos un código nuevo.</string>
+    <string name="verify_email_go_back">Volver</string>
+
     <!-- Errors -->
     <string name="error_email_required">Ingresa tu correo electrónico.</string>
     <string name="error_email_invalid">Ingresa un correo electrónico válido.</string>
     <string name="error_password_required">Ingresa tu contraseña.</string>
     <string name="error_invalid_credentials">El correo o la contraseña son incorrectos.</string>
     <string name="error_unknown">Ocurrió un problema. Inténtalo de nuevo.</string>
+    <string name="error_name_invalid">Ingresa tu nombre (de 2 a 120 caracteres).</string>
+    <string name="error_role_required">Selecciona un rol.</string>
+    <string name="error_password_policy">La contraseña debe tener entre 8 y 72 caracteres, con al menos una letra y un número.</string>
+    <string name="error_password_mismatch">Las contraseñas no coinciden.</string>
+    <string name="error_terms_required">Debes aceptar los términos y la política.</string>
+    <string name="error_email_conflict">Este correo electrónico ya está registrado.</string>
+    <string name="error_code_format">Ingresa el código de 6 dígitos.</string>
+    <string name="error_code_invalid">El código de verificación no es válido.</string>
 </resources>

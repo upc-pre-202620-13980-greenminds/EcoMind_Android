@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.iam.interfaces.signin.SignInScreen
+import pe.greenminds.ecomind.iam.interfaces.signup.SignUpScreen
 import pe.greenminds.ecomind.iam.interfaces.splash.SplashScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
@@ -16,6 +17,9 @@ data object SignInRoute
 
 @Serializable
 data object SignUpRoute
+
+@Serializable
+data object TermsRoute
 
 fun NavGraphBuilder.iamNavGraph(
     navController: NavController,
@@ -45,6 +49,18 @@ fun NavGraphBuilder.iamNavGraph(
     }
 
     composable<SignUpRoute> {
+        SignUpScreen(
+            // Sign up is opened from sign in, so going back returns to it
+            onNavigateToSignIn = {
+                navController.popBackStack()
+            },
+            onOpenTerms = {
+                navController.navigate(TermsRoute)
+            }
+        )
+    }
+
+    composable<TermsRoute> {
         PlaceholderScreen()
     }
 }
