@@ -14,4 +14,11 @@ object EmailAddress {
 
     // Accounts are identified by the email in lowercase and without surrounding spaces
     fun normalize(value: String): String = value.trim().lowercase()
+
+    // Hides the part before the @ so the full address is not shown on screen
+    fun mask(value: String): String {
+        val atIndex = value.indexOf('@')
+        if (atIndex <= 0) return value
+        return "*".repeat(atIndex) + value.substring(atIndex)
+    }
 }

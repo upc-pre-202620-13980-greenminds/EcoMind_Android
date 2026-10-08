@@ -2,6 +2,8 @@ package pe.greenminds.ecomind.iam.domain.model
 
 enum class AuthError {
     INVALID_CREDENTIALS,
+    EMAIL_CONFLICT,
+    VERIFICATION_CODE_INVALID,
     UNKNOWN
 }
 
