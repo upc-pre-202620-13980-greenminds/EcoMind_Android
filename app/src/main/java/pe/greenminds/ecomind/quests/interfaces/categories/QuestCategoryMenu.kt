@@ -1,102 +1,230 @@
 package pe.greenminds.ecomind.quests.interfaces.categories
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.quests.domain.model.QuestCategory
-import pe.greenminds.ecomind.quests.domain.model.QuestType
-import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
-import pe.greenminds.ecomind.shared.interfaces.theme.CoralRed
-import pe.greenminds.ecomind.shared.interfaces.theme.CoralRedDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.LeafGreen
-import pe.greenminds.ecomind.shared.interfaces.theme.LeafGreenDark
-import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
-import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
-import pe.greenminds.ecomind.shared.interfaces.theme.SunYellow
-import pe.greenminds.ecomind.shared.interfaces.theme.SunYellowDark
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 
-// Menu drawn over the main menu. Each button opens the quest list with a filter:
-// onOpenList receives the route that carries it.
+private val CATEGORY_PILL_HEIGHT = 63.dp
+
 @Composable
 fun QuestCategoryMenu(
-    onOpenList: (QuestListRoute) -> Unit,
+    expanded: Boolean,
+    selectedFilter: QuestListFilter,
+    onSelectFilter: (QuestListFilter) -> Unit,
+    onOpenSearch: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val closeLabel = stringResource(R.string.quest_close_menu)
+    val optionStep = with(LocalDensity.current) { 79.dp.roundToPx() }
+    val searchExtraDistance = with(LocalDensity.current) { 34.dp.roundToPx() }
+    val availableFilters = QuestListFilter.entries.filter { it != selectedFilter }
+    var animatedExpanded by remember { mutableStateOf(false) }
+    var promotedFilter by remember { mutableStateOf<QuestListFilter?>(null) }
+    val promotedIndex = availableFilters.indexOf(promotedFilter)
+    val promotedTravel = if (promotedIndex >= 0) 79.dp * (promotedIndex + 1) else 0.dp
+    val menuTransition = updateTransition(
+        targetState = animatedExpanded,
+        label = "category menu"
+    )
+    val promotedOffset by menuTransition.animateDp(
+        transitionSpec = {
+            spring(
+                dampingRatio = 1f,
+                stiffness = Spring.StiffnessMediumLow
+            )
+        },
+        label = "promoted category offset"
+    ) { isExpanded ->
+        if (isExpanded) 0.dp else -promotedTravel
+    }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            // Lets the main menu show through, as in the design
-            .background(White.copy(alpha = 0.63f))
-            // Tapping outside the buttons closes the menu; no ripple over the whole screen
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClickLabel = closeLabel,
-                onClick = onDismiss
-            )
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 28.dp)
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            withFrameNanos { }
+        }
+        animatedExpanded = expanded
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        menuTransition.AnimatedVisibility(
+            visible = { it },
+            enter = fadeIn(tween(durationMillis = 320)),
+            exit = fadeOut(tween(durationMillis = 220))
         ) {
-            PillButton(
-                text = stringResource(R.string.quest_category_energy),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.ENERGY.name)) },
-                faceColor = SunYellow,
-                baseColor = SunYellowDark,
-                iconRes = R.drawable.ic_lightbulb
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(White.copy(alpha = 0.63f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClickLabel = closeLabel,
+                        onClick = onDismiss
+                    )
             )
-            // The water drop icon has not been exported yet
-            PillButton(
-                text = stringResource(R.string.quest_category_water),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.WATER.name)) },
-                faceColor = SkyBlue,
-                baseColor = SkyBlueDark
-            )
-            PillButton(
-                text = stringResource(R.string.quest_category_recycle),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.RECYCLE.name)) },
-                faceColor = LeafGreen,
-                baseColor = LeafGreenDark,
-                iconRes = R.drawable.ic_category_recycle
-            )
-            PillButton(
-                text = stringResource(R.string.quest_daily_quest),
-                onClick = { onOpenList(QuestListRoute(questType = QuestType.DAILY_QUEST.name)) },
-                faceColor = CoralRed,
-                baseColor = CoralRedDark,
-                iconRes = R.drawable.ic_category_daily_quest
-            )
-            PillButton(
-                text = stringResource(R.string.quest_search_placeholder),
-                onClick = { onOpenList(QuestListRoute(focusSearch = true)) },
-                faceColor = EcoGreen,
-                baseColor = EcoGreenDark,
-                iconRes = R.drawable.ic_category_search
+        }
+
+        Column(
+            modifier = Modifier
+                .zIndex(1f)
+                .verticalScroll(
+                    state = rememberScrollState(),
+                    enabled = expanded
+                )
+                .padding(horizontal = 28.dp)
+                .padding(top = 60.dp, bottom = 28.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(CATEGORY_PILL_HEIGHT)
+                    .zIndex(2f)
+            ) {
+                QuestCategoryPill(
+                    filter = selectedFilter,
+                    onClick = onDismiss
+                )
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                availableFilters.forEachIndexed { index, filter ->
+                    val travelDistance = optionStep * (index + 1)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(CATEGORY_PILL_HEIGHT)
+                    ) {
+                        menuTransition.AnimatedVisibility(
+                            visible = { it },
+                            enter = slideInVertically(
+                                animationSpec = spring(
+                                    dampingRatio = 0.76f,
+                                    stiffness = Spring.StiffnessMediumLow
+                                ),
+                                initialOffsetY = { -travelDistance }
+                            ),
+                            exit = slideOutVertically(
+                                animationSpec = spring(
+                                    dampingRatio = 1f,
+                                    stiffness = Spring.StiffnessMediumLow
+                                ),
+                                targetOffsetY = { -travelDistance }
+                            ),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .alpha(if (promotedFilter == filter) 0f else 1f)
+                                .zIndex(0f)
+                        ) {
+                            QuestCategoryPill(
+                                filter = filter,
+                                onClick = {
+                                    if (promotedFilter == null) {
+                                        promotedFilter = filter
+                                        onSelectFilter(filter)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+                val searchTravelDistance =
+                    optionStep * (availableFilters.size + 1) + searchExtraDistance
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(CATEGORY_PILL_HEIGHT)
+                ) {
+                    menuTransition.AnimatedVisibility(
+                        visible = { it },
+                        enter = slideInVertically(
+                            animationSpec = spring(
+                                dampingRatio = 0.76f,
+                                stiffness = Spring.StiffnessMediumLow
+                            ),
+                            initialOffsetY = { -searchTravelDistance }
+                        ),
+                        exit = slideOutVertically(
+                            animationSpec = spring(
+                                dampingRatio = 1f,
+                                stiffness = Spring.StiffnessMediumLow
+                            ),
+                            targetOffsetY = { -searchTravelDistance }
+                        ),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .zIndex(0f)
+                    ) {
+                        PillButton(
+                            text = stringResource(R.string.quest_search_placeholder),
+                            onClick = onOpenSearch,
+                            faceColor = EcoGreen,
+                            baseColor = EcoGreenDark,
+                            iconRes = R.drawable.ic_category_search
+                        )
+                    }
+                }
+            }
+        }
+
+        promotedFilter?.let { filter ->
+            QuestCategoryPill(
+                filter = filter,
+                onClick = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 28.dp)
+                    .padding(top = 60.dp)
+                    .offset(y = promotedTravel + promotedOffset)
+                    .zIndex(3f)
             )
         }
     }
@@ -106,6 +234,12 @@ fun QuestCategoryMenu(
 @Composable
 private fun QuestCategoryMenuPreview() {
     EcoMindTheme {
-        QuestCategoryMenu(onOpenList = {}, onDismiss = {})
+        QuestCategoryMenu(
+            expanded = true,
+            selectedFilter = QuestListFilter.ENERGY,
+            onSelectFilter = {},
+            onOpenSearch = {},
+            onDismiss = {}
+        )
     }
 }

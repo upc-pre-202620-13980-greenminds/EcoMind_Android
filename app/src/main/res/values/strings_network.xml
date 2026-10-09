@@ -1,0 +1,3 @@
+<resources>
+    <string name="local_backend_permission_required">Allow local network access to connect to the development server.</string>
+</resources>

@@ -4,14 +4,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import pe.greenminds.ecomind.quests.interfaces.list.QuestListScreen
-import pe.greenminds.ecomind.quests.interfaces.progress.ProgressScreen
+import pe.greenminds.ecomind.quests.interfaces.search.QuestSearchScreen
+import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
 // Opened from the main menu, not from the bottom bar.
 // category and questType carry the name of the enum value; null means "any".
 @Serializable
-data class QuestListRoute(
+data class QuestSearchRoute(
     val category: String? = null,
     val questType: String? = null,
     val focusSearch: Boolean = false
@@ -30,13 +30,10 @@ data class QuestDetailRoute(val questId: Long)
 data object QuestFiltersRoute
 
 fun NavGraphBuilder.questsNavGraph(navController: NavController) {
-    composable<QuestListRoute> {
-        QuestListScreen(
+    composable<QuestSearchRoute> {
+        QuestSearchScreen(
             onOpenQuest = { questId ->
                 navController.navigate(QuestDetailRoute(questId)) { launchSingleTop = true }
-            },
-            onOpenFilters = {
-                navController.navigate(QuestFiltersRoute) { launchSingleTop = true }
             }
         )
     }
@@ -45,6 +42,8 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
         ProgressScreen()
     }
 
-    composable<QuestDetailRoute> { PlaceholderScreen() }
+    composable<QuestDetailRoute> {
+        pe.greenminds.ecomind.quests.presentation.ui.execution.QuestExecutionScreen(onBack = { navController.popBackStack() })
+    }
     composable<QuestFiltersRoute> { PlaceholderScreen() }
 }

@@ -32,12 +32,14 @@ android {
                 enable = false
             }
             // Placeholder: replace with the real host once the backend is deployed
-            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend.example.com/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend-yxp7.onrender.com/api/v1/\"")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
+
     }
     buildFeatures {
         compose = true
@@ -46,6 +48,8 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt.coil3:coil-compose:3.6.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -55,6 +59,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
+    coreLibraryDesugaring(libs.desugar.jdk)
 
     // Hilt
     implementation(libs.hilt.android)
