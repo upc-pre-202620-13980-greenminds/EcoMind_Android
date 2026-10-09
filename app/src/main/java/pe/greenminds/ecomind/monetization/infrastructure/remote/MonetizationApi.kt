@@ -18,8 +18,23 @@ interface MonetizationApi {
     @GET("monetization/me/wallet")
     suspend fun getWallet(): Response<GemWalletDto>
 
+    @GET("monetization/multipliers")
+    suspend fun getMultipliers(): Response<List<MultiplierDto>>
+
+    @GET("monetization/streak-protectors")
+    suspend fun getStreakProtectors(): Response<List<StreakProtectorDto>>
+
+    @GET("monetization/gem-packages")
+    suspend fun getGemPackages(): Response<List<GemPackageDto>>
+
     @POST("monetization/me/cosmetics/purchases")
     suspend fun purchaseCosmetic(@Body request: BuyItemDto): Response<UserCosmeticDto>
+
+    @POST("monetization/me/multipliers/purchases")
+    suspend fun purchaseMultiplier(@Body request: BuyItemDto): Response<OwnedMultiplierDto>
+
+    @POST("monetization/me/protectors/purchases")
+    suspend fun purchaseStreakProtector(@Body request: BuyItemDto): Response<OwnedProtectorDto>
 
     @PUT("monetization/me/cosmetics/{cosmeticId}/equipped")
     suspend fun equipCosmetic(@Path("cosmeticId") cosmeticId: String): Response<Unit>

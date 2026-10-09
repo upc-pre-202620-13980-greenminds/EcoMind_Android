@@ -8,7 +8,6 @@ import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
 import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
-import pe.greenminds.ecomind.monetization.infrastructure.local.LocalStoreRepository
 import pe.greenminds.ecomind.monetization.infrastructure.remote.BuyItemDto
 import pe.greenminds.ecomind.monetization.infrastructure.remote.MonetizationApi
 import pe.greenminds.ecomind.monetization.infrastructure.remote.toDomain
@@ -20,8 +19,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class RemoteStoreRepository @Inject constructor(
-    private val api: MonetizationApi,
-    private val localCatalog: LocalStoreRepository
+    private val api: MonetizationApi
 ) : StoreRepository {
 
     override suspend fun getCosmetics(): Result<List<Cosmetic>> = execute(
@@ -40,7 +38,7 @@ class RemoteStoreRepository @Inject constructor(
                 BuyItemDto(itemId = cosmeticId, requestId = UUID.randomUUID().toString())
             )
         },
-        transform = { _ -> kotlin.Unit }
+        transform = { _ -> }
     )
 
     override suspend fun setCosmeticEquipped(
@@ -55,16 +53,38 @@ class RemoteStoreRepository @Inject constructor(
         transform = { it.balance }
     )
 
-    // These tabs will be migrated in the next steps. Keeping their current data avoids
-    // disabling already completed UI while cosmetics starts using the backend.
-    override suspend fun getMultipliers(): Result<List<Multiplier>> =
-        localCatalog.getMultipliers()
+    override suspend fun getMultipliers(): Result<List<Multiplier>> = execute(
+        request = { api.getMultipliers() },
+        transform = { multipliers -> multipliers.map { it.toDomain() } }
+    )
 
-    override suspend fun getStreakProtectors(): Result<List<StreakProtector>> =
-        localCatalog.getStreakProtectors()
+    override suspend fun purchaseMultiplier(multiplierId: String): Result<Unit> = execute(
+        request = {
+            api.purchaseMultiplier(
+                BuyItemDto(itemId = multiplierId, requestId = UUID.randomUUID().toString())
+            )
+        },
+        transform = { _ -> }
+    )
 
-    override suspend fun getGemPackages(): Result<List<GemPackage>> =
-        localCatalog.getGemPackages()
+    override suspend fun getStreakProtectors(): Result<List<StreakProtector>> = execute(
+        request = { api.getStreakProtectors() },
+        transform = { protectors -> protectors.map { it.toDomain() } }
+    )
+
+    override suspend fun purchaseStreakProtector(protectorId: String): Result<Unit> = execute(
+        request = {
+            api.purchaseStreakProtector(
+                BuyItemDto(itemId = protectorId, requestId = UUID.randomUUID().toString())
+            )
+        },
+        transform = { _ -> }
+    )
+
+    override suspend fun getGemPackages(): Result<List<GemPackage>> = execute(
+        request = { api.getGemPackages() },
+        transform = { packages -> packages.map { it.toDomain() } }
+    )
 
     private suspend fun <Dto : Any, Model> execute(
         request: suspend () -> Response<Dto>,

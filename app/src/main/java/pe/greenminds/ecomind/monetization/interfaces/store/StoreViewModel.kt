@@ -14,9 +14,13 @@ import pe.greenminds.ecomind.monetization.application.GetBoostItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetGemPackagesUseCase
 import pe.greenminds.ecomind.monetization.application.GetGemBalanceUseCase
 import pe.greenminds.ecomind.monetization.application.PurchaseCosmeticUseCase
+import pe.greenminds.ecomind.monetization.application.PurchaseMultiplierUseCase
+import pe.greenminds.ecomind.monetization.application.PurchaseStreakProtectorUseCase
 import pe.greenminds.ecomind.monetization.application.SetCosmeticEquippedUseCase
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
+import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import javax.inject.Inject
@@ -28,6 +32,8 @@ class StoreViewModel @Inject constructor(
     private val getGemPackages: GetGemPackagesUseCase,
     private val getGemBalance: GetGemBalanceUseCase,
     private val purchaseCosmetic: PurchaseCosmeticUseCase,
+    private val purchaseMultiplier: PurchaseMultiplierUseCase,
+    private val purchaseStreakProtector: PurchaseStreakProtectorUseCase,
     private val setCosmeticEquipped: SetCosmeticEquippedUseCase,
     private val getCurrentProfile: GetCurrentProfileUseCase,
     private val gemBalanceStore: GemBalanceStore
@@ -62,33 +68,12 @@ class StoreViewModel @Inject constructor(
         }
     }
 
-    fun attemptPurchase(priceInGems: Int) {
-        val currentBalance = _state.value.gemBalance
-        if (currentBalance < priceInGems) {
-            _state.update {
-                it.copy(
-                    insufficientRequiredGems = priceInGems,
-                    showPurchaseComingSoon = false
-                )
-            }
-            viewModelScope.launch {
-                delay(ERROR_DURATION_MILLIS)
-                _state.update { state ->
-                    if (state.insufficientRequiredGems == priceInGems) {
-                        state.copy(insufficientRequiredGems = null)
-                    } else {
-                        state
-                    }
-                }
-            }
-        } else {
-            _state.update {
-                it.copy(
-                    insufficientRequiredGems = null,
-                    showPurchaseComingSoon = true
-                )
-            }
-        }
+    fun buyMultiplier(item: Multiplier) {
+        buyBoost(item.priceInGems) { purchaseMultiplier(item.id) }
+    }
+
+    fun buyStreakProtector(item: StreakProtector) {
+        buyBoost(item.priceInGems) { purchaseStreakProtector(item.id) }
     }
 
     fun dismissPurchaseNotice() {
@@ -142,6 +127,30 @@ class StoreViewModel @Inject constructor(
                     state.copy(insufficientRequiredGems = null)
                 } else {
                     state
+                }
+            }
+        }
+    }
+
+    private fun buyBoost(
+        priceInGems: Int,
+        purchase: suspend () -> Result<Unit>
+    ) {
+        if (_state.value.gemBalance < priceInGems) {
+            showInsufficientGems(priceInGems)
+            return
+        }
+
+        viewModelScope.launch {
+            purchase().onSuccess {
+                val newBalance = getGemBalance()
+                    .getOrDefault(_state.value.gemBalance - priceInGems)
+                gemBalanceStore.update(newBalance)
+                _state.update {
+                    it.copy(
+                        gemBalance = newBalance,
+                        insufficientRequiredGems = null
+                    )
                 }
             }
         }

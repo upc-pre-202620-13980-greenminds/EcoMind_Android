@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.DarkGrayText
@@ -62,7 +64,8 @@ fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
         onCategorySelected = viewModel::selectCategory,
         onCosmeticViewSelected = viewModel::selectCosmeticView,
         onCosmeticAction = viewModel::onCosmeticAction,
-        onPurchaseAttempt = viewModel::attemptPurchase,
+        onMultiplierBuy = viewModel::buyMultiplier,
+        onProtectorBuy = viewModel::buyStreakProtector,
         onDismissPurchaseNotice = viewModel::dismissPurchaseNotice
     )
 }
@@ -73,7 +76,8 @@ private fun StoreContent(
     onCategorySelected: (StoreCategory) -> Unit,
     onCosmeticViewSelected: (CosmeticView) -> Unit,
     onCosmeticAction: (StoreItem) -> Unit,
-    onPurchaseAttempt: (Int) -> Unit,
+    onMultiplierBuy: (Multiplier) -> Unit,
+    onProtectorBuy: (StreakProtector) -> Unit,
     onDismissPurchaseNotice: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -197,7 +201,8 @@ private fun StoreContent(
         } else if (state.selectedCategory == StoreCategory.BOOSTS) {
             BoostList(
                 state = state,
-                onBuy = onPurchaseAttempt
+                onMultiplierBuy = onMultiplierBuy,
+                onProtectorBuy = onProtectorBuy
             )
         } else if (state.selectedCategory == StoreCategory.GEMS) {
             GemPackagesContent(
@@ -267,18 +272,22 @@ private fun InsufficientGemsBanner(requiredGems: Int, currentGems: Int) {
 }
 
 @Composable
-private fun BoostList(state: StoreUiState, onBuy: (Int) -> Unit) {
+private fun BoostList(
+    state: StoreUiState,
+    onMultiplierBuy: (Multiplier) -> Unit,
+    onProtectorBuy: (StreakProtector) -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         state.multipliers.forEach { multiplier ->
             MultiplierCard(
                 multiplier = multiplier,
-                onBuy = { onBuy(multiplier.priceInGems) }
+                onBuy = { onMultiplierBuy(multiplier) }
             )
         }
         state.protectors.forEach { protector ->
             StreakProtectorCard(
                 protector = protector,
-                onBuy = { onBuy(protector.priceInGems) }
+                onBuy = { onProtectorBuy(protector) }
             )
         }
     }
@@ -364,7 +373,8 @@ private fun StoreContentPreview() {
             onCategorySelected = {},
             onCosmeticViewSelected = {},
             onCosmeticAction = {},
-            onPurchaseAttempt = {},
+            onMultiplierBuy = {},
+            onProtectorBuy = {},
             onDismissPurchaseNotice = {}
         )
     }

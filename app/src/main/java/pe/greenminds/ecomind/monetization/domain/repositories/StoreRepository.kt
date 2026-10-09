@@ -23,7 +23,11 @@ interface StoreRepository {
 
     suspend fun getMultipliers(): Result<List<Multiplier>>
 
+    suspend fun purchaseMultiplier(multiplierId: String): Result<Unit>
+
     suspend fun getStreakProtectors(): Result<List<StreakProtector>>
+
+    suspend fun purchaseStreakProtector(protectorId: String): Result<Unit>
 
     suspend fun getGemPackages(): Result<List<GemPackage>>
 }

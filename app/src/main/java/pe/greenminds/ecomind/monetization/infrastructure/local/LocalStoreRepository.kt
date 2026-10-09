@@ -218,6 +218,9 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
         )
     }
 
+    override suspend fun purchaseMultiplier(multiplierId: String): Result<Unit> =
+        Result.success(Unit)
+
     override suspend fun getStreakProtectors(): Result<List<StreakProtector>> {
         return Result.success(
             listOf(
@@ -231,6 +234,9 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
             )
         )
     }
+
+    override suspend fun purchaseStreakProtector(protectorId: String): Result<Unit> =
+        Result.success(Unit)
 
     override suspend fun getGemPackages(): Result<List<GemPackage>> {
         return Result.success(

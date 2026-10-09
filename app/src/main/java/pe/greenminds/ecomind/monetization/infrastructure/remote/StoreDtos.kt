@@ -51,3 +51,27 @@ data class BuyItemDto(
 )
 
 data class GemWalletDto(val balance: Int)
+
+data class MultiplierDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val factor: Double,
+    val durationMinutes: Int,
+    val priceInGems: Int
+)
+
+data class StreakProtectorDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val priceInGems: Int
+)
+
+data class GemPackageDto(
+    val id: String,
+    val name: String,
+    val gemAmount: Int,
+    val price: Double,
+    val currency: String
+)
