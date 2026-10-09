@@ -122,17 +122,10 @@ fun QuestCategoryMenu(
                     .height(CATEGORY_PILL_HEIGHT)
                     .zIndex(2f)
             ) {
-                menuTransition.AnimatedVisibility(
-                    visible = { it },
-                    enter = fadeIn(tween(durationMillis = 80)),
-                    exit = fadeOut(tween(durationMillis = 1, delayMillis = 400)),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    QuestCategoryPill(
-                        filter = selectedFilter,
-                        onClick = onDismiss
-                    )
-                }
+                QuestCategoryPill(
+                    filter = selectedFilter,
+                    onClick = onDismiss
+                )
             }
 
             Column(
