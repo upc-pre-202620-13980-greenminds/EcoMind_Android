@@ -9,6 +9,7 @@
     <string name="store_subtab_store">Tienda</string>
     <string name="store_subtab_inventory">Mi inventario</string>
     <string name="store_section_cosmetics">Avatares y cosméticos</string>
+    <string name="store_section_inventory">Mi inventario</string>
     <string name="store_section_multipliers">Multiplicadores y protectores</string>
     <string name="store_section_gems">Gemas</string>
     <string name="store_gem_amount">%1$,d gemas</string>

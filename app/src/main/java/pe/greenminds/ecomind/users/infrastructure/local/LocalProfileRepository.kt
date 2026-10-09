@@ -41,4 +41,18 @@ class LocalProfileRepository @Inject constructor(
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) {
         dataSource.addProfile(userId, name, socialRole.name)
     }
+
+    override suspend fun spendGems(userId: Long, amount: Int): Result<Int> {
+        val index = dataSource.profiles.indexOfFirst { it.id == userId }
+        if (index == -1) {
+            return Result.failure(IllegalArgumentException("The user profile was not found"))
+        }
+        val profile = dataSource.profiles[index]
+        if (profile.gemBalance < amount) {
+            return Result.failure(IllegalArgumentException("Insufficient gems"))
+        }
+        val newBalance = profile.gemBalance - amount
+        dataSource.profiles[index] = profile.copy(gemBalance = newBalance)
+        return Result.success(newBalance)
+    }
 }

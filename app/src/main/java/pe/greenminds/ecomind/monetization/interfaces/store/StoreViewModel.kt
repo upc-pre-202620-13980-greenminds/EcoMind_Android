@@ -12,7 +12,13 @@ import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.monetization.application.GetStoreItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetBoostItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetGemPackagesUseCase
+import pe.greenminds.ecomind.monetization.application.PurchaseCosmeticUseCase
+import pe.greenminds.ecomind.monetization.application.SetCosmeticEquippedUseCase
+import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
+import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
+import pe.greenminds.ecomind.users.interfaces.acl.UsersContextFacade
+import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +26,11 @@ class StoreViewModel @Inject constructor(
     private val getStoreItems: GetStoreItemsUseCase,
     private val getBoostItems: GetBoostItemsUseCase,
     private val getGemPackages: GetGemPackagesUseCase,
-    private val getCurrentProfile: GetCurrentProfileUseCase
+    private val purchaseCosmetic: PurchaseCosmeticUseCase,
+    private val setCosmeticEquipped: SetCosmeticEquippedUseCase,
+    private val getCurrentProfile: GetCurrentProfileUseCase,
+    private val usersContext: UsersContextFacade,
+    private val gemBalanceStore: GemBalanceStore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(StoreUiState())
@@ -35,6 +45,20 @@ class StoreViewModel @Inject constructor(
     fun selectCategory(category: StoreCategory) {
         _state.update {
             it.copy(selectedCategory = category, insufficientRequiredGems = null)
+        }
+    }
+
+    fun selectCosmeticView(view: CosmeticView) {
+        _state.update {
+            it.copy(selectedCosmeticView = view, insufficientRequiredGems = null)
+        }
+    }
+
+    fun onCosmeticAction(item: StoreItem) {
+        when (item.ownership) {
+            CosmeticOwnership.NOT_OWNED -> buyCosmetic(item)
+            CosmeticOwnership.IN_INVENTORY -> changeEquipped(item, equipped = true)
+            CosmeticOwnership.EQUIPPED -> changeEquipped(item, equipped = false)
         }
     }
 
@@ -71,16 +95,71 @@ class StoreViewModel @Inject constructor(
         _state.update { it.copy(showPurchaseComingSoon = false) }
     }
 
+    private fun buyCosmetic(item: StoreItem) {
+        val price = item.cosmetic.priceInGems
+        if (_state.value.gemBalance < price) {
+            showInsufficientGems(price)
+            return
+        }
+
+        viewModelScope.launch {
+            purchaseCosmetic(item.cosmetic.id).onSuccess {
+                val userId = _state.value.userId ?: return@onSuccess
+                val newBalance = usersContext.spendGems(userId, price)
+                    .getOrDefault(_state.value.gemBalance - price)
+                val refreshedItems = getStoreItems().getOrDefault(_state.value.items)
+                gemBalanceStore.update(newBalance)
+                _state.update {
+                    it.copy(
+                        gemBalance = newBalance,
+                        items = refreshedItems,
+                        insufficientRequiredGems = null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun changeEquipped(item: StoreItem, equipped: Boolean) {
+        viewModelScope.launch {
+            setCosmeticEquipped(item.cosmetic.id, equipped).onSuccess {
+                val refreshedItems = getStoreItems().getOrDefault(_state.value.items)
+                _state.update { it.copy(items = refreshedItems) }
+            }
+        }
+    }
+
+    private fun showInsufficientGems(priceInGems: Int) {
+        _state.update {
+            it.copy(
+                insufficientRequiredGems = priceInGems,
+                showPurchaseComingSoon = false
+            )
+        }
+        viewModelScope.launch {
+            delay(ERROR_DURATION_MILLIS)
+            _state.update { state ->
+                if (state.insufficientRequiredGems == priceInGems) {
+                    state.copy(insufficientRequiredGems = null)
+                } else {
+                    state
+                }
+            }
+        }
+    }
+
     private fun loadStore() {
         viewModelScope.launch {
             val items = getStoreItems().getOrDefault(emptyList())
             val boosts = getBoostItems().getOrNull()
             val gemPackages = getGemPackages().getOrDefault(emptyList())
             val profile = getCurrentProfile().getOrNull()
+            profile?.let { gemBalanceStore.update(it.gemBalance) }
 
             _state.update { currentState ->
                 currentState.copy(
                     isLoading = false,
+                    userId = profile?.id,
                     gemBalance = profile?.gemBalance ?: 0,
                     items = items,
                     multipliers = boosts?.multipliers.orEmpty(),

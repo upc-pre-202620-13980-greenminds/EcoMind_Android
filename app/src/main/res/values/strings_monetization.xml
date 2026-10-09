@@ -9,6 +9,7 @@
     <string name="store_subtab_store">Store</string>
     <string name="store_subtab_inventory">My Inventory</string>
     <string name="store_section_cosmetics">Avatars and cosmetics</string>
+    <string name="store_section_inventory">My inventory</string>
     <string name="store_section_multipliers">Multipliers and protectors</string>
     <string name="store_section_gems">Gems</string>
     <string name="store_gem_amount">%1$,d gems</string>

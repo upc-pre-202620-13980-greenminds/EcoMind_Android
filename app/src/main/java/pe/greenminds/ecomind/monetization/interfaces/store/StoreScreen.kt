@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
@@ -59,6 +60,8 @@ fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
     StoreContent(
         state = state,
         onCategorySelected = viewModel::selectCategory,
+        onCosmeticViewSelected = viewModel::selectCosmeticView,
+        onCosmeticAction = viewModel::onCosmeticAction,
         onPurchaseAttempt = viewModel::attemptPurchase,
         onDismissPurchaseNotice = viewModel::dismissPurchaseNotice
     )
@@ -68,13 +71,13 @@ fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
 private fun StoreContent(
     state: StoreUiState,
     onCategorySelected: (StoreCategory) -> Unit,
+    onCosmeticViewSelected: (CosmeticView) -> Unit,
+    onCosmeticAction: (StoreItem) -> Unit,
     onPurchaseAttempt: (Int) -> Unit,
     onDismissPurchaseNotice: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Everything that is drawn but not built yet opens the same notice
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
-    val openComingSoon = { showComingSoon = true }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,15 +136,15 @@ private fun StoreContent(
         ) {
             StoreTab(
                 text = stringResource(R.string.store_subtab_store),
-                selected = true,
-                onClick = {},
+                selected = state.selectedCosmeticView == CosmeticView.STORE,
+                onClick = { onCosmeticViewSelected(CosmeticView.STORE) },
                 modifier = Modifier.weight(1f)
             )
             StoreTab(
                 text = stringResource(R.string.store_subtab_inventory),
-                selected = false,
-                onClick = openComingSoon,
-                outlined = true,
+                selected = state.selectedCosmeticView == CosmeticView.INVENTORY,
+                onClick = { onCosmeticViewSelected(CosmeticView.INVENTORY) },
+                outlined = state.selectedCosmeticView != CosmeticView.INVENTORY,
                 modifier = Modifier.weight(1f)
             )
             // Empty third column, so the two tabs keep the width they have in the design
@@ -158,7 +161,13 @@ private fun StoreContent(
         Text(
             text = stringResource(
                 when (state.selectedCategory) {
-                    StoreCategory.COSMETICS -> R.string.store_section_cosmetics
+                    StoreCategory.COSMETICS -> if (
+                        state.selectedCosmeticView == CosmeticView.INVENTORY
+                    ) {
+                        R.string.store_section_inventory
+                    } else {
+                        R.string.store_section_cosmetics
+                    }
                     StoreCategory.BOOSTS -> R.string.store_section_multipliers
                     StoreCategory.GEMS -> R.string.store_section_gems
                 }
@@ -179,7 +188,12 @@ private fun StoreContent(
                     .semantics { contentDescription = loadingDescription }
             )
         } else if (state.selectedCategory == StoreCategory.COSMETICS) {
-            StoreGrid(items = state.items, onPurchaseAttempt = onPurchaseAttempt)
+            val visibleItems = if (state.selectedCosmeticView == CosmeticView.INVENTORY) {
+                state.items.filter { it.ownership != CosmeticOwnership.NOT_OWNED }
+            } else {
+                state.items
+            }
+            StoreGrid(items = visibleItems, onAction = onCosmeticAction)
         } else if (state.selectedCategory == StoreCategory.BOOSTS) {
             BoostList(
                 state = state,
@@ -275,7 +289,7 @@ private fun BoostList(state: StoreUiState, onBuy: (Int) -> Unit) {
 @Composable
 private fun StoreGrid(
     items: List<StoreItem>,
-    onPurchaseAttempt: (Int) -> Unit
+    onAction: (StoreItem) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         items.chunked(2).forEach { rowItems ->
@@ -288,9 +302,7 @@ private fun StoreGrid(
                 rowItems.forEach { item ->
                     StoreItemCard(
                         item = item,
-                        onAction = {
-                            onPurchaseAttempt(item.cosmetic.priceInGems)
-                        },
+                        onAction = { onAction(item) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -350,6 +362,8 @@ private fun StoreContentPreview() {
         StoreContent(
             state = StoreUiState(isLoading = false),
             onCategorySelected = {},
+            onCosmeticViewSelected = {},
+            onCosmeticAction = {},
             onPurchaseAttempt = {},
             onDismissPurchaseNotice = {}
         )

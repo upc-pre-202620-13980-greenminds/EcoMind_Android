@@ -35,3 +35,8 @@ data class StoreItem(
     val cosmetic: Cosmetic,
     val ownership: CosmeticOwnership
 )
+
+data class EquippedCosmetics(
+    val avatar: Cosmetic? = null,
+    val overlay: Cosmetic? = null
+)

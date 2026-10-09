@@ -11,9 +11,16 @@ enum class StoreCategory {
     GEMS
 }
 
+enum class CosmeticView {
+    STORE,
+    INVENTORY
+}
+
 data class StoreUiState(
     val isLoading: Boolean = true,
     val selectedCategory: StoreCategory = StoreCategory.COSMETICS,
+    val selectedCosmeticView: CosmeticView = CosmeticView.STORE,
+    val userId: Long? = null,
     val gemBalance: Int = 0,
     val insufficientRequiredGems: Int? = null,
     val showPurchaseComingSoon: Boolean = false,

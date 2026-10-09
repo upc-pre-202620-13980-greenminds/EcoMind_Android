@@ -8,9 +8,7 @@ import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
 import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
 import pe.greenminds.ecomind.monetization.infrastructure.remote.CosmeticDto
-import pe.greenminds.ecomind.monetization.infrastructure.remote.InventoryDto
 import pe.greenminds.ecomind.monetization.infrastructure.remote.StoreCatalogDto
-import pe.greenminds.ecomind.monetization.infrastructure.remote.UserCosmeticDto
 import pe.greenminds.ecomind.monetization.infrastructure.remote.toDomain
 import javax.inject.Inject
 
@@ -25,6 +23,13 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
         private const val LEAF_WINGS_ID = "c0000000-0000-0000-0000-000000000002"
         private const val LUNA_LUNETTE_ID = "c0000000-0000-0000-0000-000000000003"
         private const val SAL_SOLCITO_ID = "c0000000-0000-0000-0000-000000000004"
+        private const val ALEX_ID = "c0000000-0000-0000-0000-000000000005"
+        private const val MICKEY_ID = "c0000000-0000-0000-0000-000000000006"
+        private const val RANMA_ID = "c0000000-0000-0000-0000-000000000007"
+        private const val ROSALINA_ID = "c0000000-0000-0000-0000-000000000008"
+        private const val SONIC_ID = "c0000000-0000-0000-0000-000000000009"
+        private const val BUN_ID = "c0000000-0000-0000-0000-000000000010"
+        private const val OBSERVATORY_ID = "c0000000-0000-0000-0000-000000000011"
     }
 
     // The four cosmetics of the design, with the shape of the store catalog
@@ -36,7 +41,7 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                 description = "Green hat for your avatar.",
                 priceInGems = 100,
                 type = "HEAD",
-                imageReference = null
+                imageReference = "cosmetic_hat"
             ),
             CosmeticDto(
                 id = LEAF_WINGS_ID,
@@ -44,7 +49,7 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                 description = "Avatar with wings made of leaves.",
                 priceInGems = 100,
                 type = "AVATAR",
-                imageReference = null
+                imageReference = "avatar_leafwings"
             ),
             CosmeticDto(
                 id = LUNA_LUNETTE_ID,
@@ -52,7 +57,7 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                 description = "Avatar of Luna.",
                 priceInGems = 100,
                 type = "AVATAR",
-                imageReference = null
+                imageReference = "avatar_lunalunette"
             ),
             CosmeticDto(
                 id = SAL_SOLCITO_ID,
@@ -60,26 +65,76 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                 description = "Avatar of Sal.",
                 priceInGems = 100,
                 type = "AVATAR",
-                imageReference = null
+                imageReference = "avatar_salsolcito"
+            ),
+            CosmeticDto(
+                id = ALEX_ID,
+                name = "Alex",
+                description = "Alex avatar.",
+                priceInGems = 150,
+                type = "AVATAR",
+                imageReference = "avatar_alex"
+            ),
+            CosmeticDto(
+                id = MICKEY_ID,
+                name = "Mickey",
+                description = "Mickey avatar.",
+                priceInGems = 200,
+                type = "AVATAR",
+                imageReference = "avatar_mickey"
+            ),
+            CosmeticDto(
+                id = RANMA_ID,
+                name = "Ranma",
+                description = "Ranma avatar.",
+                priceInGems = 200,
+                type = "AVATAR",
+                imageReference = "avatar_ranma"
+            ),
+            CosmeticDto(
+                id = ROSALINA_ID,
+                name = "Rosalina",
+                description = "Rosalina avatar.",
+                priceInGems = 250,
+                type = "AVATAR",
+                imageReference = "avatar_rosalina"
+            ),
+            CosmeticDto(
+                id = SONIC_ID,
+                name = "Sonic",
+                description = "Fast blue avatar.",
+                priceInGems = 120,
+                type = "AVATAR",
+                imageReference = "avatar_sonic"
+            ),
+            CosmeticDto(
+                id = BUN_ID,
+                name = "Eco Bun",
+                description = "Eco-friendly bun for your avatar.",
+                priceInGems = 60,
+                type = "HEAD",
+                imageReference = "cosmetic_bun"
+            ),
+            CosmeticDto(
+                id = OBSERVATORY_ID,
+                name = "Observatory",
+                description = "Observatory accessory for your avatar.",
+                priceInGems = 180,
+                type = "ACCESSORY",
+                imageReference = "cosmetic_observatorio"
             )
         )
     )
 
     // One cosmetic in the inventory and one equipped, as in the design
-    private val inventory = InventoryDto(
-        cosmetics = listOf(
-            UserCosmeticDto(
-                id = "a0000000-0000-0000-0000-000000000001",
-                userId = 1L,
-                cosmeticId = ECO_HAT_ID,
-                equipped = false
-            ),
-            UserCosmeticDto(
-                id = "a0000000-0000-0000-0000-000000000002",
-                userId = 1L,
-                cosmeticId = LEAF_WINGS_ID,
-                equipped = true
-            )
+    private val inventory = mutableListOf(
+        UserCosmetic(
+            cosmeticId = ECO_HAT_ID,
+            equipped = false
+        ),
+        UserCosmetic(
+            cosmeticId = LEAF_WINGS_ID,
+            equipped = true
         )
     )
 
@@ -91,7 +146,40 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
     }
 
     override suspend fun getUserCosmetics(): Result<List<UserCosmetic>> {
-        return Result.success(inventory.toDomain())
+        return Result.success(inventory.toList())
+    }
+
+    override suspend fun purchaseCosmetic(cosmeticId: String): Result<Unit> {
+        if (catalog.cosmetics.none { it.id == cosmeticId }) {
+            return Result.failure(IllegalArgumentException("Cosmetic was not found"))
+        }
+        if (inventory.any { it.cosmeticId == cosmeticId }) {
+            return Result.failure(IllegalArgumentException("Cosmetic already owned"))
+        }
+        inventory += UserCosmetic(cosmeticId = cosmeticId, equipped = false)
+        return Result.success(Unit)
+    }
+
+    override suspend fun setCosmeticEquipped(
+        cosmeticId: String,
+        equipped: Boolean
+    ): Result<Unit> {
+        val ownedIndex = inventory.indexOfFirst { it.cosmeticId == cosmeticId }
+        if (ownedIndex == -1) {
+            return Result.failure(IllegalArgumentException("Cosmetic is not in the inventory"))
+        }
+
+        val target = catalog.cosmetics.first { it.id == cosmeticId }
+        if (equipped) {
+            val targetIsAvatar = target.type == "AVATAR"
+            inventory.replaceAll { owned ->
+                val ownedType = catalog.cosmetics.first { it.id == owned.cosmeticId }.type
+                val sameSlot = (ownedType == "AVATAR") == targetIsAvatar
+                if (sameSlot) owned.copy(equipped = false) else owned
+            }
+        }
+        inventory[ownedIndex] = inventory[ownedIndex].copy(equipped = equipped)
+        return Result.success(Unit)
     }
 
     override suspend fun getMultipliers(): Result<List<Multiplier>> {
