@@ -57,6 +57,7 @@ private val QUEST_COLUMN_GAP = 30.dp
 private val QUEST_ROW_GAP = 30.dp
 private val QUEST_PAGE_GAP = 24.dp
 private val QUEST_EDGE_FADE_WIDTH = 24.dp
+private val QUEST_TILE_TOP_OVERFLOW = 6.dp
 
 @Composable
 fun QuestsScreen(
@@ -123,7 +124,8 @@ private fun QuestsContent(
                     QUEST_SCREEN_HORIZONTAL_PADDING
                 val tileWidth = (contentWidth - QUEST_COLUMN_GAP) / 2
                 val tileHeight = tileWidth / QUEST_TILE_ASPECT_RATIO
-                val pageHeight = tileHeight + tileHeight + QUEST_ROW_GAP
+                val pageHeight = tileHeight + tileHeight + QUEST_ROW_GAP +
+                    QUEST_TILE_TOP_OVERFLOW
                 val backgroundColor = MaterialTheme.colorScheme.background
 
                 Box(
@@ -209,6 +211,7 @@ private fun QuestPage(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = QUEST_SCREEN_HORIZONTAL_PADDING)
+            .padding(top = QUEST_TILE_TOP_OVERFLOW)
     ) {
         repeat(2) { rowIndex ->
             Row(
