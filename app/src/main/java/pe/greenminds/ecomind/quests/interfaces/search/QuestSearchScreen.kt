@@ -22,6 +22,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -51,26 +53,31 @@ import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 @Composable
 fun QuestSearchScreen(
     onOpenQuest: (Long) -> Unit,
-    onOpenFilters: () -> Unit,
     viewModel: QuestSearchViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    var showFilters by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    androidx.activity.compose.BackHandler(showFilters) { showFilters = false }
     QuestSearchContent(
         state = state,
         onQueryChange = viewModel::onQueryChange,
-        onSearch = viewModel::searchNow,
+        onSearch = { viewModel.searchNow(); showFilters = false },
         onOpenQuest = onOpenQuest,
-        onOpenFilters = onOpenFilters
+        onOpenFilters = { showFilters = !showFilters },
+        showFilters = showFilters,
+        onApplyFilters = { viewModel.applyFilters(it); showFilters = false }
     )
 }
 
 @Composable
-private fun QuestSearchContent(
+internal fun QuestSearchContent(
     state: QuestSearchUiState,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onOpenQuest: (Long) -> Unit,
     onOpenFilters: () -> Unit,
+    showFilters: Boolean = false,
+    onApplyFilters: (pe.greenminds.ecomind.quests.application.QuestFilters) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -80,12 +87,20 @@ private fun QuestSearchContent(
     ) {
         QuestSearchBar(
             query = state.query,
-            requestFocus = state.focusSearch,
+            requestFocus = state.focusSearch && !showFilters,
             onQueryChange = onQueryChange,
             onSearch = onSearch,
             onOpenFilters = onOpenFilters,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         )
+
+        if (showFilters) {
+            pe.greenminds.ecomind.quests.presentation.ui.filters.QuestFiltersContent(
+                initial = state.filters,
+                onApply = onApplyFilters
+            )
+            return@Column
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             when {
@@ -148,7 +163,7 @@ private fun QuestSearchBar(
             .heightIn(min = 48.dp)
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(percent = 50))
     ) {
-        IconButton(onClick = onOpenFilters) {
+        IconButton(onClick = { focusManager.clearFocus(); onOpenFilters() }) {
             Icon(
                 painter = painterResource(R.drawable.ic_menu),
                 contentDescription = stringResource(R.string.quest_open_filters)
@@ -238,3 +253,5 @@ private fun QuestSearchContentEmptyPreview() {
         )
     }
 }
+
+

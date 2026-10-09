@@ -34,9 +34,6 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
         QuestSearchScreen(
             onOpenQuest = { questId ->
                 navController.navigate(QuestDetailRoute(questId)) { launchSingleTop = true }
-            },
-            onOpenFilters = {
-                navController.navigate(QuestFiltersRoute) { launchSingleTop = true }
             }
         )
     }

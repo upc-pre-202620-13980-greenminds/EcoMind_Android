@@ -20,8 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuestSearchViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val searchQuests: SearchQuestsUseCase
+    private val savedStateHandle: SavedStateHandle,
+    private val searchQuests: SearchQuestsUseCase,
+    private val filterQuests: pe.greenminds.ecomind.quests.application.FilterQuestsUseCase
 ) : ViewModel() {
 
     companion object {
@@ -29,10 +30,25 @@ class QuestSearchViewModel @Inject constructor(
     }
 
     private val route = savedStateHandle.toRoute<QuestSearchRoute>()
-    private val category = route.category?.let(QuestCategory::valueOf)
-    private val questType = route.questType?.let(QuestType::valueOf)
+    private var routeQuestType = if (savedStateHandle.get<String>("questFilters") == null)
+        route.questType?.let(QuestType::valueOf) else null
+    private val initialFilters = pe.greenminds.ecomind.quests.application.QuestFilters(
+        categories = setOfNotNull(route.category),
+        types = when (route.questType) {
+            "COLLABORATIVE" -> setOf("COLLABORATIVE")
+            "MINIGAME" -> setOf("MINIGAME")
+            "ACTIVITIES" -> setOf("CHECKBOX", "WRITE")
+            else -> emptySet()
+        }
+    )
 
-    private val _state = MutableStateFlow(QuestSearchUiState(focusSearch = route.focusSearch))
+    private val _state = MutableStateFlow(QuestSearchUiState(
+        query = savedStateHandle["searchQuery"] ?: "",
+        focusSearch = route.focusSearch,
+        filters = savedStateHandle.get<String>("questFilters")?.let {
+            com.google.gson.Gson().fromJson(it, pe.greenminds.ecomind.quests.application.QuestFilters::class.java)
+        } ?: initialFilters
+    ))
     val state: StateFlow<QuestSearchUiState> = _state.asStateFlow()
 
     private var searchJob: Job? = null
@@ -42,12 +58,20 @@ class QuestSearchViewModel @Inject constructor(
     }
 
     fun onQueryChange(query: String) {
+        savedStateHandle["searchQuery"] = query
         _state.update { it.copy(query = query) }
         search(waitForTyping = true)
     }
 
     fun searchNow() {
         search(waitForTyping = false)
+    }
+
+    fun applyFilters(filters: pe.greenminds.ecomind.quests.application.QuestFilters) {
+        routeQuestType = null
+        savedStateHandle["questFilters"] = com.google.gson.Gson().toJson(filters)
+        _state.update { it.copy(filters = filters, focusSearch = false) }
+        searchNow()
     }
 
     private fun search(waitForTyping: Boolean) {
@@ -58,9 +82,13 @@ class QuestSearchViewModel @Inject constructor(
 
             searchQuests(
                 query = _state.value.query,
-                category = category,
-                questType = questType
+                category = null,
+                questType = routeQuestType
             )
+                .fold(
+                    onSuccess = { filterQuests(it, _state.value.filters) },
+                    onFailure = { Result.failure(it) }
+                )
                 .onSuccess { quests ->
                     _state.update { it.copy(quests = quests, isLoading = false) }
                 }
@@ -70,3 +98,4 @@ class QuestSearchViewModel @Inject constructor(
         }
     }
 }
+

@@ -1,0 +1,16 @@
+<resources>
+    <string name="quest_filter_category">Category</string>
+    <string name="quest_filter_type">Quest type</string>
+    <string name="quest_filter_age">Recommended age</string>
+    <string name="quest_filter_time">Expected time</string>
+    <string name="quest_filter_apply">Apply</string>
+    <string name="quest_filter_write">Write</string>
+    <string name="quest_filter_age_6_9">6–9 years</string>
+    <string name="quest_filter_age_10_13">10–13 years</string>
+    <string name="quest_filter_age_14_17">14–17 years</string>
+    <string name="quest_filter_age_18">18+ years</string>
+    <string name="quest_filter_time_15">Up to 15 min</string>
+    <string name="quest_filter_time_30">16–30 min</string>
+    <string name="quest_filter_time_60">31–60 min</string>
+    <string name="quest_filter_time_long">More than 60 min</string>
+</resources>
