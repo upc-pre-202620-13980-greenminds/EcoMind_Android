@@ -7,7 +7,6 @@ import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.community.domain.repositories.CommunityRepository
 import pe.greenminds.ecomind.community.infrastructure.local.LocalCommunityRepository
 
-// The only place to change when the remote implementation exists
 @Module
 @InstallIn(SingletonComponent::class)
 interface CommunityRepositoryModule {

@@ -7,8 +7,6 @@ import pe.greenminds.ecomind.community.infrastructure.remote.CommunityEventDto
 import pe.greenminds.ecomind.community.infrastructure.remote.toDomain
 import javax.inject.Inject
 
-// Demo implementation used until the web services are deployed.
-// The data is fixed: the three events of the design.
 class LocalCommunityRepository @Inject constructor() : CommunityRepository {
 
     companion object {
@@ -39,11 +37,8 @@ class LocalCommunityRepository @Inject constructor() : CommunityRepository {
         )
     )
 
-    // Equivalent to GET /community/events
     override suspend fun getEvents(): Result<List<CommunityEvent>> {
-        // Simulates the time a request to the web services would take
         delay(SIMULATED_DELAY_MILLIS)
-        // Same mapper the remote implementation will use
         return Result.success(events.map { it.toDomain() })
     }
 }
