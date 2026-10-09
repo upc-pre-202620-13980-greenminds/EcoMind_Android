@@ -22,10 +22,6 @@ class AchievementsViewModel @Inject constructor(
     val state: StateFlow<AchievementsUiState> = _state.asStateFlow()
     private var loadJob: Job? = null
 
-    init {
-        loadAchievements()
-    }
-
     fun loadAchievements() {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {

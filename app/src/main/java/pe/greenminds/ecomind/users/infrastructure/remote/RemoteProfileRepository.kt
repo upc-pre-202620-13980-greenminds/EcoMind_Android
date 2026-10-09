@@ -12,4 +12,6 @@ class RemoteProfileRepository @Inject constructor(private val api: UsersApi, pri
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) {
         error("The service creates the profile when registration is verified")
     }
+    override suspend fun spendGems(userId: Long, amount: Int): Result<Int> =
+        Result.failure(UnsupportedOperationException("Remote purchases debit the wallet through Monetization"))
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.gamification.domain.model.AchievementCollection
 import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
@@ -39,6 +40,10 @@ fun AchievementsScreen(
     onSignIn: () -> Unit,
     viewModel: AchievementsViewModel = hiltViewModel()
 ) {
+    LifecycleResumeEffect(Unit) {
+        viewModel.loadAchievements()
+        onPauseOrDispose { }
+    }
     AchievementsContent(viewModel.state.collectAsStateWithLifecycle().value,
         onBack, onOpenAchievement, viewModel::loadAchievements, onSignIn)
 }

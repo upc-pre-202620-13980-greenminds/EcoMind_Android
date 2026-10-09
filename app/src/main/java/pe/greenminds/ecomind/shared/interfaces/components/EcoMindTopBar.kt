@@ -72,13 +72,13 @@ fun EcoMindTopBar(
 
             IconButton(onClick = onNotificationsClick) {
                 BadgedBox(badge = { if (unreadCount > 0) Badge { Text(unreadCount.toString()) } }) {
-                Image(
-                    painter = painterResource(R.drawable.ic_notifications),
-                    contentDescription = stringResource(R.string.top_bar_notifications),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                    Image(
+                        painter = painterResource(R.drawable.ic_notifications),
+                        contentDescription = stringResource(R.string.top_bar_notifications),
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
+            }
             IconButton(onClick = onSettingsClick) {
                 Image(
                     painter = painterResource(R.drawable.ic_settings),

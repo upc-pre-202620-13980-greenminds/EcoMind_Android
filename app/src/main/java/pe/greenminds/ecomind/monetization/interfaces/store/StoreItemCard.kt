@@ -1,6 +1,7 @@
 package pe.greenminds.ecomind.monetization.interfaces.store
 
 import androidx.annotation.StringRes
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
@@ -25,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -101,13 +105,18 @@ fun StoreItemCard(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, top = 28.dp, bottom = 4.dp)
         ) {
-            // Color block in place of the image, until the real ones are exported
-            Box(
+            Image(
+                painter = painterResource(cosmeticImageResource(item.cosmetic.imageReference)),
+                contentDescription = item.cosmetic.name,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(width = 70.dp, height = 78.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        RoundedCornerShape(8.dp)
+                    .size(width = 86.dp, height = 90.dp)
+                    .then(
+                        if (item.cosmetic.type == CosmeticType.HEAD) {
+                            Modifier.offset { IntOffset(0, -6.dp.roundToPx()) }
+                        } else {
+                            Modifier
+                        }
                     )
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -125,6 +134,9 @@ fun StoreItemCard(
 
             if (!isOwned) {
                 PriceRow(priceInGems = item.cosmetic.priceInGems)
+            } else {
+                // Preserve the price-row space so buying an item does not resize its card.
+                Spacer(modifier = Modifier.height(26.dp))
             }
 
             ActionButton(
@@ -134,6 +146,21 @@ fun StoreItemCard(
             )
         }
     }
+}
+
+@DrawableRes
+internal fun cosmeticImageResource(reference: String?): Int = when (reference) {
+    "avatar_alex" -> R.drawable.avatar_alex
+    "avatar_leaf", "avatar_leafwings" -> R.drawable.avatar_leafwings
+    "avatar_lunalunette" -> R.drawable.avatar_lunalunette
+    "avatar_mickey" -> R.drawable.avatar_mickey
+    "avatar_ranma" -> R.drawable.avatar_ranma
+    "avatar_rosalina" -> R.drawable.avatar_rosalina
+    "avatar_salsolcito" -> R.drawable.avatar_salsolcito
+    "avatar_sonic" -> R.drawable.avatar_sonic
+    "cosmetic_bun" -> R.drawable.cosmetic_bun
+    "cosmetic_observatorio" -> R.drawable.cosmetic_observatorio
+    else -> R.drawable.cosmetic_hat
 }
 
 @Composable
@@ -151,7 +178,7 @@ private fun OwnershipBadge(text: String, color: Color, modifier: Modifier = Modi
 }
 
 @Composable
-private fun PriceRow(priceInGems: Int) {
+internal fun PriceRow(priceInGems: Int, textColor: Color? = null) {
     val description = stringResource(R.string.top_bar_gems, priceInGems)
 
     Row(
@@ -170,14 +197,19 @@ private fun PriceRow(priceInGems: Int) {
         Text(
             text = priceInGems.toString(),
             style = poppinsTextStyle(10, FontWeight.SemiBold),
-            color = SkyBlue
+            color = textColor ?: SkyBlue
         )
     }
 }
 
 // The pill is small as in the design; the box around it keeps a touch target of 48dp
 @Composable
-private fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
+internal fun ActionButton(
+    text: String,
+    color: Color,
+    onClick: () -> Unit,
+    textColor: Color = White
+) {
     val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
@@ -190,7 +222,7 @@ private fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
         Text(
             text = text,
             style = poppinsTextStyle(10, FontWeight.Bold),
-            color = White,
+            color = textColor,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .heightIn(min = 24.dp)

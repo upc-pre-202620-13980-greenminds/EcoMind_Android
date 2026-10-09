@@ -5,7 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
-import pe.greenminds.ecomind.monetization.infrastructure.local.LocalStoreRepository
+import pe.greenminds.ecomind.monetization.infrastructure.implementation.RemoteStoreRepository
+import javax.inject.Singleton
 
 // The only place to change when the remote implementation exists
 @Module
@@ -13,5 +14,6 @@ import pe.greenminds.ecomind.monetization.infrastructure.local.LocalStoreReposit
 interface MonetizationRepositoryModule {
 
     @Binds
-    fun bindStoreRepository(impl: LocalStoreRepository): StoreRepository
+    @Singleton
+    fun bindStoreRepository(impl: RemoteStoreRepository): StoreRepository
 }

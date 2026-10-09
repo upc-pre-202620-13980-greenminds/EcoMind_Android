@@ -6,11 +6,11 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
-val remoteBackend = providers.gradleProperty("ecomind.remote").orElse("false").map(String::toBoolean).get()
+val remoteBackend = providers.gradleProperty("ecomind.remote").orElse("true").map(String::toBoolean).get()
 val configuredBackendUrl = providers.gradleProperty("ecomind.apiBaseUrl")
 val backendUrl = configuredBackendUrl.orElse("http://10.0.2.2:8092/api/v1/").get()
-val releaseBackendUrl = configuredBackendUrl.orElse("https://ecomind-backend.example.com/api/v1/").get()
-require(backendUrl.endsWith("/")) { "ecomind.apiBaseUrl must end with /" }
+val releaseBackendUrl = configuredBackendUrl.orElse("https://ecomind-backend-yxp7.onrender.com/api/v1/").get()
+require(backendUrl.endsWith("/") && releaseBackendUrl.endsWith("/")) { "ecomind.apiBaseUrl must end with /" }
 
 android {
     namespace = "pe.greenminds.ecomind"
@@ -24,13 +24,14 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("boolean", "REMOTE_BACKEND", remoteBackend.toString())
+        buildConfigField("boolean", "REMOTE_BACKEND", "true")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
+            buildConfigField("boolean", "REMOTE_BACKEND", remoteBackend.toString())
             // 10.0.2.2 is the host machine seen from the Android emulator
             buildConfigField("String", "API_BASE_URL", "\"${backendUrl}\"")
         }
@@ -38,13 +39,15 @@ android {
             optimization {
                 enable = false
             }
-            // Placeholder: replace with the real host once the backend is deployed
+            // Keep the release host configured by the team; a Gradle property can override it.
             buildConfigField("String", "API_BASE_URL", "\"${releaseBackendUrl}\"")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
+
     }
     buildFeatures {
         compose = true
@@ -53,9 +56,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    testImplementation(libs.mockwebserver)
+    implementation("io.coil-kt.coil3:coil-compose:3.6.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -65,6 +67,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
+    coreLibraryDesugaring(libs.desugar.jdk)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -75,6 +80,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockwebserver)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

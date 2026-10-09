@@ -73,4 +73,5 @@
     <string name="notification_cancelled_title">An event was cancelled</string>
     <string name="notification_cancelled_body">Visit the community to discover other events.</string>
     <string name="ranking_demo">Demonstration ranking · sample data</string>
+    <string name="quest_view_rewards">View rewards and achievements</string>
 </resources>

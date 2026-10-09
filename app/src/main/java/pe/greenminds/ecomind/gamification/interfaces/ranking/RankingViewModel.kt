@@ -27,10 +27,6 @@ class RankingViewModel @Inject constructor(
     private var loadJob: Job? = null
     private var accessGranted = false
 
-    init {
-        load()
-    }
-
     fun onTypeSelected(type: RankingType) {
         _state.update { currentState ->
             currentState.copy(selectedType = type)

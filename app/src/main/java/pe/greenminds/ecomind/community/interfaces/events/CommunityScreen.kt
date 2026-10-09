@@ -1,5 +1,6 @@
 package pe.greenminds.ecomind.community.interfaces.events
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.community.interfaces.sections.CommunityAwardsContent
+import pe.greenminds.ecomind.community.interfaces.sections.CommunityNewsContent
+import pe.greenminds.ecomind.community.interfaces.sections.CommunitySection
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.Black
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
@@ -59,20 +64,22 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 
-// The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
 fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    CommunityContent(state = state)
+    CommunityContent(
+        state = state,
+        onSectionSelected = viewModel::selectSection
+    )
 }
 
 @Composable
 private fun CommunityContent(
     state: CommunityUiState,
+    onSectionSelected: (CommunitySection) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // Everything that is drawn but not built yet opens the same notice
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
 
@@ -89,26 +96,36 @@ private fun CommunityContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        CommunityTabs(onOtherTab = openComingSoon)
+        CommunityTabs(
+            selectedSection = state.selectedSection,
+            onSectionSelected = onSectionSelected
+        )
 
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            SearchRow(onAction = openComingSoon)
+            when (state.selectedSection) {
+                CommunitySection.EVENTS -> {
+                    SearchRow(onAction = openComingSoon)
 
-            if (state.isLoading) {
-                val loadingDescription = stringResource(R.string.loading)
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 24.dp)
-                        .semantics { contentDescription = loadingDescription }
-                )
-            } else {
-                state.events.forEach { event ->
-                    CommunityEventCard(event = event, onAction = openComingSoon)
+                    if (state.isLoading) {
+                        val loadingDescription = stringResource(R.string.loading)
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(top = 24.dp)
+                                .semantics { contentDescription = loadingDescription }
+                        )
+                    } else {
+                        state.events.forEach { event ->
+                            CommunityEventCard(event = event, onAction = openComingSoon)
+                        }
+                    }
                 }
+
+                CommunitySection.AWARDS -> CommunityAwardsContent()
+                CommunitySection.NEWS -> CommunityNewsContent()
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -119,7 +136,6 @@ private fun CommunityContent(
     }
 }
 
-// "Local Community" is the one on screen; the other option is not built yet
 @Composable
 private fun CommunitySelector(onOtherCommunities: () -> Unit) {
     val containerShape = RoundedCornerShape(19.dp)
@@ -172,8 +188,6 @@ private fun CommunitySelector(onOtherCommunities: () -> Unit) {
     }
 }
 
-// PROVISIONAL: the web services have no route for the community or its goal yet,
-// so these texts are fixed resources instead of data from a repository
 @Composable
 private fun CommunityHeader() {
     Column(modifier = Modifier.padding(top = 12.dp)) {
@@ -196,60 +210,73 @@ private fun CommunityHeader() {
     }
 }
 
-// Collapsed card of the community goal; expanding it is not built yet
 @Composable
 private fun GoalCard(onClick: () -> Unit) {
     val shape = RoundedCornerShape(8.dp)
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
-            .shadow(elevation = 3.dp, shape = shape)
-            .background(White, shape)
-            .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
     ) {
-        Text(
-            text = stringResource(R.string.community_sample_goal),
-            style = interTextStyle(16, FontWeight.Bold),
-            color = EcoGreenDark,
-            modifier = Modifier.weight(1f)
-        )
-        // The "back" arrow turned a quarter points down; it is decorative
-        Icon(
-            painter = painterResource(R.drawable.ic_chevron_back),
-            contentDescription = null,
-            tint = EcoGreenDark,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(24.dp)
-                .rotate(-90f)
+                .fillMaxWidth()
+                .shadow(elevation = 3.dp, shape = shape)
+                .background(White, shape)
+                .clip(shape)
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.community_sample_goal),
+                style = interTextStyle(16, FontWeight.Bold),
+                color = EcoGreenDark,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                painter = painterResource(R.drawable.ic_chevron_back),
+                contentDescription = null,
+                tint = EcoGreenDark,
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(-90f)
+            )
+        }
+        Image(
+            painter = painterResource(R.drawable.img_peeking),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (-24).dp, y = (-26).dp)
+                .size(width = 88.dp, height = 42.dp)
         )
     }
 }
 
-// Only "Events" has content; the other two tabs open the notice
 @Composable
-private fun CommunityTabs(onOtherTab: () -> Unit) {
+private fun CommunityTabs(
+    selectedSection: CommunitySection,
+    onSectionSelected: (CommunitySection) -> Unit
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         CommunityTab(
             text = stringResource(R.string.community_tab_awards),
-            selected = false,
-            onClick = onOtherTab,
+            selected = selectedSection == CommunitySection.AWARDS,
+            onClick = { onSectionSelected(CommunitySection.AWARDS) },
             modifier = Modifier.weight(1f)
         )
         CommunityTab(
             text = stringResource(R.string.community_tab_events),
-            selected = true,
-            onClick = {},
+            selected = selectedSection == CommunitySection.EVENTS,
+            onClick = { onSectionSelected(CommunitySection.EVENTS) },
             modifier = Modifier.weight(1f)
         )
         CommunityTab(
             text = stringResource(R.string.community_tab_news),
-            selected = false,
-            onClick = onOtherTab,
+            selected = selectedSection == CommunitySection.NEWS,
+            onClick = { onSectionSelected(CommunitySection.NEWS) },
             modifier = Modifier.weight(1f)
         )
     }
@@ -281,7 +308,6 @@ private fun CommunityTab(
                 color = textColor
             )
         }
-        // Line under the tabs; green under the selected one
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -291,7 +317,6 @@ private fun CommunityTab(
     }
 }
 
-// The search field and the two buttons are drawn as in the design but not built yet
 @Composable
 private fun SearchRow(onAction: () -> Unit) {
     val pillShape = RoundedCornerShape(percent = 50)
@@ -345,7 +370,6 @@ private fun SearchRow(onAction: () -> Unit) {
     }
 }
 
-// The pill is small as in the design; the box keeps a touch target of 48dp
 @Composable
 private fun SmallActionPill(text: String, onClick: () -> Unit) {
     val pillShape = RoundedCornerShape(percent = 50)
@@ -354,7 +378,7 @@ private fun SmallActionPill(text: String, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .width(96.dp)
-            .heightIn(min = 48.dp)
+            .heightIn(min = 32.dp)
             .clip(pillShape)
             .clickable(role = Role.Button, onClick = onClick)
     ) {

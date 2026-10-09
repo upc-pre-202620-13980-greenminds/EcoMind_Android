@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.gamification.domain.model.Ranking
 import pe.greenminds.ecomind.gamification.domain.model.RankingEntry
@@ -45,6 +46,10 @@ import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
 fun RankingScreen(onProgress: () -> Unit = {}, viewModel: RankingViewModel = hiltViewModel()) {
+    LifecycleResumeEffect(Unit) {
+        viewModel.load()
+        onPauseOrDispose { }
+    }
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
     Column(Modifier.fillMaxSize()) {

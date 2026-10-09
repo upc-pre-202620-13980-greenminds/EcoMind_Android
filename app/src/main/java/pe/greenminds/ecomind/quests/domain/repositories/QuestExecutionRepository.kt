@@ -1,8 +1,13 @@
 package pe.greenminds.ecomind.quests.domain.repositories
-import pe.greenminds.ecomind.quests.domain.model.QuestExecution
+
+import pe.greenminds.ecomind.quests.domain.entity.*
+
 interface QuestExecutionRepository {
-    suspend fun load(questId: Long): Result<QuestExecution>
-    suspend fun start(questId: Long): Result<QuestExecution>
-    suspend fun check(questId: Long, assignmentId: Long, done: Boolean): Result<QuestExecution>
-    suspend fun finish(questId: Long): Result<QuestExecution>
+    suspend fun find(questId: Long): QuestUser?
+    suspend fun start(questId: Long): QuestUser
+    suspend fun get(id: Long): QuestUser
+    suspend fun activities(questId: Long): List<Activity>
+    suspend fun activityUsers(questUserId: Long): List<ActivityUser>
+    suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser
+    suspend fun finish(questUserId: Long): QuestUser
 }

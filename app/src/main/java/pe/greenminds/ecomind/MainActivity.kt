@@ -1,5 +1,9 @@
 package pe.greenminds.ecomind
 
+import android.Manifest
+import android.net.Uri
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Build
@@ -30,18 +34,13 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 class MainActivity : ComponentActivity() {
     @Inject lateinit var observePreferences: ObservePreferencesUseCase
 
-    private val localNetworkPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    private val localNetworkPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (!granted) Toast.makeText(this, R.string.local_backend_permission_required, Toast.LENGTH_LONG).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // API 37 protects LAN access, including the emulator's development host.
-        // This permission is declared only by the debug manifest.
-        if (BuildConfig.DEBUG && BuildConfig.REMOTE_BACKEND && Build.VERSION.SDK_INT >= 37 &&
-            java.net.URI(BuildConfig.API_BASE_URL).host == "10.0.2.2" &&
-            checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED) {
-            localNetworkPermission.launch("android.permission.ACCESS_LOCAL_NETWORK")
-        }
         setContent {
             val preferences by remember { observePreferences() }
                 .collectAsStateWithLifecycle(initialValue = AppPreferences())
@@ -68,6 +67,13 @@ class MainActivity : ComponentActivity() {
                     MainShell()
                 }
             }
+        }
+        // API 37 protects LAN access, including the emulator's development host.
+        // This permission is declared only by the debug manifest.
+        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 37 && savedInstanceState == null &&
+            Uri.parse(BuildConfig.API_BASE_URL).host == "10.0.2.2" &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+            localNetworkPermission.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
         }
     }
 }

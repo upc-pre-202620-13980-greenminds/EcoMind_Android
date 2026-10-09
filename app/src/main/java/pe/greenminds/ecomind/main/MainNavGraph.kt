@@ -1,11 +1,15 @@
 package pe.greenminds.ecomind.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import pe.greenminds.ecomind.notifications.interfaces.inbox.NotificationsScreen
 import pe.greenminds.ecomind.settings.interfaces.preferences.*
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
-import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
 import pe.greenminds.ecomind.community.interfaces.navigation.CommunityRoute
 import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
 import androidx.compose.runtime.getValue
@@ -21,40 +25,67 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestCategoryMenu
+import pe.greenminds.ecomind.quests.interfaces.categories.QuestListFilter
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
+import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
 fun NavGraphBuilder.mainNavGraph(navController: NavController) {
     composable<MainMenuRoute> {
         // The category menu is drawn over the main menu, so it is state of this screen
         var showCategories by rememberSaveable { mutableStateOf(false) }
+        var selectedFilter by rememberSaveable { mutableStateOf(QuestListFilter.ENERGY) }
+        var menuFilter by rememberSaveable { mutableStateOf(QuestListFilter.ENERGY) }
+        val backgroundBlur by animateDpAsState(
+            targetValue = if (showCategories) 8.dp else 0.dp,
+            animationSpec = tween(durationMillis = if (showCategories) 420 else 220),
+            label = "quest category background blur"
+        )
 
         Box {
-            MainMenuScreen(
-                onOpenQuests = { showCategories = true },
+            QuestsScreen(
+                selectedFilter = selectedFilter,
+                onOpenCategories = {
+                    menuFilter = selectedFilter
+                    showCategories = true
+                },
+                onOpenQuest = { questId ->
+                    navController.navigate(QuestDetailRoute(questId)) { launchSingleTop = true }
+                },
                 onOpenLearning = {
                     navController.navigate(LearningRoute) { launchSingleTop = true }
                 },
-                onOpenPlaceholder = {
-                    navController.navigate(PlaceholderRoute) { launchSingleTop = true }
-                },
-                modifier = if (showCategories) {
+                modifier = if (showCategories || backgroundBlur.value > 0f) {
                     // Blur needs Android 12; on older versions only the white layer is seen.
                     // The screen reader skips the main menu while the menu covers it.
                     Modifier
-                        .blur(8.dp)
+                        .blur(backgroundBlur)
                         .clearAndSetSemantics { }
                 } else {
                     Modifier
                 }
             )
 
-            if (showCategories) {
-                BackHandler { showCategories = false }
+            BackHandler(enabled = showCategories) { showCategories = false }
 
+            AnimatedVisibility(
+                visible = showCategories,
+                enter = fadeIn(tween(durationMillis = 1)),
+                exit = fadeOut(tween(durationMillis = 1, delayMillis = 560))
+            ) {
                 QuestCategoryMenu(
-                    onOpenList = { route ->
+                    expanded = showCategories,
+                    selectedFilter = menuFilter,
+                    onSelectFilter = { filter ->
+                        selectedFilter = filter
                         showCategories = false
-                        navController.navigate(route) { launchSingleTop = true }
+                    },
+                    onOpenSearch = {
+                        showCategories = false
+                        navController.navigate(QuestSearchRoute(focusSearch = true)) {
+                            launchSingleTop = true
+                        }
                     },
                     onDismiss = { showCategories = false }
                 )
@@ -69,7 +100,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
                 val route: Any = when (id) {
                     "medal" -> MyMedalsRoute
                     "learning" -> LearningRoute
-                    "quest" -> QuestListRoute()
+                    "quest" -> QuestSearchRoute()
                     else -> CommunityRoute
                 }
                 navController.navigate(route) { launchSingleTop = true }

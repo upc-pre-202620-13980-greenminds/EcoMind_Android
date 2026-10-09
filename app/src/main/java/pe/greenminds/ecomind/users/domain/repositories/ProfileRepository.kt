@@ -9,4 +9,6 @@ interface ProfileRepository {
 
     // The web services create the profile themselves when an account is verified
     suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole)
+
+    suspend fun spendGems(userId: Long, amount: Int): Result<Int>
 }

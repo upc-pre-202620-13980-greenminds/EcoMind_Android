@@ -1,11 +1,6 @@
 package pe.greenminds.ecomind.monetization.infrastructure.remote
 
-// PROVISIONAL: these contracts come from a branch of the web services that is not merged yet.
-// They must be checked again when Monetization reaches the main branch.
-
 // GET /api/v1/monetization/store
-// The response also has multipliers, streakProtectors and gemPackages; they belong to
-// tabs that are not built yet, so they are not declared here.
 data class StoreCatalogDto(
     val cosmetics: List<CosmeticDto>
 )
@@ -23,14 +18,60 @@ data class CosmeticDto(
 // GET /api/v1/monetization/me/inventory
 // The response also has protectors and multipliers, not declared for the same reason.
 data class InventoryDto(
-    val cosmetics: List<UserCosmeticDto>
+    val cosmetics: List<UserCosmeticDto>,
+    val protectors: List<OwnedProtectorDto> = emptyList(),
+    val multipliers: List<OwnedMultiplierDto> = emptyList()
 )
 
 data class UserCosmeticDto(
     // UUID
     val id: String,
-    val userId: Long,
     // UUID
     val cosmeticId: String,
     val equipped: Boolean
+)
+
+data class OwnedProtectorDto(
+    val id: String,
+    val protectorId: String,
+    val quantity: Int
+)
+
+data class OwnedMultiplierDto(
+    val id: String,
+    val multiplierId: String,
+    val factor: Double,
+    val startsAt: String,
+    val expiresAt: String
+)
+
+data class BuyItemDto(
+    val itemId: String,
+    val requestId: String
+)
+
+data class GemWalletDto(val balance: Int)
+
+data class MultiplierDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val factor: Double,
+    val durationMinutes: Int,
+    val priceInGems: Int
+)
+
+data class StreakProtectorDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val priceInGems: Int
+)
+
+data class GemPackageDto(
+    val id: String,
+    val name: String,
+    val gemAmount: Int,
+    val price: Double,
+    val currency: String
 )

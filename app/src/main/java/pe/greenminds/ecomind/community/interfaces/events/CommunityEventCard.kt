@@ -38,8 +38,6 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 
-// One event of the community. Both actions are drawn but not built yet,
-// so they call the same onAction that opens the "coming soon" notice.
 @Composable
 fun CommunityEventCard(
     event: CommunityEvent,
@@ -70,7 +68,6 @@ fun CommunityEventCard(
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            // Color block in place of the photo, until the real ones are exported
             Box(
                 modifier = Modifier
                     .size(width = 97.dp, height = 65.dp)
@@ -87,7 +84,6 @@ fun CommunityEventCard(
                 .fillMaxWidth()
                 .padding(top = 4.dp)
         ) {
-            // The pills are small as in the design; the boxes keep a touch target of 48dp
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier

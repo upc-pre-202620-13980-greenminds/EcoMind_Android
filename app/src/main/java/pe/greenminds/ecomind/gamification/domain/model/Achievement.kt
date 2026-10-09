@@ -31,4 +31,4 @@ data class AchievementCollection(
     val available: List<AchievementEntry> get() = entries.filter { it.award == null && it.achievement.active }
 }
 
-class AchievementSessionRequiredException : IllegalStateException("A current session is required")
+typealias AchievementSessionRequiredException = pe.greenminds.ecomind.shared.domain.model.SessionRequiredException

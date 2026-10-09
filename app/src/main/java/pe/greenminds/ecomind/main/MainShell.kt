@@ -19,14 +19,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.navigation.AppNavHost
-import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
 import pe.greenminds.ecomind.gamification.interfaces.navigation.*
 
 // Screens that hang from the main menu: they keep the bars and the main menu item active.
 // A new screen of that kind is added to this list.
-private val mainMenuChildRoutes = listOf(QuestListRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class, LearningRoute::class)
+private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class, LearningRoute::class)
 
 private val supportRoutes = listOf(NotificationsRoute::class, SettingsRoute::class, NotificationPreferencesRoute::class,
         LanguageRoute::class, ThemeRoute::class, AccountInformationRoute::class, HelpRoute::class)
@@ -40,9 +40,10 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val selectedItem = selectedItemFor(backStackEntry?.destination)
     val showBars = selectedItem != null
+    val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true
 
-    LaunchedEffect(showBars, backStackEntry) {
-        if (showBars) {
+    LaunchedEffect(showTopBar, backStackEntry) {
+        if (showTopBar) {
             viewModel.loadBalances()
         }
     }
@@ -50,7 +51,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            if (showBars) {
+            if (showTopBar) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
                     unreadCount = state.unreadCount,

@@ -11,13 +11,15 @@ import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import pe.greenminds.ecomind.users.application.GetFamilyUseCase
 import pe.greenminds.ecomind.users.application.GetFriendsUseCase
+import pe.greenminds.ecomind.monetization.interfaces.acl.MonetizationContextFacade
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getCurrentProfile: GetCurrentProfileUseCase,
     private val getFriends: GetFriendsUseCase,
-    private val getFamily: GetFamilyUseCase
+    private val getFamily: GetFamilyUseCase,
+    private val monetization: MonetizationContextFacade
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileUiState())
@@ -48,12 +50,20 @@ class ProfileViewModel @Inject constructor(
                     // The other tabs need the id of the user, so they start after the profile
                     loadFriends(profile.id)
                     loadFamily(profile.id)
+                    loadEquippedCosmetics()
                 }
                 .onFailure {
                     _state.update { currentState ->
                         currentState.copy(isLoadingProfile = false, profileFailed = true)
                     }
                 }
+        }
+    }
+
+    fun loadEquippedCosmetics() {
+        viewModelScope.launch {
+            val equipped = monetization.getEquippedCosmetics()
+            _state.update { it.copy(equippedCosmetics = equipped) }
         }
     }
 
