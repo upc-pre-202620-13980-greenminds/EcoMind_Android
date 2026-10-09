@@ -2,6 +2,12 @@ package pe.greenminds.ecomind.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import pe.greenminds.ecomind.notifications.interfaces.inbox.NotificationsScreen
+import pe.greenminds.ecomind.settings.interfaces.preferences.*
+import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
+import pe.greenminds.ecomind.community.interfaces.navigation.CommunityRoute
+import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -57,12 +63,41 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
     }
 
     composable<NotificationsRoute> {
-        PlaceholderScreen()
+        NotificationsScreen(
+            onBack = { navController.popBackStack() },
+            onOpen = { id ->
+                val route: Any = when (id) {
+                    "medal" -> MyMedalsRoute
+                    "learning" -> LearningRoute
+                    "quest" -> QuestListRoute()
+                    else -> CommunityRoute
+                }
+                navController.navigate(route) { launchSingleTop = true }
+            },
+            onSignIn = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } }
+        )
     }
-
     composable<SettingsRoute> {
-        PlaceholderScreen()
+        SettingsScreen(
+            onBack = { navController.popBackStack() },
+            onOpen = { page ->
+                val route: Any = when (page) {
+                    "notifications" -> NotificationPreferencesRoute
+                    "language" -> LanguageRoute
+                    "theme" -> ThemeRoute
+                    "account" -> AccountInformationRoute
+                    else -> HelpRoute
+                }
+                navController.navigate(route) { launchSingleTop = true }
+            },
+            onSignedOut = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } }
+        )
     }
+    composable<NotificationPreferencesRoute> { NotificationPreferencesScreen(onBack = { navController.popBackStack() }) }
+    composable<LanguageRoute> { AppearanceScreen(language = true, onBack = { navController.popBackStack() }) }
+    composable<ThemeRoute> { AppearanceScreen(language = false, onBack = { navController.popBackStack() }) }
+    composable<AccountInformationRoute> { AccountScreen(onBack = { navController.popBackStack() }) }
+    composable<HelpRoute> { HelpScreen(onBack = { navController.popBackStack() }) }
 
     composable<PlaceholderRoute> {
         PlaceholderScreen()

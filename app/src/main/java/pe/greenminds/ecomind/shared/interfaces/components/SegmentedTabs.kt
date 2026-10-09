@@ -22,10 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.SurfaceSoft
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // Row of tabs inside a rounded container; the selected one is a filled pill
@@ -42,8 +39,8 @@ fun SegmentedTabs(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(SurfaceSoft, containerShape)
-            .border(1.dp, CardBorder, containerShape)
+            .background(MaterialTheme.colorScheme.surfaceContainer, containerShape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, containerShape)
             .padding(4.dp)
             .selectableGroup()
     ) {
@@ -58,7 +55,7 @@ fun SegmentedTabs(
                     .heightIn(min = 40.dp)
                     .clip(tabShape)
                     .background(
-                        if (selected) MaterialTheme.colorScheme.primary else SurfaceSoft
+                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer
                     )
                     .selectable(
                         selected = selected,
@@ -73,7 +70,7 @@ fun SegmentedTabs(
                         sizeSp = 12,
                         weight = if (selected) FontWeight.Bold else FontWeight.Normal
                     ),
-                    color = if (selected) MaterialTheme.colorScheme.onPrimary else TextSecondary
+                    color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

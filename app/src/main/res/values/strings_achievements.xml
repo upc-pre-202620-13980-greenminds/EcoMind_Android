@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="achievements_title">Medals and achievements</string>
+    <string name="achievements_back">Back</string>
+    <string name="achievements_earned">Earned</string>
+    <string name="achievements_available">Available</string>
+    <string name="achievements_empty">Your collection is empty. Medals appear here after an eligible activity is confirmed.</string>
+    <string name="achievements_no_available">There are no more medals available right now.</string>
+    <string name="achievements_demo">Demo · these medals and criteria are sample data.</string>
+    <string name="achievements_error">We could not load your achievements. Try again.</string>
+    <string name="achievements_session_required">Sign in again to view your achievements.</string>
+    <string name="achievements_sign_in">Sign in</string>
+    <string name="achievement_detail_title">Achievement details</string>
+    <string name="achievement_not_found">This achievement is no longer available. Go back to your collection.</string>
+    <string name="achievement_about">About this medal</string>
+    <string name="achievement_requirement">How it is earned</string>
+    <string name="achievement_awarded_at">Awarded at (UTC)</string>
+    <string name="achievement_archived">Archived medal · kept in your history</string>
+    <string name="achievement_impact_note">Medals recognize participation and learning. They do not certify environmental impact.</string>
+    <string name="achievement_awarded">Medal awarded</string>
+    <string name="achievement_not_earned">Not earned yet</string>
+    <string name="achievement_locked">Locked</string>
+    <string name="achievement_demo_section">Section completed</string>
+    <string name="achievement_demo_activity">Important activity</string>
+    <string name="achievement_demo_streak">Steady practice</string>
+    <string name="achievement_demo_section_description">Sample recognition for completing a learning section.</string>
+    <string name="achievement_demo_activity_description">Sample recognition for completing an important activity.</string>
+    <string name="achievement_demo_streak_description">Sample recognition for continuity in eligible activities.</string>
+    <string name="achievement_ecopoints_requirement">Reach %1$d ecopoints through eligible activities.</string>
+    <string name="achievement_streak_requirement">Reach a longest streak of %1$d days.</string>
+    <string name="achievement_goals_requirement">Complete %1$d community goals.</string>
+    <string name="achievement_plans_requirement">Complete %1$d family plans.</string>
+    <plurals name="achievements_count">
+        <item quantity="one">Medals · %d</item>
+        <item quantity="other">Medals · %d</item>
+    </plurals>
+</resources>

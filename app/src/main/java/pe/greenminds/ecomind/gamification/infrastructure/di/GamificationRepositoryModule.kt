@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.gamification.domain.repositories.RankingRepository
 import pe.greenminds.ecomind.gamification.infrastructure.local.LocalRankingRepository
+import pe.greenminds.ecomind.gamification.domain.repositories.AchievementRepository
+import pe.greenminds.ecomind.gamification.infrastructure.local.LocalAchievementRepository
 
 // The only place to change when the remote implementation exists
 @Module
@@ -14,4 +16,7 @@ interface GamificationRepositoryModule {
 
     @Binds
     fun bindRankingRepository(impl: LocalRankingRepository): RankingRepository
+
+    @Binds
+    fun bindAchievementRepository(impl: LocalAchievementRepository): AchievementRepository
 }

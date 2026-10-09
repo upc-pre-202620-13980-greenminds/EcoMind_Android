@@ -40,7 +40,6 @@ import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
@@ -80,6 +79,8 @@ private fun RankingContent(
                 .padding(top = 12.dp, bottom = 16.dp)
                 .semantics { heading() }
         )
+
+        Text(stringResource(R.string.ranking_demo), style = interTextStyle(11), color = MaterialTheme.colorScheme.onSurfaceVariant)
 
         if (state.isLocked) {
             // Without activity there is nothing to filter, so tabs and chips are not shown
@@ -198,7 +199,7 @@ private fun RankingList(
             Text(
                 text = stringResource(R.string.ranking_points_header),
                 style = interTextStyle(12),
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 12.dp)
             )
         }
@@ -252,7 +253,7 @@ private fun RankingMessage(
                 Text(
                     text = message,
                     style = interTextStyle(13),
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp)
                 )
