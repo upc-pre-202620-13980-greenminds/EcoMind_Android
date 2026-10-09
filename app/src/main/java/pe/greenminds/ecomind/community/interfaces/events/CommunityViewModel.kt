@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.community.application.GetCommunityEventsUseCase
+import pe.greenminds.ecomind.community.interfaces.sections.CommunitySection
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,8 +24,12 @@ class CommunityViewModel @Inject constructor(
         loadEvents()
     }
 
-    // Only the main screen is built: there are no error or empty states yet,
-    // so a failure leaves the list without events
+    fun selectSection(section: CommunitySection) {
+        _state.update { currentState ->
+            currentState.copy(selectedSection = section)
+        }
+    }
+
     private fun loadEvents() {
         viewModelScope.launch {
             val events = getCommunityEvents().getOrDefault(emptyList())
