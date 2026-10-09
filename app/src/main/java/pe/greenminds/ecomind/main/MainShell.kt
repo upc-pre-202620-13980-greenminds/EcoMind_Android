@@ -19,12 +19,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.navigation.AppNavHost
-import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
 
 // Screens that hang from the main menu: they keep the bars and the main menu item active.
 // A new screen of that kind is added to this list.
-private val mainMenuChildRoutes = listOf(QuestListRoute::class, LearningRoute::class)
+private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, LearningRoute::class)
 
 // Frame of the app: the top bar and the bottom bar live here, each section only draws its content
 @Composable

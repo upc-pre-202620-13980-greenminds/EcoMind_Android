@@ -1,8 +1,9 @@
 package pe.greenminds.ecomind.quests.infrastructure.local
 
 import kotlinx.coroutines.delay
-import pe.greenminds.ecomind.quests.domain.model.Quest
-import pe.greenminds.ecomind.quests.domain.model.QuestFilter
+import pe.greenminds.ecomind.quests.domain.entity.Quest
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestCategory
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import pe.greenminds.ecomind.quests.domain.repositories.QuestRepository
 import pe.greenminds.ecomind.quests.infrastructure.remote.QuestDto
 import pe.greenminds.ecomind.quests.infrastructure.remote.toDomain
@@ -45,7 +46,7 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             title = "Unplug before bed",
             description = "Before going to sleep, unplug the chargers nobody is using.",
             category = "ENERGY",
-            type = "DAILY_QUEST",
+            type = "ACTIVITIES",
             theme = "CHECKBOX",
             ecopoints = 10,
             time = 5,
@@ -118,8 +119,8 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             id = 10L,
             title = "Save up water",
             description = "Reduce the water your family uses at home during the week.",
-            category = "WATER",
-            type = "FAMILY",
+            category = "ENERGY",
+            type = "ACTIVITIES",
             theme = "CHECKBOX",
             ecopoints = 40,
             time = 30
@@ -128,8 +129,8 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             id = 11L,
             title = "Build a boat together!",
             description = "Build a small boat with recycled materials as a family.",
-            category = "RECYCLE",
-            type = "FAMILY",
+            category = "ENERGY",
+            type = "ACTIVITIES",
             theme = "COLLABORATIVE",
             ecopoints = 50,
             time = 60
@@ -145,17 +146,25 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
         return Result.success(dto.toDomain())
     }
 
-    // Equivalent to GET /quests/search?title=&category=&questType=
-    override suspend fun searchQuests(filter: QuestFilter): Result<List<Quest>> {
+    // Equivalent to GET /quests. Only published quests are presented to the user.
+    override suspend fun getQuests(): Result<List<Quest>> {
         // Simulates the time a request to the web services would take
         delay(SIMULATED_DELAY_MILLIS)
-
-        val matches = quests.filter { dto ->
-            dto.title.contains(filter.title, ignoreCase = true) &&
-                (filter.category == null || dto.category == filter.category.name) &&
-                (filter.questType == null || dto.type == filter.questType.name)
-        }
         // Same mapper the remote implementation will use
+        return Result.success(quests.map { it.toDomain() })
+    }
+
+    override suspend fun searchQuests(
+        query: String,
+        category: QuestCategory?,
+        questType: QuestType?
+    ): Result<List<Quest>> {
+        delay(SIMULATED_DELAY_MILLIS)
+        val matches = quests.filter { dto ->
+            dto.title.contains(query, ignoreCase = true) &&
+                (category == null || dto.category == category.name) &&
+                (questType == null || dto.type == questType.name)
+        }
         return Result.success(matches.map { it.toDomain() })
     }
 
@@ -173,6 +182,9 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
     ): QuestDto {
         return QuestDto(
             id = id,
+            versionGroupId = id,
+            versionNumber = 1,
+            publicationStatus = "PUBLISHED",
             minigameId = minigameId,
             title = title,
             description = description,

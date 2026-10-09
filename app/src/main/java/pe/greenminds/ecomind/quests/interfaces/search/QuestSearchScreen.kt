@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.quests.interfaces.list
+package pe.greenminds.ecomind.quests.interfaces.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,16 +48,14 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
-// The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
-fun QuestListScreen(
+fun QuestSearchScreen(
     onOpenQuest: (Long) -> Unit,
     onOpenFilters: () -> Unit,
-    viewModel: QuestListViewModel = hiltViewModel()
+    viewModel: QuestSearchViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
-
-    QuestListContent(
+    QuestSearchContent(
         state = state,
         onQueryChange = viewModel::onQueryChange,
         onSearch = viewModel::searchNow,
@@ -67,8 +65,8 @@ fun QuestListScreen(
 }
 
 @Composable
-private fun QuestListContent(
-    state: QuestListUiState,
+private fun QuestSearchContent(
+    state: QuestSearchUiState,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onOpenQuest: (Long) -> Unit,
@@ -91,13 +89,12 @@ private fun QuestListContent(
 
         Box(modifier = Modifier.fillMaxSize()) {
             when {
-                state.hasError -> QuestListMessage(
+                state.hasError -> QuestSearchMessage(
                     message = stringResource(R.string.quest_list_error),
                     actionLabel = stringResource(R.string.quest_try_again),
                     onAction = onSearch
                 )
 
-                // The previous results stay on screen while a new search runs
                 state.isLoading && state.quests.isEmpty() -> {
                     val loadingDescription = stringResource(R.string.loading)
                     CircularProgressIndicator(
@@ -107,7 +104,7 @@ private fun QuestListContent(
                     )
                 }
 
-                state.quests.isEmpty() -> QuestListMessage(
+                state.quests.isEmpty() -> QuestSearchMessage(
                     message = stringResource(R.string.quest_list_empty)
                 )
 
@@ -115,9 +112,8 @@ private fun QuestListContent(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // The id as key keeps each card stable when the results change
-                    items(state.quests, key = { quest -> quest.id }) { quest ->
-                        QuestCard(
+                    items(state.quests, key = { it.id }) { quest ->
+                        QuestSearchResultCard(
                             quest = quest,
                             onOpen = { onOpenQuest(quest.id) }
                         )
@@ -141,11 +137,8 @@ private fun QuestSearchBar(
     val focusRequester = remember { FocusRequester() }
     val searchLabel = stringResource(R.string.quest_search_placeholder)
 
-    // Opened from "Search": the keyboard appears without an extra tap
     LaunchedEffect(requestFocus) {
-        if (requestFocus) {
-            focusRequester.requestFocus()
-        }
+        if (requestFocus) focusRequester.requestFocus()
     }
 
     Row(
@@ -207,9 +200,8 @@ private fun QuestSearchBar(
     }
 }
 
-// The design has no empty or error state for the list, so these are kept minimal
 @Composable
-private fun QuestListMessage(
+private fun QuestSearchMessage(
     message: String,
     actionLabel: String? = null,
     onAction: () -> Unit = {}
@@ -228,19 +220,17 @@ private fun QuestListMessage(
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
         )
         if (actionLabel != null) {
-            TextButton(onClick = onAction) {
-                Text(text = actionLabel)
-            }
+            TextButton(onClick = onAction) { Text(text = actionLabel) }
         }
     }
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-private fun QuestListContentEmptyPreview() {
+private fun QuestSearchContentEmptyPreview() {
     EcoMindTheme {
-        QuestListContent(
-            state = QuestListUiState(isLoading = false),
+        QuestSearchContent(
+            state = QuestSearchUiState(isLoading = false),
             onQueryChange = {},
             onSearch = {},
             onOpenQuest = {},
