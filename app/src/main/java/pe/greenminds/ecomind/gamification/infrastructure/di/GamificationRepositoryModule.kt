@@ -1,22 +1,22 @@
 package pe.greenminds.ecomind.gamification.infrastructure.di
 
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pe.greenminds.ecomind.gamification.domain.repositories.RankingRepository
-import pe.greenminds.ecomind.gamification.infrastructure.local.LocalRankingRepository
-import pe.greenminds.ecomind.gamification.domain.repositories.AchievementRepository
-import pe.greenminds.ecomind.gamification.infrastructure.local.LocalAchievementRepository
+import pe.greenminds.ecomind.BuildConfig
+import pe.greenminds.ecomind.gamification.domain.repositories.*
+import pe.greenminds.ecomind.gamification.infrastructure.local.*
+import pe.greenminds.ecomind.gamification.infrastructure.remote.*
 
-// The only place to change when the remote implementation exists
 @Module
 @InstallIn(SingletonComponent::class)
-interface GamificationRepositoryModule {
-
-    @Binds
-    fun bindRankingRepository(impl: LocalRankingRepository): RankingRepository
-
-    @Binds
-    fun bindAchievementRepository(impl: LocalAchievementRepository): AchievementRepository
+object GamificationRepositoryModule {
+    @Provides fun shareStore(store: AchievementShareStore): ShareRequestStore = store
+    @Provides fun ranking(local: LocalRankingRepository, remote: RemoteRankingRepository): RankingRepository =
+        if (BuildConfig.REMOTE_BACKEND) remote else local
+    @Provides fun achievements(local: LocalAchievementRepository, remote: RemoteAchievementRepository): AchievementRepository =
+        if (BuildConfig.REMOTE_BACKEND) remote else local
+    @Provides fun progress(local: LocalProgressRepository, remote: RemoteProgressRepository): ProgressRepository =
+        if (BuildConfig.REMOTE_BACKEND) remote else local
 }

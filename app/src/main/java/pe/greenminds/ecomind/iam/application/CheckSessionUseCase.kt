@@ -9,7 +9,8 @@ class CheckSessionUseCase @Inject constructor(private val repository: SessionRep
     // True only when there is a stored session whose token is still valid
     suspend operator fun invoke(): Boolean {
         val session = repository.getSession().first() ?: return false
-        if (session.isExpired(System.currentTimeMillis())) {
+        if (session.isExpired(System.currentTimeMillis()) ||
+            (session.accessToken == "demo-access-token") == pe.greenminds.ecomind.BuildConfig.REMOTE_BACKEND) {
             repository.clearSession()
             return false
         }

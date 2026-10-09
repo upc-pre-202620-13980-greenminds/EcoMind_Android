@@ -13,7 +13,7 @@ import javax.inject.Singleton
 @Singleton
 class LocalNotificationRepository @Inject constructor(private val store: ExperienceDataStore) : NotificationRepository {
     override val isSimulated = true
-    private val examples = listOf(
+    private val examples = if (pe.greenminds.ecomind.BuildConfig.REMOTE_BACKEND) emptyList() else listOf(
         AppNotification("learning", NotificationCategory.LEARNING, 5),
         AppNotification("quest", NotificationCategory.QUESTS, 60),
         AppNotification("medal", NotificationCategory.ACHIEVEMENTS, 180),

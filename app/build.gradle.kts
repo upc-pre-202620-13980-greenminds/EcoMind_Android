@@ -6,6 +6,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+val remoteBackend = providers.gradleProperty("ecomind.remote").orElse("false").map(String::toBoolean).get()
+val configuredBackendUrl = providers.gradleProperty("ecomind.apiBaseUrl")
+val backendUrl = configuredBackendUrl.orElse("http://10.0.2.2:8092/api/v1/").get()
+val releaseBackendUrl = configuredBackendUrl.orElse("https://ecomind-backend.example.com/api/v1/").get()
+require(backendUrl.endsWith("/")) { "ecomind.apiBaseUrl must end with /" }
+
 android {
     namespace = "pe.greenminds.ecomind"
     compileSdk {
@@ -18,6 +24,7 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("boolean", "REMOTE_BACKEND", remoteBackend.toString())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -25,14 +32,14 @@ android {
     buildTypes {
         debug {
             // 10.0.2.2 is the host machine seen from the Android emulator
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8092/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"${backendUrl}\"")
         }
         release {
             optimization {
                 enable = false
             }
             // Placeholder: replace with the real host once the backend is deployed
-            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend.example.com/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"${releaseBackendUrl}\"")
         }
     }
     compileOptions {
@@ -46,6 +53,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    testImplementation(libs.mockwebserver)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

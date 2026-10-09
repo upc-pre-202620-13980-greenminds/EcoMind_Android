@@ -12,13 +12,13 @@
 
 | Requirement | Current implementation | Remaining |
 |---|---|---|
-| HU-009 / HU-036: ranking and periods | Existing team screen preserved, local/global/friends/families and period filters; sample-data notice added | Real API/session, community identity and live scores |
-| HU-011: medal collection | Earned/available tabs, detail, original award time, loading/error/empty/session recovery, account isolation | Server awarding and remote reader integration |
+| HU-009 / HU-036: ranking and periods | Existing team screen preserved, local/global/friends/families and period filters; sample-data notice added | Public deployment and complete multi-user production validation |
+| HU-011: medal collection | Earned/available tabs, detail, original award time, loading/error/empty/session recovery, account isolation | Broader production catalogue and device evidence |
 | TS-016: notification inbox | Local demo inbox, unread badge, read one/all, persisted read status, medal route to collection | Backend delivery, production event targets and lifecycle |
 | TS-008: preferences | Six categories matching Figma; saved per account on device; existing history retained | Push transport and server preference sync |
 | Language/theme designs | English/Spanish resources and saved selection; light/dark semantic colors in the reviewed flows | Full visual audit of other teams' legacy screens in dark mode |
 | Account/help menu | Read-only account summary and informational help | Account email/password edits, support chat, FAQ service |
-| HU-003 / HU-008 and domain rewards | Existing backend and activity-dependent flows are not simulated by opening screens | End-to-end activity completion, awarding, streak recovery and celebration integration |
+| HU-003 / HU-008 and domain rewards | Real checkbox completion → server event → points, gems, streak and personal award; history and voluntary Community publication | Other Quests producers, physical device and public deployment |
 
 No screen grants points or medals merely by opening it. The local inbox and medal fixtures are labelled as demonstrations. No push permission is requested because push delivery is not wired. Disabling a category stores a preference; it does not delete historical notifications or claim to stop a production transport. Language/theme are device preferences; notification choices and read status are account scoped.
 
@@ -28,7 +28,7 @@ Notifications and settings follow domain → application → infrastructure → 
 
 Existing typography, shell navigation, green palette and medal assets are reused. Interactive Material switches/radio controls replace the static Figma drawings, with accessible touch targets. The new shared section heading follows the existing medal header. Native scroll containers accommodate font scaling and small screens. Demo labels and error states extend the design deliberately.
 
-The report's TS-007 API names still disagree with implemented backend routes. The backend test run from the preceding sync also exposed three Community–Gamification integration failures; this frontend increment does not certify or repair that integration. No deployed API URL was verified.
+The report's TS-007 uses legacy API names; the backend exposes compatibility routes as well as canonical `/gamification` routes. The integration uses the canonical contracts. The backend's three previously failing Community–Gamification cases were resolved: the local community lookup now compares the enum correctly, and the test matches JWT-derived mutation identity. The full backend suite passed 246 tests. No deployed API URL was verified.
 
 ## Academic preflight
 
@@ -43,3 +43,13 @@ The final build passed all 14 JVM tests and all 9 Android instrumentation tests 
 Manual checks confirmed English/Spanish switching, preferences surviving a process restart, and Settings → Ranking returning to Ranking. The localized context retains its Activity wrapper for Hilt; system bar contrast follows the chosen theme. Global inbox/settings pages are closed when explicitly selecting a main section; normal section state restoration is preserved.
 
 The final demo is a real, silent ADB screen recording. Its steps are logged in `recording-steps.log`. Video decoding and a contact sheet are checked before delivery. No physical-device or live-API claim is made.
+
+## Real backend integration follow-up
+
+The isolated `GamificationDemoServer` uses an in-memory H2 database and the real application services/outbox. Android signs in with a real test JWT and follows Quests → Gamification → Community. A successful emulator run confirmed 10 ecopoints, 2 gems, a one-day streak, one personal award and a `PENDING` → `PUBLISHED` share. Independent API reads confirmed exactly one reward and one Community achievement post; replaying completion and the same share request did not duplicate either. `gamification-remote-integration.md` describes the implemented adapters, configuration and explicit limits.
+
+Android 17 initially blocked the emulator-host connection without local-network permission. Debug configuration now declares/requests that permission for the development host, and the repeated end-to-end run passed. No production network protection was disabled. Notification fixtures are omitted in remote mode so a real account is not given a simulated unread badge.
+
+The final remote build passed 28 JVM tests. All 10 regression instrumentation tests passed on Medium_Phone (API 37), including persisted share-request identity across repository recreation and account separation. The separate connected flow test passed through the actual Activity and backend. Final APKs and recording remain outside the repository.
+
+The default local mode was also rebuilt and passed all 28 JVM tests. The connected flow was replayed successfully for a real 31-second ADB video, with no seeded rewards. The final H.264 file was decoded and visually inspected; only startup/launcher footage was trimmed and frame timing normalized. Evidence includes the recording, screenshots, test logs and independent API verification. The TB1 audit remains **NO APTO** globally (18 Cumple, 5 Falta, 1 Inconsistencia, 16 Sin evidencia, 11 Riesgo); this bounded-context increment does not override unrelated missing delivery evidence.

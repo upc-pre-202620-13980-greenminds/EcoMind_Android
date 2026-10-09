@@ -56,5 +56,17 @@ class EngagementTests {
         assertFalse(NotificationCategory.ACHIEVEMENTS in reopened.observe().first().enabledNotifications)
         assertTrue(LocalNotificationRepository(store).observe(9001).first().isEmpty())
     }
+    @Test fun shareRequestSurvivesRepositoryRecreationAndIsAccountScoped() = runBlocking {
+        val store = ExperienceDataStore(InstrumentationRegistry.getInstrumentation().targetContext)
+        val first = pe.greenminds.ecomind.gamification.infrastructure.local.AchievementShareStore(store)
+        val award = java.util.UUID.randomUUID().toString()
+        val request = first.getOrCreate(9001, award, 5)
+        val reopened = pe.greenminds.ecomind.gamification.infrastructure.local.AchievementShareStore(store)
+        assertEquals(request, reopened.read(9001, award))
+        assertEquals(request, reopened.getOrCreate(9001, award, 5))
+        assertNull(reopened.read(9002, award))
+        try { reopened.getOrCreate(9001, award, 6); fail("Uncertain request must retain its target") }
+        catch (_: IllegalStateException) { }
+    }
     private fun label(id: Int) = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
 }

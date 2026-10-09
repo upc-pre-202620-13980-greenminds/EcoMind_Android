@@ -23,14 +23,15 @@ fun AchievementDetailScreen(
     achievementId: String,
     onBack: () -> Unit,
     onSignIn: () -> Unit,
-    viewModel: AchievementDetailViewModel = hiltViewModel()
+    viewModel: AchievementDetailViewModel = hiltViewModel(),
+    onShare: (String) -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     LaunchedEffect(achievementId) {
         viewModel.loadAchievementById(achievementId)
     }
     AchievementDetailContent(uiState, onBack,
-        onRetry = { viewModel.loadAchievementById(achievementId) }, onSignIn = onSignIn)
+        onRetry = { viewModel.loadAchievementById(achievementId) }, onSignIn = onSignIn, onShare = onShare)
 }
 
 @Composable
@@ -38,7 +39,8 @@ internal fun AchievementDetailContent(
     state: AchievementDetailUiState,
     onBack: () -> Unit,
     onRetry: () -> Unit,
-    onSignIn: () -> Unit
+    onSignIn: () -> Unit,
+    onShare: (String) -> Unit = {}
 ) {
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         AchievementHeader(stringResource(R.string.achievement_detail_title), onBack)
@@ -62,6 +64,9 @@ internal fun AchievementDetailContent(
                             DetailLabel(stringResource(R.string.achievement_awarded_at))
                             // Keep the backend's original instant; never invent a completion date.
                             Text(entry.award.awardedAt, style = interTextStyle(14), color = MaterialTheme.colorScheme.onSurface)
+                            if (!state.detail.isSimulated) androidx.compose.material3.OutlinedButton(onClick = { onShare(entry.award.id) }) {
+                                Text(stringResource(R.string.gamification_share))
+                            }
                         }
                         if (!entry.achievement.active) {
                             DetailLabel(stringResource(R.string.achievement_archived))

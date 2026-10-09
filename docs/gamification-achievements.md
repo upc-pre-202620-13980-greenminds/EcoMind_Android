@@ -64,3 +64,7 @@ Before the class-pattern refactor, executed on 2026-10-08: `:app:testDebugUnitTe
 Actual execution results and the partial TB1 compliance audit are recorded separately in the local course output directory `Trabajo Final/outputs/app-status-2026-10-08/`. Pending compliance reviews and automatic failures are retained; this increment does not declare TB1 ready.
 
 After alignment with the latest class code, this revision passed the full APK/unit build and all 9 achievement unit tests (plus the existing example). Both updated APKs installed in Medium_Phone, and AndroidJUnitRunner reported `OK (4 tests)`, including detail loading through the screen, dedicated ViewModel and use case. Current execution logs and partial TB1 audit are in `Trabajo Final/outputs/class-pattern-alignment-2026-10-08/`. See the class-pattern mapping for the compiler diagnostic and its resolution.
+
+## Follow-up: connected Gamification
+
+The historical increment above was a local medal reader. The 2026-10-09 follow-up now connects the existing collection/ranking to real authenticated services and adds progress/streaks, reward history, family/community awards, voluntary sharing and a checkbox activity-to-reward path. See [gamification-remote-integration.md](gamification-remote-integration.md) for the current scope, configuration, contract decisions and remaining dependencies, and [gamification-review-2026-10-09.md](gamification-review-2026-10-09.md) for final evidence. No additional XP currency or client-side award command was introduced.

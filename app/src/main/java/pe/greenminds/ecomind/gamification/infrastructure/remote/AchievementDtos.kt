@@ -15,7 +15,7 @@ data class AchievementDto(
 
 // GET /api/v1/gamification/me/achievements?page=&size=; identity comes from JWT.
 data class AchievementAwardDto(
-    val id: String, val achievementId: String, val scope: String, val beneficiaryId: Long,
+    val id: String, val achievementId: String, val scope: String, val beneficiaryId: Long?,
     val sourceEventId: String, val awardedAt: String, val communityId: Long?
 ) {
     fun toDomain() = AchievementAward(id, achievementId, scope, beneficiaryId, sourceEventId, awardedAt, communityId)

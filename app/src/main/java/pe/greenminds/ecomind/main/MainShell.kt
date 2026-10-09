@@ -22,11 +22,11 @@ import pe.greenminds.ecomind.navigation.AppNavHost
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
-import pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute
+import pe.greenminds.ecomind.gamification.interfaces.navigation.*
 
 // Screens that hang from the main menu: they keep the bars and the main menu item active.
 // A new screen of that kind is added to this list.
-private val mainMenuChildRoutes = listOf(QuestListRoute::class, LearningRoute::class)
+private val mainMenuChildRoutes = listOf(QuestListRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class, LearningRoute::class)
 
 private val supportRoutes = listOf(NotificationsRoute::class, SettingsRoute::class, NotificationPreferencesRoute::class,
         LanguageRoute::class, ThemeRoute::class, AccountInformationRoute::class, HelpRoute::class)
@@ -41,7 +41,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     val selectedItem = selectedItemFor(backStackEntry?.destination)
     val showBars = selectedItem != null
 
-    LaunchedEffect(showBars) {
+    LaunchedEffect(showBars, backStackEntry) {
         if (showBars) {
             viewModel.loadBalances()
         }
@@ -95,6 +95,10 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute(item.route::class)
     }
     if (section != null) return section
+
+    if (destination.hasRoute<GamificationProgressRoute>() || destination.hasRoute<RewardHistoryRoute>() || destination.hasRoute<GroupAchievementsRoute>()) return NavigationItem.RANKING
+
+    if (destination.hasRoute<ShareAchievementRoute>()) return NavigationItem.PROFILE
 
     if (destination.hasRoute<MyMedalsRoute>() || destination.hasRoute<AchievementDetailRoute>()) {
         return NavigationItem.PROFILE

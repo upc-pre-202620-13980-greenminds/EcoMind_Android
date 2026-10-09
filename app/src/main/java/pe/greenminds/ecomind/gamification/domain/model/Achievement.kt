@@ -15,7 +15,7 @@ data class AchievementAward(
     val id: String,
     val achievementId: String,
     val scope: String,
-    val beneficiaryId: Long,
+    val beneficiaryId: Long?,
     val sourceEventId: String,
     val awardedAt: String,
     val communityId: Long?

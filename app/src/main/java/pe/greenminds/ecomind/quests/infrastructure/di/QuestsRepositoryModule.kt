@@ -1,6 +1,11 @@
 package pe.greenminds.ecomind.quests.infrastructure.di
 
 import dagger.Binds
+import dagger.Provides
+import pe.greenminds.ecomind.BuildConfig
+import pe.greenminds.ecomind.quests.domain.repositories.QuestExecutionRepository
+import pe.greenminds.ecomind.quests.infrastructure.local.LocalQuestExecutionRepository
+import pe.greenminds.ecomind.quests.infrastructure.remote.*
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -14,9 +19,12 @@ import pe.greenminds.ecomind.quests.infrastructure.local.LocalQuestRepository
 @InstallIn(SingletonComponent::class)
 interface QuestsRepositoryModule {
 
-    @Binds
-    fun bindQuestRepository(impl: LocalQuestRepository): QuestRepository
-
-    @Binds
-    fun bindQuestProgressRepository(impl: LocalQuestProgressRepository): QuestProgressRepository
+    companion object {
+        @Provides fun quests(local: LocalQuestRepository, remote: RemoteQuestRepository): QuestRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+        @Provides fun execution(local: LocalQuestExecutionRepository, remote: RemoteQuestExecutionRepository): QuestExecutionRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+        @Provides fun progress(local: LocalQuestProgressRepository, remote: RemoteQuestProgressRepository): QuestProgressRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+    }
 }

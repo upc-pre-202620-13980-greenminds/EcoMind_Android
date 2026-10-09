@@ -44,15 +44,20 @@ import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
-fun RankingScreen(viewModel: RankingViewModel = hiltViewModel()) {
+fun RankingScreen(onProgress: () -> Unit = {}, viewModel: RankingViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    RankingContent(
+    Column(Modifier.fillMaxSize()) {
+        androidx.compose.material3.TextButton(onClick = onProgress, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.gamification_progress))
+        }
+        RankingContent(
         state = state,
         onTypeSelected = viewModel::onTypeSelected,
         onPeriodSelected = viewModel::onPeriodSelected,
         onRetry = viewModel::load
-    )
+        )
+    }
 }
 
 @Composable
@@ -80,7 +85,7 @@ private fun RankingContent(
                 .semantics { heading() }
         )
 
-        Text(stringResource(R.string.ranking_demo), style = interTextStyle(11), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!pe.greenminds.ecomind.BuildConfig.REMOTE_BACKEND) Text(stringResource(R.string.ranking_demo), style = interTextStyle(11), color = MaterialTheme.colorScheme.onSurfaceVariant)
 
         if (state.isLocked) {
             // Without activity there is nothing to filter, so tabs and chips are not shown

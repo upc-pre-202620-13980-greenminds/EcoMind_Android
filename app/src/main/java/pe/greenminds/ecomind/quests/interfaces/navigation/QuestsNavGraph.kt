@@ -3,6 +3,10 @@ package pe.greenminds.ecomind.quests.interfaces.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import pe.greenminds.ecomind.quests.interfaces.detail.QuestDetailScreen
+import pe.greenminds.ecomind.gamification.interfaces.navigation.GamificationProgressRoute
+import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.quests.interfaces.list.QuestListScreen
 import pe.greenminds.ecomind.quests.interfaces.progress.ProgressScreen
@@ -45,6 +49,10 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
         ProgressScreen()
     }
 
-    composable<QuestDetailRoute> { PlaceholderScreen() }
+    composable<QuestDetailRoute> { entry ->
+        QuestDetailScreen(entry.toRoute<QuestDetailRoute>().questId, onBack = { navController.popBackStack() },
+            onSignIn = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } },
+            onProgress = { navController.navigate(GamificationProgressRoute) })
+    }
     composable<QuestFiltersRoute> { PlaceholderScreen() }
 }
