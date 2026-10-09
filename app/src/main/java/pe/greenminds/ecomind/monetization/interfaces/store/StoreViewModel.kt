@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.monetization.application.GetStoreItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetBoostItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetGemPackagesUseCase
+import pe.greenminds.ecomind.monetization.application.GetGemBalanceUseCase
 import pe.greenminds.ecomind.monetization.application.PurchaseCosmeticUseCase
 import pe.greenminds.ecomind.monetization.application.SetCosmeticEquippedUseCase
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
-import pe.greenminds.ecomind.users.interfaces.acl.UsersContextFacade
 import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import javax.inject.Inject
 
@@ -26,10 +26,10 @@ class StoreViewModel @Inject constructor(
     private val getStoreItems: GetStoreItemsUseCase,
     private val getBoostItems: GetBoostItemsUseCase,
     private val getGemPackages: GetGemPackagesUseCase,
+    private val getGemBalance: GetGemBalanceUseCase,
     private val purchaseCosmetic: PurchaseCosmeticUseCase,
     private val setCosmeticEquipped: SetCosmeticEquippedUseCase,
     private val getCurrentProfile: GetCurrentProfileUseCase,
-    private val usersContext: UsersContextFacade,
     private val gemBalanceStore: GemBalanceStore
 ) : ViewModel() {
 
@@ -104,8 +104,7 @@ class StoreViewModel @Inject constructor(
 
         viewModelScope.launch {
             purchaseCosmetic(item.cosmetic.id).onSuccess {
-                val userId = _state.value.userId ?: return@onSuccess
-                val newBalance = usersContext.spendGems(userId, price)
+                val newBalance = getGemBalance()
                     .getOrDefault(_state.value.gemBalance - price)
                 val refreshedItems = getStoreItems().getOrDefault(_state.value.items)
                 gemBalanceStore.update(newBalance)
@@ -154,13 +153,14 @@ class StoreViewModel @Inject constructor(
             val boosts = getBoostItems().getOrNull()
             val gemPackages = getGemPackages().getOrDefault(emptyList())
             val profile = getCurrentProfile().getOrNull()
-            profile?.let { gemBalanceStore.update(it.gemBalance) }
+            val walletBalance = getGemBalance().getOrDefault(profile?.gemBalance ?: 0)
+            gemBalanceStore.update(walletBalance)
 
             _state.update { currentState ->
                 currentState.copy(
                     isLoading = false,
                     userId = profile?.id,
-                    gemBalance = profile?.gemBalance ?: 0,
+                    gemBalance = walletBalance,
                     items = items,
                     multipliers = boosts?.multipliers.orEmpty(),
                     protectors = boosts?.protectors.orEmpty(),

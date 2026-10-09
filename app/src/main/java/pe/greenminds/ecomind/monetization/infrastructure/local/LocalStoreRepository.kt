@@ -182,6 +182,8 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
         return Result.success(Unit)
     }
 
+    override suspend fun getGemBalance(): Result<Int> = Result.success(360)
+
     override suspend fun getMultipliers(): Result<List<Multiplier>> {
         return Result.success(
             listOf(

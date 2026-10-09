@@ -151,7 +151,7 @@ fun StoreItemCard(
 @DrawableRes
 internal fun cosmeticImageResource(reference: String?): Int = when (reference) {
     "avatar_alex" -> R.drawable.avatar_alex
-    "avatar_leafwings" -> R.drawable.avatar_leafwings
+    "avatar_leaf", "avatar_leafwings" -> R.drawable.avatar_leafwings
     "avatar_lunalunette" -> R.drawable.avatar_lunalunette
     "avatar_mickey" -> R.drawable.avatar_mickey
     "avatar_ranma" -> R.drawable.avatar_ranma

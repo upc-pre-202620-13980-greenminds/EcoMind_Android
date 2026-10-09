@@ -19,6 +19,8 @@ interface StoreRepository {
 
     suspend fun setCosmeticEquipped(cosmeticId: String, equipped: Boolean): Result<Unit>
 
+    suspend fun getGemBalance(): Result<Int>
+
     suspend fun getMultipliers(): Result<List<Multiplier>>
 
     suspend fun getStreakProtectors(): Result<List<StreakProtector>>
