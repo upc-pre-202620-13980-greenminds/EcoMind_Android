@@ -26,10 +26,10 @@ The existing local demonstration remains the default. Explicit remote mode selec
 ```sh
 bash ./gradlew :app:assembleDebug \
   -Pecomind.remote=true \
-  -Pecomind.apiBaseUrl=http://10.0.2.2:8095/api/v1/
+  -Pecomind.apiBaseUrl=http://10.0.2.2:8092/api/v1/
 ```
 
-Use the backend's test-only `GamificationDemoServer` described in `EcoMind_Backend/docs/gamification-android-demo.md` for the isolated fixture. A real deployed URL can be supplied with the same property; it must end in `/`. Release uses HTTPS and still needs the team's deployed host. The debug manifest alone permits HTTP and local-network access. Android 17 requires local-network permission for the emulator host; debug builds request it when configured for `10.0.2.2`. Automated emulator runs can grant it with:
+Use the team's existing backend with the appropriate API URL and a valid account. No additional server or seed fixture is included in either PR. A deployed URL can be supplied with the same property; it must end in `/`. Release uses HTTPS and still needs the team's deployed host. The debug manifest alone permits HTTP and local-network access. Android 17 requires local-network permission for the emulator host; debug builds request it when configured for `10.0.2.2`. Automated emulator runs can grant it with:
 
 ```sh
 adb shell pm grant pe.greenminds.ecomind android.permission.ACCESS_LOCAL_NETWORK
@@ -47,4 +47,4 @@ Reference: [Android local-network permission](https://developer.android.com/priv
 
 ## Validation
 
-See `gamification-review-2026-10-09.md` for final test results and real emulator evidence. `RemoteGamificationTests` exercises HTTP contracts, pagination, authorization, actual granted values, collective ownership, cancellation and share retry behavior. `RemoteGamificationFlowTest` exercises the actual Activity, HTTP backend and outbox without replacing app repositories.
+See `gamification-review-2026-10-09.md` for final test results and real emulator evidence. `RemoteGamificationTests` exercises HTTP contracts, pagination, authorization, actual granted values, collective ownership, cancellation and share retry behavior. The earlier connected Activity/outbox walkthrough was executed with a local QA fixture, kept outside the repositories. Its fixture-specific instrumentation test is not part of the PR; the repository retains the 10 regression instrumentation tests and 28 JVM tests.
