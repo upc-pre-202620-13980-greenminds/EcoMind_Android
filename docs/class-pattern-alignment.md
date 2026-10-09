@@ -38,3 +38,43 @@ The class catalog demonstrates Room persistence, while its current cart adapter 
 ## Remote integration follow-up — 2026-10-09
 
 `gamification-remote-integration.md` documents the subsequent HTTP integration. Retrofit 3.0.0 and Gson follow the current class dependency versions. Progress, history, collective achievements, sharing and activity detail retain separate ViewModels; screens receive navigation callbacks and collect StateFlow with lifecycle awareness. The original explicit local adapter remains available for the classroom demo. Remote failures never substitute local rewards or accounts.
+
+
+## Structure recheck — 2026-10-09
+
+Fetched the classroom and team remotes again. EasyVet `origin/main` remains at
+`c943d85`; EcoMind Android `origin/develop` is `2043210` and is already an ancestor
+of this feature branch. Backend `develop` is `11556d0`.
+
+The new Progress, History and Group Achievements screens had reused a generic
+`LoadState`, while sharing declared its state inside the ViewModel file. These
+worked, but diverged from the screen-specific `UiState` files in the classroom
+catalog/cart and the team's Profile/Ranking implementations. They now have
+`ProgressUiState`, `HistoryUiState`, `GroupAchievementsUiState` and
+`ShareAchievementUiState` in separate files, with explicitly typed read-only
+`StateFlow`, atomic `update` calls and named load methods. Loading, retry,
+empty/error states, account checks and cancellation handling are preserved.
+
+`GetAchievementShareUseCase` now owns the status query; `ShareAchievementUseCase`
+owns submission. All affected use cases declare their `Result` return type.
+Screens still load route arguments through `LaunchedEffect`, collect state with
+`collectAsStateWithLifecycle` and pass callbacks to leaf components. The shared
+progress component renders loading/error UI without defining the screens' data
+state. Imports are explicit in the changed screens and ViewModels.
+
+EcoMind retains `domain/application/infrastructure/interfaces` to match the
+team. EasyVet calls its presentation layer `presentation`; renaming the team's
+`interfaces` packages would add churn without changing responsibilities.
+Repository contracts stay in `domain/repositories`, implementations/Retrofit in
+`infrastructure`, and Hilt at the composition boundary. The backend follows the
+same domain ports/JPA adapters/REST resource assemblers structure as Quests and
+Community and did not need code changes for this review.
+
+Sources and the scoped preflight are recorded in
+[the structure review](gamification-structure-review-2026-10-09.md). The review
+covers this increment, not global TB1 compliance or a new backend deployment.
+
+Validation of this structure increment: 28 JVM tests and 10 emulator tests passed;
+the debug APK and test APK built, and default incremental compilation passed.
+Manual navigation verified local progress, history/weekly filter and medal detail.
+The connected backend walkthrough was not repeated in this structure-only review.

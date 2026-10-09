@@ -6,58 +6,92 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pe.greenminds.ecomind.gamification.application.*
-import pe.greenminds.ecomind.gamification.domain.model.*
+import pe.greenminds.ecomind.gamification.application.GetAchievementShareUseCase
+import pe.greenminds.ecomind.gamification.application.GetGamificationOverviewUseCase
+import pe.greenminds.ecomind.gamification.application.ShareAchievementUseCase
+import pe.greenminds.ecomind.gamification.domain.model.AchievementSessionRequiredException
 import javax.inject.Inject
 
-data class ShareUiState(val loading: Boolean = true, val busy: Boolean = false,
-    val communities: List<AchievementGroup> = emptyList(), val selected: Long? = null,
-    val share: AchievementShare? = null, val failed: Boolean = false, val sessionRequired: Boolean = false,
-    val simulated: Boolean = false, val submitted: Boolean = false)
-
 @HiltViewModel
-class ShareAchievementViewModel @Inject constructor(private val overview: GetGamificationOverviewUseCase,
-    private val sharing: ShareAchievementUseCase) : ViewModel() {
-    private val _state = MutableStateFlow(ShareUiState())
-    val state = _state.asStateFlow()
-    private var job: Job? = null
-    fun load(award: String) {
-        if (_state.value.busy) return
-        job?.cancel()
-        job = viewModelScope.launch {
-            _state.value = ShareUiState()
+class ShareAchievementViewModel @Inject constructor(
+    private val getOverview: GetGamificationOverviewUseCase,
+    private val getShare: GetAchievementShareUseCase,
+    private val shareAchievement: ShareAchievementUseCase
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(ShareAchievementUiState())
+    val state: StateFlow<ShareAchievementUiState> = _state.asStateFlow()
+    private var loadJob: Job? = null
+
+    fun loadShare(awardId: String) {
+        if (_state.value.isSharing) return
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            _state.value = ShareAchievementUiState()
             try {
-                val data = overview().getOrThrow()
-                val share = sharing.status(award).getOrThrow()
-                _state.value = ShareUiState(loading = false, communities = data.groups.filter { it.scope == "COMMUNITY" },
-                    selected = share?.communityId, share = share, simulated = data.simulated, submitted = share != null)
-            } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { fail(e) }
+                val overview = getOverview().getOrThrow()
+                val share = getShare(awardId).getOrThrow()
+                _state.value = ShareAchievementUiState(
+                    isLoading = false,
+                    communities = overview.groups.filter { it.scope == "COMMUNITY" },
+                    selectedCommunityId = share?.communityId,
+                    share = share,
+                    isSimulated = overview.simulated,
+                    isSubmitted = share != null
+                )
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                showError(exception)
+            }
         }
     }
-    fun select(id: Long) {
-        val current = _state.value
-        if (!current.busy && !current.submitted && current.communities.any { it.id == id }) {
-            _state.value = current.copy(selected = id)
+
+    fun onCommunitySelected(communityId: Long) {
+        _state.update { currentState ->
+            if (!currentState.isSharing && !currentState.isSubmitted &&
+                currentState.communities.any { it.id == communityId }
+            ) {
+                currentState.copy(selectedCommunityId = communityId)
+            } else {
+                currentState
+            }
         }
     }
-    fun send(award: String) {
+
+    fun share(awardId: String) {
         val current = _state.value
-        val id = current.selected ?: return
-        if (current.busy || current.loading || current.simulated || current.share?.status == "PUBLISHED") return
-        _state.value = current.copy(busy = true, failed = false, submitted = true)
-        job = viewModelScope.launch {
+        val communityId = current.selectedCommunityId ?: return
+        if (current.isSharing || current.isLoading || current.isSimulated ||
+            current.share?.status == "PUBLISHED"
+        ) return
+
+        _state.update { it.copy(isSharing = true, hasError = false, isSubmitted = true) }
+        loadJob = viewModelScope.launch {
             try {
-                val result = sharing(award, id).getOrThrow()
-                _state.value = _state.value.copy(busy = false, share = result)
-            } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { fail(e) }
+                val result = shareAchievement(awardId, communityId).getOrThrow()
+                _state.update { it.copy(isSharing = false, share = result) }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                showError(exception)
+            }
         }
     }
-    private fun fail(e: Exception) {
-        _state.value = _state.value.copy(loading = false, busy = false, failed = true,
-            sessionRequired = e is AchievementSessionRequiredException)
+
+    private fun showError(exception: Throwable) {
+        if (exception is CancellationException) throw exception
+        _state.update { currentState ->
+            currentState.copy(
+                isLoading = false,
+                isSharing = false,
+                hasError = true,
+                sessionRequired = exception is AchievementSessionRequiredException
+            )
+        }
     }
 }

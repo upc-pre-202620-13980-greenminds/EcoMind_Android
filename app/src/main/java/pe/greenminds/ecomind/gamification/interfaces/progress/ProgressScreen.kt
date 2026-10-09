@@ -1,30 +1,44 @@
 package pe.greenminds.ecomind.gamification.interfaces.progress
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.gamification.domain.model.*
-import pe.greenminds.ecomind.gamification.interfaces.achievements.*
-import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
+import pe.greenminds.ecomind.gamification.domain.model.AchievementGroup
+import pe.greenminds.ecomind.gamification.interfaces.achievements.AchievementHeader
+import pe.greenminds.ecomind.gamification.interfaces.achievements.DemoLabel
+import pe.greenminds.ecomind.gamification.interfaces.achievements.DetailLabel
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 @Composable
 fun ProgressScreen(onBack: () -> Unit, onSignIn: () -> Unit, onHistory: () -> Unit,
     onMedals: () -> Unit, onGroup: (AchievementGroup) -> Unit, vm: ProgressViewModel = hiltViewModel()) {
     val state by vm.state.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) { vm.load() }
+    LaunchedEffect(Unit) { vm.loadProgress() }
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         AchievementHeader(stringResource(R.string.gamification_progress), onBack)
-        LoadedContent(state, vm::load, onSignIn) { data ->
+        ProgressContent(state.isLoading, state.hasError, state.sessionRequired, vm::loadProgress, onSignIn) {
+            val data = state.overview ?: return@ProgressContent
             if (data.simulated) DemoLabel()
             LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                 item {
@@ -44,7 +58,7 @@ fun ProgressScreen(onBack: () -> Unit, onSignIn: () -> Unit, onHistory: () -> Un
                 items(data.groups, key = { "${it.scope}:${it.id}" }) { group ->
                     TextButton(onClick = { onGroup(group) }, modifier = Modifier.fillMaxWidth()) { Text(groupName(group)) }
                 }
-                item { TextButton(onClick = vm::load) { Text(stringResource(R.string.gamification_refresh)) } }
+                item { TextButton(onClick = vm::loadProgress) { Text(stringResource(R.string.gamification_refresh)) } }
             }
         }
     }

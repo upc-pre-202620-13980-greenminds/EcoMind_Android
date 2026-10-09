@@ -1,19 +1,31 @@
 package pe.greenminds.ecomind.gamification.interfaces.progress
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.gamification.domain.model.*
-import pe.greenminds.ecomind.gamification.interfaces.achievements.*
+import pe.greenminds.ecomind.gamification.domain.model.RankingPeriod
+import pe.greenminds.ecomind.gamification.interfaces.achievements.AchievementHeader
+import pe.greenminds.ecomind.gamification.interfaces.achievements.DemoLabel
+import pe.greenminds.ecomind.gamification.interfaces.achievements.StateMessage
 import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
@@ -22,13 +34,14 @@ fun HistoryScreen(onBack: () -> Unit, onSignIn: () -> Unit, vm: HistoryViewModel
     var selected by rememberSaveable { mutableIntStateOf(RankingPeriod.ALL_TIME.ordinal) }
     val period = RankingPeriod.entries[selected]
     val state by vm.state.collectAsStateWithLifecycle()
-    LaunchedEffect(period) { vm.load(period) }
+    LaunchedEffect(period) { vm.loadHistory(period) }
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         AchievementHeader(stringResource(R.string.gamification_history), onBack)
         if (!pe.greenminds.ecomind.BuildConfig.REMOTE_BACKEND) DemoLabel()
         SegmentedTabs(listOf(stringResource(R.string.ranking_period_daily), stringResource(R.string.ranking_period_weekly),
             stringResource(R.string.ranking_period_monthly), stringResource(R.string.ranking_period_all_time)), selected, { selected = it })
-        LoadedContent(state, { vm.load(period) }, onSignIn) { rewards ->
+        ProgressContent(state.isLoading, state.hasError, state.sessionRequired, { vm.loadHistory(period) }, onSignIn) {
+            val rewards = state.rewards
             if (rewards.isEmpty()) StateMessage(stringResource(R.string.gamification_no_rewards))
             else LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                 items(rewards, key = { it.id }) { reward ->
