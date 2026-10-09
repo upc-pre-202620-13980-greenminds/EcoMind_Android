@@ -20,4 +20,8 @@ class UsersContextFacade @Inject constructor(
     suspend fun getFamilyIdOf(userId: Long): Long? {
         return familyRepository.getFamilyOf(userId).getOrNull()?.id
     }
+
+    suspend fun spendGems(userId: Long, amount: Int): Result<Int> {
+        return profileRepository.spendGems(userId, amount)
+    }
 }

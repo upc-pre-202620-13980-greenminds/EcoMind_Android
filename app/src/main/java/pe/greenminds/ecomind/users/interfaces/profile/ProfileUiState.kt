@@ -3,6 +3,7 @@ package pe.greenminds.ecomind.users.interfaces.profile
 import pe.greenminds.ecomind.users.domain.model.FamilyOverview
 import pe.greenminds.ecomind.users.domain.model.FriendsOverview
 import pe.greenminds.ecomind.users.domain.model.UserProfile
+import pe.greenminds.ecomind.monetization.domain.model.EquippedCosmetics
 
 // Order of this enum is the order of the tabs on screen
 enum class ProfileTab {
@@ -18,6 +19,7 @@ data class ProfileUiState(
     val isLoadingProfile: Boolean = true,
     val profile: UserProfile? = null,
     val profileFailed: Boolean = false,
+    val equippedCosmetics: EquippedCosmetics = EquippedCosmetics(),
 
     // Friends tab
     val isLoadingFriends: Boolean = true,

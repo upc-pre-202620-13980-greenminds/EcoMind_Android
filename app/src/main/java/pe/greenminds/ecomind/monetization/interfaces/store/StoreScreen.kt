@@ -41,6 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
+import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.DarkGrayText
@@ -55,17 +59,29 @@ import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    StoreContent(state = state)
+    StoreContent(
+        state = state,
+        onCategorySelected = viewModel::selectCategory,
+        onCosmeticViewSelected = viewModel::selectCosmeticView,
+        onCosmeticAction = viewModel::onCosmeticAction,
+        onMultiplierBuy = viewModel::buyMultiplier,
+        onProtectorBuy = viewModel::buyStreakProtector,
+        onDismissPurchaseNotice = viewModel::dismissPurchaseNotice
+    )
 }
 
 @Composable
 private fun StoreContent(
     state: StoreUiState,
+    onCategorySelected: (StoreCategory) -> Unit,
+    onCosmeticViewSelected: (CosmeticView) -> Unit,
+    onCosmeticAction: (StoreItem) -> Unit,
+    onMultiplierBuy: (Multiplier) -> Unit,
+    onProtectorBuy: (StreakProtector) -> Unit,
+    onDismissPurchaseNotice: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Everything that is drawn but not built yet opens the same notice
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
-    val openComingSoon = { showComingSoon = true }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,7 +106,6 @@ private fun StoreContent(
             textAlign = TextAlign.Center
         )
 
-        // Main tabs: only the first one has content; the others open the notice
         Spacer(modifier = Modifier.height(24.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -98,26 +113,26 @@ private fun StoreContent(
         ) {
             StoreTab(
                 text = stringResource(R.string.store_tab_cosmetics),
-                selected = true,
-                onClick = {},
+                selected = state.selectedCategory == StoreCategory.COSMETICS,
+                onClick = { onCategorySelected(StoreCategory.COSMETICS) },
                 modifier = Modifier.weight(1f)
             )
             StoreTab(
                 text = stringResource(R.string.store_tab_multipliers),
-                selected = false,
-                onClick = openComingSoon,
+                selected = state.selectedCategory == StoreCategory.BOOSTS,
+                onClick = { onCategorySelected(StoreCategory.BOOSTS) },
                 modifier = Modifier.weight(1f)
             )
             StoreTab(
                 text = stringResource(R.string.store_tab_gems),
-                selected = false,
-                onClick = openComingSoon,
+                selected = state.selectedCategory == StoreCategory.GEMS,
+                onClick = { onCategorySelected(StoreCategory.GEMS) },
+                selectedColor = Color(0xFF3DADFF),
                 modifier = Modifier.weight(1f)
             )
         }
 
-        // Secondary tabs: catalog or what the user owns
-        Row(
+        if (state.selectedCategory == StoreCategory.COSMETICS) Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -125,23 +140,42 @@ private fun StoreContent(
         ) {
             StoreTab(
                 text = stringResource(R.string.store_subtab_store),
-                selected = true,
-                onClick = {},
+                selected = state.selectedCosmeticView == CosmeticView.STORE,
+                onClick = { onCosmeticViewSelected(CosmeticView.STORE) },
                 modifier = Modifier.weight(1f)
             )
             StoreTab(
                 text = stringResource(R.string.store_subtab_inventory),
-                selected = false,
-                onClick = openComingSoon,
-                outlined = true,
+                selected = state.selectedCosmeticView == CosmeticView.INVENTORY,
+                onClick = { onCosmeticViewSelected(CosmeticView.INVENTORY) },
+                outlined = state.selectedCosmeticView != CosmeticView.INVENTORY,
                 modifier = Modifier.weight(1f)
             )
             // Empty third column, so the two tabs keep the width they have in the design
             Spacer(modifier = Modifier.weight(1f))
         }
 
+        state.insufficientRequiredGems?.let { requiredGems ->
+            InsufficientGemsBanner(
+                requiredGems = requiredGems,
+                currentGems = state.gemBalance
+            )
+        }
+
         Text(
-            text = stringResource(R.string.store_section_cosmetics),
+            text = stringResource(
+                when (state.selectedCategory) {
+                    StoreCategory.COSMETICS -> if (
+                        state.selectedCosmeticView == CosmeticView.INVENTORY
+                    ) {
+                        R.string.store_section_inventory
+                    } else {
+                        R.string.store_section_cosmetics
+                    }
+                    StoreCategory.BOOSTS -> R.string.store_section_multipliers
+                    StoreCategory.GEMS -> R.string.store_section_gems
+                }
+            ),
             style = poppinsTextStyle(14, FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
@@ -157,14 +191,105 @@ private fun StoreContent(
                     .padding(top = 48.dp)
                     .semantics { contentDescription = loadingDescription }
             )
-        } else {
-            StoreGrid(items = state.items, onAction = openComingSoon)
+        } else if (state.selectedCategory == StoreCategory.COSMETICS) {
+            val visibleItems = if (state.selectedCosmeticView == CosmeticView.INVENTORY) {
+                state.items.filter { it.ownership != CosmeticOwnership.NOT_OWNED }
+            } else {
+                state.items
+            }
+            StoreGrid(items = visibleItems, onAction = onCosmeticAction)
+        } else if (state.selectedCategory == StoreCategory.BOOSTS) {
+            BoostList(
+                state = state,
+                onMultiplierBuy = onMultiplierBuy,
+                onProtectorBuy = onProtectorBuy
+            )
+        } else if (state.selectedCategory == StoreCategory.GEMS) {
+            GemPackagesContent(
+                packages = state.gemPackages,
+                onBuy = { showComingSoon = true }
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
     }
 
     if (showComingSoon) {
         ComingSoonDialog(onDismiss = { showComingSoon = false })
+    }
+    if (state.showPurchaseComingSoon) {
+        ComingSoonDialog(onDismiss = onDismissPurchaseNotice)
+    }
+}
+
+@Composable
+private fun GemPackagesContent(
+    packages: List<GemPackage>,
+    onBuy: () -> Unit
+) {
+    val regularPackages = packages.filter { it.gemAmount != 10_000 }
+    val megaPackage = packages.firstOrNull { it.gemAmount == 10_000 }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        regularPackages.chunked(2).forEach { rowPackages ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                rowPackages.forEach { gemPackage ->
+                    GemPackageCard(
+                        gemPackage = gemPackage,
+                        onBuy = onBuy,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowPackages.size == 1) Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+        megaPackage?.let {
+            MegaGemPackageCard(gemPackage = it, onBuy = onBuy)
+        }
+    }
+}
+
+@Composable
+private fun InsufficientGemsBanner(requiredGems: Int, currentGems: Int) {
+    val shape = RoundedCornerShape(12.dp)
+    Text(
+        text = stringResource(
+            R.string.store_error_insufficient_gems,
+            requiredGems,
+            currentGems
+        ),
+        style = poppinsTextStyle(9, FontWeight.Normal),
+        color = Color(0xFFC62828),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .background(Color(0xFFFFF3F3), shape)
+            .border(1.5.dp, Color(0xFFFFCDD2), shape)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    )
+}
+
+@Composable
+private fun BoostList(
+    state: StoreUiState,
+    onMultiplierBuy: (Multiplier) -> Unit,
+    onProtectorBuy: (StreakProtector) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        state.multipliers.forEach { multiplier ->
+            MultiplierCard(
+                multiplier = multiplier,
+                onBuy = { onMultiplierBuy(multiplier) }
+            )
+        }
+        state.protectors.forEach { protector ->
+            StreakProtectorCard(
+                protector = protector,
+                onBuy = { onProtectorBuy(protector) }
+            )
+        }
     }
 }
 
@@ -173,7 +298,7 @@ private fun StoreContent(
 @Composable
 private fun StoreGrid(
     items: List<StoreItem>,
-    onAction: () -> Unit
+    onAction: (StoreItem) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         items.chunked(2).forEach { rowItems ->
@@ -186,7 +311,7 @@ private fun StoreGrid(
                 rowItems.forEach { item ->
                     StoreItemCard(
                         item = item,
-                        onAction = onAction,
+                        onAction = { onAction(item) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -206,11 +331,12 @@ private fun StoreTab(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    outlined: Boolean = false
+    outlined: Boolean = false,
+    selectedColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val shape = RoundedCornerShape(24.dp)
     val background: Color = when {
-        selected -> MaterialTheme.colorScheme.primary
+        selected -> selectedColor
         outlined -> White
         else -> FieldGray
     }
@@ -242,6 +368,14 @@ private fun StoreTab(
 @Composable
 private fun StoreContentPreview() {
     EcoMindTheme {
-        StoreContent(state = StoreUiState(isLoading = false))
+        StoreContent(
+            state = StoreUiState(isLoading = false),
+            onCategorySelected = {},
+            onCosmeticViewSelected = {},
+            onCosmeticAction = {},
+            onMultiplierBuy = {},
+            onProtectorBuy = {},
+            onDismissPurchaseNotice = {}
+        )
     }
 }

@@ -9,6 +9,14 @@
     <string name="store_subtab_store">Store</string>
     <string name="store_subtab_inventory">My Inventory</string>
     <string name="store_section_cosmetics">Avatars and cosmetics</string>
+    <string name="store_section_inventory">My inventory</string>
+    <string name="store_section_multipliers">Multipliers and protectors</string>
+    <string name="store_section_gems">Gems</string>
+    <string name="store_gem_amount">%1$,d gems</string>
+    <string name="store_gem_price">S/. %1$.2f</string>
+    <string name="store_mega_bundle">Great package!</string>
+    <string name="store_mega_avatars">3 exclusive avatars</string>
+    <string name="store_mega_multiplier">x3 multiplier for one week</string>
 
     <!-- Cards -->
     <string name="store_badge_in_inventory">In Inventory</string>
@@ -16,6 +24,7 @@
     <string name="store_action_buy">Buy</string>
     <string name="store_action_equip">Equip</string>
     <string name="store_action_unequip">Unequip</string>
+    <string name="store_error_insufficient_gems">Insufficient gems. You need %1$d 💎 but you have %2$d 💎.</string>
     <string name="store_type_avatar">Avatar</string>
     <string name="store_type_head">Hat</string>
     <string name="store_type_body">Body</string>
