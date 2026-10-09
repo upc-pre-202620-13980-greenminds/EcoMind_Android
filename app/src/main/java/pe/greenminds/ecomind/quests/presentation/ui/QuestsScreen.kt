@@ -254,7 +254,7 @@ private fun QuestPage(
                     val quest = quests.getOrNull(rowIndex * 2 + columnIndex)
                     if (quest != null) {
                         QuestTile(
-                            theme = quest.theme,
+                            theme = quest.displayTheme,
                             contentDescription = quest.title,
                             onClick = { onOpenQuest(quest.id) },
                             modifier = Modifier
@@ -333,3 +333,4 @@ private fun previewQuest(id: Long, theme: QuestTheme) = Quest(
     assignedDate = null,
     imageUrl = null
 )
+

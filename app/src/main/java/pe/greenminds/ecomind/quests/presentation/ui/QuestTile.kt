@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 
-private val QuestTileShape = RoundedCornerShape(46.dp)
+
 
 @Composable
 fun QuestTile(
@@ -46,7 +46,7 @@ fun QuestTile(
 
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    Box(
+    androidx.compose.foundation.layout.BoxWithConstraints(
         modifier = modifier
             .semantics {
                 this.contentDescription = contentDescription
@@ -58,13 +58,17 @@ fun QuestTile(
                 onClick = onClick
             )
     ) {
+        val edge = minOf(maxWidth, maxHeight)
+        val shape = RoundedCornerShape(edge * .28f)
         QuestTileBase(
             color = tileColors.base,
+            edge = edge, shape = shape,
             modifier = Modifier.matchParentSize()
         )
 
         QuestTileFace(
             colors = tileColors,
+            edge = edge, shape = shape,
             theme = theme,
             isPressed = isPressed,
             modifier = Modifier.matchParentSize()
@@ -75,12 +79,14 @@ fun QuestTile(
 @Composable
 private fun QuestTileBase(
     color: Color,
+    edge: androidx.compose.ui.unit.Dp,
+    shape: RoundedCornerShape,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .padding(top = 12.dp)
-            .clip(QuestTileShape)
+            .padding(top = edge * .075f)
+            .clip(shape)
             .background(color)
     )
 }
@@ -88,6 +94,8 @@ private fun QuestTileBase(
 @Composable
 private fun QuestTileFace(
     colors: QuestTileColors,
+    edge: androidx.compose.ui.unit.Dp,
+    shape: RoundedCornerShape,
     theme: QuestTheme,
     isPressed: Boolean,
     modifier: Modifier = Modifier
@@ -95,22 +103,27 @@ private fun QuestTileFace(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .padding(bottom = 10.dp)
-            .offset(y = if (isPressed) 8.dp else -6.dp)
-            .clip(QuestTileShape)
+            .padding(bottom = edge * .065f)
+            .offset(y = if (isPressed) edge * .05f else -edge * .04f)
+            .clip(shape)
             .background(colors.top)
     ) {
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .offset(y = 18.dp)
-                .clip(QuestTileShape)
+                .offset(y = edge * .115f)
+                .clip(shape)
                 .background(colors.face)
         )
 
-        Text(
-            text = theme.name,
-            color = Color.White
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(when (theme) {
+                QuestTheme.CHECKBOX -> pe.greenminds.ecomind.R.drawable.ic_quest_checkbox
+                QuestTheme.MINIGAME -> pe.greenminds.ecomind.R.drawable.ic_quest_minigame
+                QuestTheme.COLLABORATIVE -> pe.greenminds.ecomind.R.drawable.ic_quest_collaborative
+            }),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(.50f)
         )
     }
 }
@@ -140,4 +153,5 @@ private fun QuestTilePreview() {
         }
     }
 }
+
 

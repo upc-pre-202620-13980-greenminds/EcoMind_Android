@@ -24,7 +24,7 @@ import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
 
 // Screens that hang from the main menu: they keep the bars and the main menu item active.
 // A new screen of that kind is added to this list.
-private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, LearningRoute::class)
+private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, LearningRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class)
 
 // Frame of the app: the top bar and the bottom bar live here, each section only draws its content
 @Composable
@@ -35,9 +35,10 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val selectedItem = selectedItemFor(backStackEntry?.destination)
     val showBars = selectedItem != null
+    val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true
 
-    LaunchedEffect(showBars) {
-        if (showBars) {
+    LaunchedEffect(showTopBar) {
+        if (showTopBar) {
             viewModel.loadBalances()
         }
     }
@@ -45,7 +46,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            if (showBars) {
+            if (showTopBar) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
                     ecopoints = state.ecopoints,

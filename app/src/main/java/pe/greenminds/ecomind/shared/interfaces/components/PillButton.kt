@@ -50,7 +50,8 @@ fun PillButton(
     modifier: Modifier = Modifier,
     @DrawableRes iconRes: Int? = null,
     height: Dp = 63.dp,
-    textStyle: TextStyle = MaterialTheme.typography.headlineSmall
+    textStyle: TextStyle = MaterialTheme.typography.headlineSmall,
+    enabled: Boolean = true
 ) {
     val shape = RoundedCornerShape(percent = 50)
     // The base and the shine keep the same proportion in the large and the small button.
@@ -65,6 +66,7 @@ fun PillButton(
             .height(height)
             .clip(shape)
             .clickable(
+                enabled = enabled,
                 interactionSource = interactionSource,
                 indication = null,
                 role = Role.Button,

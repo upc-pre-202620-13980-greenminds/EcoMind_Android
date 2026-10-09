@@ -1,6 +1,6 @@
 package pe.greenminds.ecomind.quests.interfaces.search
 
-import androidx.annotation.DrawableRes
+import pe.greenminds.ecomind.quests.presentation.ui.displayTheme
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -88,17 +88,20 @@ fun QuestSearchResultCard(
                 ),
                 color = ChipGreen
             )
-            QuestChip(
-                text = stringResource(themeLabel(quest.theme)),
-                color = ChipPurple
-            )
+            if (quest.type == QuestType.COLLABORATIVE || quest.theme == QuestTheme.COLLABORATIVE) {
+                QuestChip(
+                    text = stringResource(R.string.quest_theme_collaborative),
+                    color = ChipPurple
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
         Row {
-            Image(
-                painter = painterResource(tileFor(quest)),
-                contentDescription = null,
+            pe.greenminds.ecomind.quests.presentation.ui.QuestTile(
+                theme = quest.displayTheme,
+                contentDescription = quest.title,
+                onClick = onOpen,
                 modifier = Modifier.size(width = 93.dp, height = 90.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -162,20 +165,5 @@ private fun categoryColor(category: QuestCategory): Color = when (category) {
     QuestCategory.RECYCLE -> LeafGreen
 }
 
-@StringRes
-private fun themeLabel(theme: QuestTheme): Int = when (theme) {
-    QuestTheme.CHECKBOX -> R.string.quest_theme_checkbox
-    QuestTheme.MINIGAME -> R.string.quest_theme_minigame
-    QuestTheme.COLLABORATIVE -> R.string.quest_theme_collaborative
-}
 
-@DrawableRes
-private fun tileFor(quest: Quest): Int {
-    if (quest.type == QuestType.DAILY_QUEST) return R.drawable.img_tile_videos_default
 
-    return when (quest.theme) {
-        QuestTheme.CHECKBOX -> R.drawable.img_tile_quests_default
-        QuestTheme.MINIGAME -> R.drawable.img_tile_minigames_default
-        QuestTheme.COLLABORATIVE -> R.drawable.img_tile_collaborative_default
-    }
-}
