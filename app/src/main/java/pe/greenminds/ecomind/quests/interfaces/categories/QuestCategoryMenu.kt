@@ -17,9 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.quests.domain.model.QuestCategory
-import pe.greenminds.ecomind.quests.domain.model.QuestType
-import pe.greenminds.ecomind.quests.interfaces.navigation.QuestListRoute
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestCategory
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.CoralRed
 import pe.greenminds.ecomind.shared.interfaces.theme.CoralRedDark
@@ -38,7 +38,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 // onOpenList receives the route that carries it.
 @Composable
 fun QuestCategoryMenu(
-    onOpenList: (QuestListRoute) -> Unit,
+    onOpenSearch: (QuestSearchRoute) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -65,7 +65,7 @@ fun QuestCategoryMenu(
         ) {
             PillButton(
                 text = stringResource(R.string.quest_category_energy),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.ENERGY.name)) },
+                onClick = { onOpenSearch(QuestSearchRoute(category = QuestCategory.ENERGY.name)) },
                 faceColor = SunYellow,
                 baseColor = SunYellowDark,
                 iconRes = R.drawable.ic_lightbulb
@@ -73,27 +73,27 @@ fun QuestCategoryMenu(
             // The water drop icon has not been exported yet
             PillButton(
                 text = stringResource(R.string.quest_category_water),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.WATER.name)) },
+                onClick = { onOpenSearch(QuestSearchRoute(category = QuestCategory.WATER.name)) },
                 faceColor = SkyBlue,
                 baseColor = SkyBlueDark
             )
             PillButton(
                 text = stringResource(R.string.quest_category_recycle),
-                onClick = { onOpenList(QuestListRoute(category = QuestCategory.RECYCLE.name)) },
+                onClick = { onOpenSearch(QuestSearchRoute(category = QuestCategory.RECYCLE.name)) },
                 faceColor = LeafGreen,
                 baseColor = LeafGreenDark,
                 iconRes = R.drawable.ic_category_recycle
             )
             PillButton(
                 text = stringResource(R.string.quest_daily_quest),
-                onClick = { onOpenList(QuestListRoute(questType = QuestType.DAILY_QUEST.name)) },
+                onClick = { onOpenSearch(QuestSearchRoute(questType = QuestType.DAILY_QUEST.name)) },
                 faceColor = CoralRed,
                 baseColor = CoralRedDark,
                 iconRes = R.drawable.ic_category_daily_quest
             )
             PillButton(
                 text = stringResource(R.string.quest_search_placeholder),
-                onClick = { onOpenList(QuestListRoute(focusSearch = true)) },
+                onClick = { onOpenSearch(QuestSearchRoute(focusSearch = true)) },
                 faceColor = EcoGreen,
                 baseColor = EcoGreenDark,
                 iconRes = R.drawable.ic_category_search
@@ -106,6 +106,6 @@ fun QuestCategoryMenu(
 @Composable
 private fun QuestCategoryMenuPreview() {
     EcoMindTheme {
-        QuestCategoryMenu(onOpenList = {}, onDismiss = {})
+        QuestCategoryMenu(onOpenSearch = {}, onDismiss = {})
     }
 }

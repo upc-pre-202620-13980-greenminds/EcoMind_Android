@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.quests.interfaces.list
+package pe.greenminds.ecomind.quests.interfaces.search
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -31,19 +31,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.quests.domain.model.Quest
-import pe.greenminds.ecomind.quests.domain.model.QuestCategory
-import pe.greenminds.ecomind.quests.domain.model.QuestTheme
-import pe.greenminds.ecomind.quests.domain.model.QuestType
+import pe.greenminds.ecomind.quests.domain.entity.Quest
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestCategory
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.ChipGray
 import pe.greenminds.ecomind.shared.interfaces.theme.ChipGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.ChipPurple
 import pe.greenminds.ecomind.shared.interfaces.theme.DividerGray
-import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.LeafGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
@@ -53,7 +51,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 @Composable
-fun QuestCard(
+fun QuestSearchResultCard(
     quest: Quest,
     onOpen: () -> Unit,
     modifier: Modifier = Modifier
@@ -65,11 +63,9 @@ fun QuestCard(
             .fillMaxWidth()
             .clip(shape)
             .border(1.dp, DividerGray, shape)
-            // The whole card opens the quest, so the small button is not the only touch target
             .clickable(role = Role.Button, onClick = onOpen)
             .padding(12.dp)
     ) {
-        // The chips scroll sideways when they do not fit, for example with a large font
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.horizontalScroll(rememberScrollState())
@@ -79,11 +75,17 @@ fun QuestCard(
                 color = categoryColor(quest.category)
             )
             QuestChip(
-                text = stringResource(R.string.quest_chip_minutes, quest.minutes),
+                text = stringResource(
+                    R.string.quest_chip_minutes,
+                    quest.estimatedMinutes ?: 0
+                ),
                 color = ChipGray
             )
             QuestChip(
-                text = stringResource(R.string.quest_chip_ecopoints, quest.ecopoints),
+                text = stringResource(
+                    R.string.quest_chip_ecopoints,
+                    quest.reward.ecopoints
+                ),
                 color = ChipGreen
             )
             QuestChip(
@@ -94,7 +96,6 @@ fun QuestCard(
 
         Spacer(modifier = Modifier.height(8.dp))
         Row {
-            // Decorative: the chips already say the theme of the quest
             Image(
                 painter = painterResource(tileFor(quest)),
                 contentDescription = null,
@@ -149,33 +150,25 @@ private fun QuestChip(text: String, color: Color) {
 }
 
 @StringRes
-fun categoryLabel(category: QuestCategory): Int {
-    return when (category) {
-        QuestCategory.ENERGY -> R.string.quest_category_energy
-        QuestCategory.WATER -> R.string.quest_category_water
-        QuestCategory.RECYCLE -> R.string.quest_category_recycle
-    }
+private fun categoryLabel(category: QuestCategory): Int = when (category) {
+    QuestCategory.ENERGY -> R.string.quest_category_energy
+    QuestCategory.WATER -> R.string.quest_category_water
+    QuestCategory.RECYCLE -> R.string.quest_category_recycle
 }
 
-// Same colors as the buttons of the category menu
-private fun categoryColor(category: QuestCategory): Color {
-    return when (category) {
-        QuestCategory.ENERGY -> SunYellow
-        QuestCategory.WATER -> SkyBlue
-        QuestCategory.RECYCLE -> LeafGreen
-    }
+private fun categoryColor(category: QuestCategory): Color = when (category) {
+    QuestCategory.ENERGY -> SunYellow
+    QuestCategory.WATER -> SkyBlue
+    QuestCategory.RECYCLE -> LeafGreen
 }
 
 @StringRes
-private fun themeLabel(theme: QuestTheme): Int {
-    return when (theme) {
-        QuestTheme.CHECKBOX -> R.string.quest_theme_checkbox
-        QuestTheme.MINIGAME -> R.string.quest_theme_minigame
-        QuestTheme.COLLABORATIVE -> R.string.quest_theme_collaborative
-    }
+private fun themeLabel(theme: QuestTheme): Int = when (theme) {
+    QuestTheme.CHECKBOX -> R.string.quest_theme_checkbox
+    QuestTheme.MINIGAME -> R.string.quest_theme_minigame
+    QuestTheme.COLLABORATIVE -> R.string.quest_theme_collaborative
 }
 
-// Daily quests use the "play" tile; the rest use the tile of their theme
 @DrawableRes
 private fun tileFor(quest: Quest): Int {
     if (quest.type == QuestType.DAILY_QUEST) return R.drawable.img_tile_videos_default
@@ -184,30 +177,5 @@ private fun tileFor(quest: Quest): Int {
         QuestTheme.CHECKBOX -> R.drawable.img_tile_quests_default
         QuestTheme.MINIGAME -> R.drawable.img_tile_minigames_default
         QuestTheme.COLLABORATIVE -> R.drawable.img_tile_collaborative_default
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-private fun QuestCardPreview() {
-    EcoMindTheme {
-        QuestCard(
-            quest = Quest(
-                id = 1L,
-                title = stringResource(R.string.app_name),
-                description = stringResource(R.string.placeholder_message),
-                category = QuestCategory.ENERGY,
-                type = QuestType.COLLABORATIVE,
-                theme = QuestTheme.COLLABORATIVE,
-                gemReward = 30,
-                ecopoints = 50,
-                minutes = 60,
-                recommendedAge = 8,
-                imageUrl = null,
-                minigameId = null
-            ),
-            onOpen = {},
-            modifier = Modifier.padding(16.dp)
-        )
     }
 }

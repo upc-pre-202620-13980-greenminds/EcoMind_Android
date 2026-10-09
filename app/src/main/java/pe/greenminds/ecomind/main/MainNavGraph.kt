@@ -15,6 +15,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestCategoryMenu
+import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
+import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
 fun NavGraphBuilder.mainNavGraph(navController: NavController) {
@@ -23,13 +25,13 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
         var showCategories by rememberSaveable { mutableStateOf(false) }
 
         Box {
-            MainMenuScreen(
-                onOpenQuests = { showCategories = true },
+            QuestsScreen(
+                onOpenCategories = { showCategories = true },
+                onOpenQuest = { questId ->
+                    navController.navigate(QuestDetailRoute(questId)) { launchSingleTop = true }
+                },
                 onOpenLearning = {
                     navController.navigate(LearningRoute) { launchSingleTop = true }
-                },
-                onOpenPlaceholder = {
-                    navController.navigate(PlaceholderRoute) { launchSingleTop = true }
                 },
                 modifier = if (showCategories) {
                     // Blur needs Android 12; on older versions only the white layer is seen.
@@ -46,7 +48,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
                 BackHandler { showCategories = false }
 
                 QuestCategoryMenu(
-                    onOpenList = { route ->
+                    onOpenSearch = { route ->
                         showCategories = false
                         navController.navigate(route) { launchSingleTop = true }
                     },
