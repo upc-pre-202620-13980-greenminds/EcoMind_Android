@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -76,6 +77,7 @@ fun QuestsScreen(
         onOpenCategories = onOpenCategories,
         onOpenQuest = onOpenQuest,
         onOpenLearning = onOpenLearning,
+        onRetry = viewModel::loadQuests,
         modifier = modifier
     )
 }
@@ -87,7 +89,8 @@ private fun QuestsContent(
     onOpenCategories: () -> Unit,
     onOpenQuest: (Long) -> Unit,
     onOpenLearning: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit = {}
 ) {
     val categoryQuests = state.quests
         .filter { it.type != QuestType.FAMILY }
@@ -134,10 +137,19 @@ private fun QuestsContent(
                     .padding(120.dp)
             )
 
-            state.hasError -> Text(
-                text = stringResource(R.string.quest_list_error),
+            state.hasError -> Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier.height(320.dp)
-            )
+            ) {
+                Text(stringResource(R.string.quest_list_error))
+                TextButton(onClick = onRetry) { Text(stringResource(R.string.quest_try_again)) }
+            }
+
+            categoryQuests.isEmpty() -> Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxWidth().height(320.dp)
+            ) { Text(stringResource(R.string.quest_list_empty)) }
 
             else -> BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val contentWidth = maxWidth - QUEST_SCREEN_HORIZONTAL_PADDING -

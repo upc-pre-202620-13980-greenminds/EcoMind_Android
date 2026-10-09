@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import pe.greenminds.ecomind.BuildConfig
+import pe.greenminds.ecomind.iam.infrastructure.remote.AuthInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -16,8 +17,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        return OkHttpClient.Builder().addInterceptor(authInterceptor).build()
     }
 
     @Provides

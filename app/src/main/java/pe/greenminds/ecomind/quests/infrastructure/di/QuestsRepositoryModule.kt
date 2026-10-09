@@ -5,13 +5,12 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.quests.domain.repositories.QuestRepository
-import pe.greenminds.ecomind.quests.infrastructure.local.LocalQuestRepository
+import pe.greenminds.ecomind.quests.infrastructure.implementation.RemoteQuestRepository
 
-// The only place to change when the remote implementations exist
 @Module
 @InstallIn(SingletonComponent::class)
 interface QuestsRepositoryModule {
 
     @Binds
-    fun bindQuestRepository(impl: LocalQuestRepository): QuestRepository
+    fun bindQuestRepository(impl: RemoteQuestRepository): QuestRepository
 }
