@@ -30,13 +30,13 @@ val LightQuestColorScheme = QuestColorScheme(
         top = Color(0xFF9BE5A5)
     ),
     minigame = QuestTileColors(
-        face = Color(0xFF3FA8F5),
-        base = Color(0xFF4B66DF),
+        face = Color(0xFF3DADFF),
+        base = Color(0xFF496BE7),
         top = Color(0xFF83CAFF)
     ),
     collaborative = QuestTileColors(
-        face = Color(0xFFFFC44D),
-        base = Color(0xFFD9901F),
+        face = Color(0xFFFFC943),
+        base = Color(0xFFFF9E42),
         top = Color(0xFFFFE079)
     )
 )

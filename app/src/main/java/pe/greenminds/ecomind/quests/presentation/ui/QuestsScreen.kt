@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -41,14 +42,14 @@ import pe.greenminds.ecomind.quests.domain.valueobject.QuestPublicationStatus
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestReward
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.quests.interfaces.categories.QuestCategoryPill
+import pe.greenminds.ecomind.quests.interfaces.categories.QuestListFilter
 import pe.greenminds.ecomind.quests.presentation.states.QuestsUiState
 import pe.greenminds.ecomind.quests.presentation.viewmodel.QuestsViewModel
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
-import pe.greenminds.ecomind.shared.interfaces.theme.SunYellow
-import pe.greenminds.ecomind.shared.interfaces.theme.SunYellowDark
 import kotlin.math.absoluteValue
 
 private const val QUEST_TILE_ASPECT_RATIO = 142f / 137f
@@ -61,6 +62,7 @@ private val QUEST_TILE_TOP_OVERFLOW = 6.dp
 
 @Composable
 fun QuestsScreen(
+    selectedFilter: QuestListFilter,
     onOpenCategories: () -> Unit,
     onOpenQuest: (Long) -> Unit,
     onOpenLearning: () -> Unit,
@@ -70,6 +72,7 @@ fun QuestsScreen(
     val state = viewModel.state.collectAsStateWithLifecycle().value
     QuestsContent(
         state = state,
+        selectedFilter = selectedFilter,
         onOpenCategories = onOpenCategories,
         onOpenQuest = onOpenQuest,
         onOpenLearning = onOpenLearning,
@@ -80,14 +83,34 @@ fun QuestsScreen(
 @Composable
 private fun QuestsContent(
     state: QuestsUiState,
+    selectedFilter: QuestListFilter,
     onOpenCategories: () -> Unit,
     onOpenQuest: (Long) -> Unit,
     onOpenLearning: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val categoryQuests = state.quests.filter { it.category == QuestCategory.ENERGY }
+    val categoryQuests = state.quests
+        .filter { it.type != QuestType.FAMILY }
+        .filter { quest ->
+            when (selectedFilter) {
+                QuestListFilter.ENERGY ->
+                    quest.category == QuestCategory.ENERGY && quest.type != QuestType.DAILY_QUEST
+
+                QuestListFilter.WATER ->
+                    quest.category == QuestCategory.WATER && quest.type != QuestType.DAILY_QUEST
+
+                QuestListFilter.RECYCLE ->
+                    quest.category == QuestCategory.RECYCLE && quest.type != QuestType.DAILY_QUEST
+
+                QuestListFilter.DAILY_QUEST -> quest.type == QuestType.DAILY_QUEST
+            }
+        }
     val pages = categoryQuests.chunked(4).ifEmpty { listOf(emptyList()) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
+
+    LaunchedEffect(selectedFilter) {
+        pagerState.scrollToPage(0)
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,12 +120,9 @@ private fun QuestsContent(
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(60.dp))
-        PillButton(
-            text = stringResource(R.string.main_menu_energy),
+        QuestCategoryPill(
+            filter = selectedFilter,
             onClick = onOpenCategories,
-            faceColor = SunYellow,
-            baseColor = SunYellowDark,
-            iconRes = R.drawable.ic_lightbulb,
             modifier = Modifier.padding(horizontal = QUEST_SCREEN_HORIZONTAL_PADDING)
         )
 
@@ -232,7 +252,7 @@ private fun QuestPage(
                     } else {
                         Spacer(
                             modifier = Modifier
-                                .weight(4f)
+                                .weight(1f)
                                 .aspectRatio(QUEST_TILE_ASPECT_RATIO)
                         )
                     }
@@ -276,6 +296,7 @@ private fun QuestsContentPreview() {
                 ),
                 isLoading = false
             ),
+            selectedFilter = QuestListFilter.ENERGY,
             onOpenCategories = {},
             onOpenQuest = {},
             onOpenLearning = {}

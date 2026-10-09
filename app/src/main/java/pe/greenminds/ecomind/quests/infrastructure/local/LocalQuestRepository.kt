@@ -46,7 +46,7 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             title = "Unplug before bed",
             description = "Before going to sleep, unplug the chargers nobody is using.",
             category = "ENERGY",
-            type = "DAILY_QUEST",
+            type = "ACTIVITIES",
             theme = "CHECKBOX",
             ecopoints = 10,
             time = 5,
@@ -120,7 +120,7 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             title = "Save up water",
             description = "Reduce the water your family uses at home during the week.",
             category = "ENERGY",
-            type = "FAMILY",
+            type = "ACTIVITIES",
             theme = "CHECKBOX",
             ecopoints = 40,
             time = 30
@@ -130,7 +130,7 @@ class LocalQuestRepository @Inject constructor() : QuestRepository {
             title = "Build a boat together!",
             description = "Build a small boat with recycled materials as a family.",
             category = "ENERGY",
-            type = "FAMILY",
+            type = "ACTIVITIES",
             theme = "COLLABORATIVE",
             ecopoints = 50,
             time = 60

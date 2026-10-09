@@ -4,11 +4,14 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,10 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -49,17 +53,23 @@ fun PillButton(
     textStyle: TextStyle = MaterialTheme.typography.headlineSmall
 ) {
     val shape = RoundedCornerShape(percent = 50)
-    // The base and the shine keep the same proportion in the large and the small button
+    // The base and the shine keep the same proportion in the large and the small button.
     val depth = height * 0.1f
-    val shineHeight = height * 0.22f
+    val shineHeight = height * 0.18f
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .shadow(elevation = 3.dp, shape = shape)
             .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Button,
+                onClick = onClick
+            )
     ) {
         // Base: what is seen under the face
         Box(
@@ -73,15 +83,23 @@ fun PillButton(
             modifier = Modifier
                 .matchParentSize()
                 .padding(bottom = depth)
+                .offset(y = if (isPressed) depth else 0.dp)
                 .clip(shape)
                 .background(faceColor)
         ) {
-            // Shine on the upper edge
+            // The light layer is another rounded face behind the main face. Its curved
+            // edge remains visible at the top and disappears naturally down the sides.
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(shineHeight)
+                    .matchParentSize()
                     .background(White.copy(alpha = 0.35f))
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .offset(y = shineHeight)
+                    .clip(shape)
+                    .background(faceColor)
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
