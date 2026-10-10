@@ -15,8 +15,9 @@ import pe.greenminds.ecomind.gamification.infrastructure.remote.*
 import pe.greenminds.ecomind.iam.domain.model.Session
 import pe.greenminds.ecomind.iam.domain.repositories.SessionRepository
 import pe.greenminds.ecomind.shared.infrastructure.remote.RemoteAccess
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import pe.greenminds.ecomind.iam.infrastructure.remote.AuthInterceptor
+import pe.greenminds.ecomind.shared.infrastructure.di.NetworkModule
+import pe.greenminds.ecomind.gamification.infrastructure.di.GamificationApiModule
 
 class RemoteGamificationTests {
     private lateinit var server: MockWebServer
@@ -28,8 +29,16 @@ class RemoteGamificationTests {
 
     @Before fun prepare() {
         server = MockWebServer().apply { start() }
-        api = Retrofit.Builder().baseUrl(server.url("/api/v1/")).addConverterFactory(GsonConverterFactory.create()).build().create(GamificationApi::class.java)
         sessions = Sessions()
+        val client = NetworkModule.provideOkHttpClient(AuthInterceptor(sessions)).newBuilder()
+            .addInterceptor { chain ->
+                // Redirect after IAM authorization, retaining the configured API path.
+                val request = chain.request()
+                chain.proceed(request.newBuilder().url(server.url(
+                    request.url.encodedPath + (request.url.encodedQuery?.let { "?$it" } ?: "")
+                )).build())
+            }.build()
+        api = GamificationApiModule.provideGamificationApi(NetworkModule.provideRetrofit(client))
         access = RemoteAccess(sessions)
     }
     @After fun close() { server.shutdown() }
@@ -66,11 +75,19 @@ class RemoteGamificationTests {
         assertEquals(0, server.requestCount)
     }
     @Test fun switchingAccountDuringRequestDiscardsItsResponse() = runBlocking {
-        val result = access.authenticated { _, _ -> sessions.value.value = sessions.value.value!!.copy(accountId = 2); "old private data" }
+        val result = access.authenticated { _ -> sessions.value.value = sessions.value.value!!.copy(accountId = 2); "old private data" }
         assertTrue(result.exceptionOrNull() is AchievementSessionRequiredException)
     }
+    @Test fun accountSwitchBeforeInterceptorSendsNoRequest() = runBlocking {
+        val result = access.authenticated { captured ->
+            sessions.value.value = captured.copy(accountId = 2, accessToken = "other-token")
+            api.awards(captured, 0)
+        }
+        assertTrue(result.exceptionOrNull() is AchievementSessionRequiredException)
+        assertEquals(0, server.requestCount)
+    }
     @Test fun cancellationIsNotConvertedToAnErrorResult() = runBlocking {
-        try { access.authenticated<Unit> { _, _ -> throw CancellationException() }; fail("Cancellation must propagate") }
+        try { access.authenticated<Unit> { _ -> throw CancellationException() }; fail("Cancellation must propagate") }
         catch (_: CancellationException) { }
     }
     @Test fun historyUsesGrantedAmountAndUtcPeriod() = runBlocking {

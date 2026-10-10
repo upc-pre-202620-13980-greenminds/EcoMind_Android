@@ -5,8 +5,8 @@ import pe.greenminds.ecomind.users.domain.repositories.FriendRepository
 import javax.inject.Inject
 
 class RemoteFriendRepository @Inject constructor(private val api: UsersApi, private val access: RemoteAccess) : FriendRepository {
-    override suspend fun getFriendships(userId: Long) = access.authenticated { session, token ->
+    override suspend fun getFriendships(userId: Long) = access.authenticated { session ->
         check(session.accountId == userId)
-        api.friends(token, userId).filter { it.requesterId == userId || it.receiverId == userId }.map { it.toDomain() }
+        api.friends(session, userId).filter { it.requesterId == userId || it.receiverId == userId }.map { it.toDomain() }
     }
 }

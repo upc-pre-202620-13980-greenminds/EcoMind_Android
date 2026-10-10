@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class RemoteAchievementRepository @Inject constructor(private val api: GamificationApi, private val access: RemoteAccess) : AchievementRepository {
     override val isSimulated = false
-    override suspend fun getCatalog() = access.authenticated { _, token -> collectArrayPages { api.catalog(token, it) }.map { it.toDomain() } }
-    override suspend fun getMyAwards() = access.authenticated { _, token -> collectArrayPages { api.awards(token, it) }.map { it.toDomain() } }
+    override suspend fun getCatalog() = access.authenticated { session -> collectArrayPages { api.catalog(session, it) }.map { it.toDomain() } }
+    override suspend fun getMyAwards() = access.authenticated { session -> collectArrayPages { api.awards(session, it) }.map { it.toDomain() } }
 }

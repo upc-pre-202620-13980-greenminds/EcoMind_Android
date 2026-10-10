@@ -57,3 +57,8 @@ See `gamification-develop-integration-2026-10-09.md` for the update against
 `6db2af6`, retained team implementations, session checks and regression results.
 Ranking and personal medals reload when their destination resumes, including
 after returning from a completed quest or another section.
+
+The connection parity follow-up centralizes JWT headers in the same IAM
+AuthInterceptor used by Quests and Monetization. Gamification/Users API methods
+carry only an internal session guard; no caller formats an Authorization header.
+The shared-client HTTP tests passed for all four context API modules.

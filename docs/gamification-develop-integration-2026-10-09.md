@@ -18,7 +18,7 @@ to the updated team implementation. It does not certify the whole TB1 delivery.
 | Inconsistency | One shared HTTP composition boundary; class Retrofit/Hilt pattern | Both branches add `shared/infrastructure/di/NetworkModule`; develop includes IAM `AuthInterceptor` and per-context API modules. | Retain the team's authenticated client and move Gamification/Users API bindings into their own modules. |
 | Inconsistency | Preserve team context ownership; class domain repository pattern | Develop adds `quests/application/service/QuestExecutionService`, entity/value objects and execution presentation; feature has another execution model and screen. | Retain develop's complete Quests flow and remove the superseded feature adapters/screens. Gamification reads rewards awarded by the backend. |
 | Inconsistency | Preserve integrations from develop | Develop adds `GemBalanceStore` and Monetization/Profile cosmetic integration; feature shell adds unread notifications. | Combine both behaviors; preserve Quests navigation and Community content. |
-| Risk | Current-account isolation | Gamification captures a session and explicitly authorizes requests; develop interceptor reads the latest session again. | Preserve an explicit captured Authorization header instead of replacing it with another account's token. Test this interaction. |
+| Risk | Current-account isolation | Gamification originally captured a session and explicitly authorized requests; develop's interceptor reads the current session. | Centralize Authorization in the shared IAM interceptor and reject a captured request if its session changed. Test this interaction. |
 | Inconsistency | Remote data must not silently become demo data | Develop IAM/Quests/Monetization use remote adapters; feature default selects demo Gamification and Users. | Make the standard build remote and retain demo only as an explicit development choice. Preserve the team's release endpoint and dependencies. |
 
 ## Validation
@@ -37,8 +37,8 @@ to the updated team implementation. It does not certify the whole TB1 delivery.
 - Kept the team's gem balance observer and added the existing notification count
   alongside it. Returning from a completed quest reloads server balances. Ranking
   and personal medals refresh on destination resume.
-- Preserved captured Authorization headers and rejected ranking results assembled
-  across account changes. Moved the shared session failure into the shared domain
+- Centralized Authorization in IAM and rejected ranking results assembled across
+  account changes. Moved the shared session failure into the shared domain
   so Users' remote access no longer depends on Gamification's domain.
 - Implemented the new `ProfileRepository.spendGems` port as a failure in the remote
   adapter: no standalone debit endpoint exists. The team's remote Store adapter
@@ -75,3 +75,41 @@ before academic acceptance can be asserted.
 
 Build logs, test XML and the audit output are preserved in the local course
 directory `Trabajo Final/outputs/develop-integration-2026-10-09/`.
+
+## Connection parity follow-up
+
+Re-fetched Android, backend and class references: `develop` remains `6db2af6`,
+backend remains `11556d0`, and EasyVet remains `c943d85`.
+
+The API modules already used the same singleton Retrofit and API base URL as
+Quests/Monetization. The remaining difference was passing a bearer token through
+each Gamification/Users API method. Those explicit `@Header` parameters are now
+removed. **Only `iam.infrastructure.remote.AuthInterceptor` constructs the
+Authorization header in production code.** Its normal behavior remains the same
+for the team's untagged IAM/Quests/Monetization requests.
+
+Gamification/Users attach their captured Session using Retrofit's internal
+`@Tag`. This is client-only metadata: it is not a header, query parameter or JSON
+payload. The shared interceptor checks it against the current session and blocks
+the request before transport on account switching, logout or expiration.
+`RemoteAccess` handles current-account validation and Result/recovery; it no
+longer formats or supplies a token. Post-response checks remain in place.
+
+`SharedConnectionTests` invokes the real NetworkModule and four feature API
+modules through one Retrofit/client. A test-only transport redirect captures the
+wire requests after the IAM interceptor. It verifies the configured `/api/v1`
+paths, exactly one common Authorization header for all four contexts, decoded
+responses and no session data in GET bodies. The existing HTTP contract tests
+now use this shared client too. A queued account-switch test confirms that no
+request reaches the transport with the wrong account's token.
+
+Debug/release builds and **49 JVM tests passed**, including the shared-connection
+and session-isolation tests. No live-backend or physical-device claim follows
+from these contract tests. The strict TB1 auditor was re-run; its delivery-wide
+NO APTO status and the documented localization-checker limitation remain open.
+
+A new instrumentation run built its test APK but could not execute: no device
+was connected and the AVD refused to start for insufficient disk space (163 MiB
+available). The earlier 13 passing emulator tests belong to the previous
+integration revision. Logs for this attempt are saved alongside the new JVM
+results; no files outside this task were removed to free space.

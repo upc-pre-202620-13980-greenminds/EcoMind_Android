@@ -1,6 +1,7 @@
 package pe.greenminds.ecomind.gamification.infrastructure.remote
 
 import retrofit2.http.*
+import pe.greenminds.ecomind.iam.domain.model.Session
 
 data class ProgressDto(val userId: Long, val totalEcopoints: Long, val currentStreak: Int, val longestStreak: Int,
     val lastActivityDate: String?, val lastProtectedDate: String?)
@@ -17,29 +18,29 @@ data class CommunityMembershipDto(val community_id: Long, val user_id: Long)
 data class CommunityDto(val id: Long, val name: String)
 data class FamilyScoreDto(val familyId: Long, val totalEcopoints: Long)
 interface GamificationApi {
-    @GET("gamification/me/progress") suspend fun progress(@Header("Authorization") token: String): ProgressDto
-    @GET("gamification/rewards") suspend fun history(@Header("Authorization") token: String,
+    @GET("gamification/me/progress") suspend fun progress(@Tag session: Session): ProgressDto
+    @GET("gamification/rewards") suspend fun history(@Tag session: Session,
         @Query("from") from: String, @Query("to") to: String, @Query("page") page: Int,
         @Query("size") size: Int = 100): RankingPageDto<RewardHistoryDto>
-    @GET("gamification/achievements") suspend fun catalog(@Header("Authorization") token: String,
+    @GET("gamification/achievements") suspend fun catalog(@Tag session: Session,
         @Query("page") page: Int, @Query("size") size: Int = 100): List<AchievementDto>
-    @GET("gamification/me/achievements") suspend fun awards(@Header("Authorization") token: String,
+    @GET("gamification/me/achievements") suspend fun awards(@Tag session: Session,
         @Query("page") page: Int, @Query("size") size: Int = 100): List<AchievementAwardDto>
-    @GET("gamification/{scope}/{id}/achievements") suspend fun groupAwards(@Header("Authorization") token: String,
+    @GET("gamification/{scope}/{id}/achievements") suspend fun groupAwards(@Tag session: Session,
         @Path("scope") scope: String, @Path("id") id: Long, @Query("page") page: Int,
         @Query("size") size: Int = 100): List<AchievementAwardDto>
-    @GET("gamification/rankings/{type}/participants") suspend fun participants(@Header("Authorization") token: String,
+    @GET("gamification/rankings/{type}/participants") suspend fun participants(@Tag session: Session,
         @Path("type") type: String, @Query("page") page: Int, @Query("size") size: Int = 100): RankingPageDto<RankingEntryDto>
-    @GET("gamification/rankings/{type}/transactions") suspend fun transactions(@Header("Authorization") token: String,
+    @GET("gamification/rankings/{type}/transactions") suspend fun transactions(@Tag session: Session,
         @Path("type") type: String, @Query("from") from: String, @Query("to") to: String,
         @Query("page") page: Int, @Query("size") size: Int = 100): RankingPageDto<RankingTransactionDto>
-    @GET("family_user") suspend fun familyMembership(@Header("Authorization") token: String,
+    @GET("family_user") suspend fun familyMembership(@Tag session: Session,
         @Query("user_id") id: Long): List<FamilyMembershipDto>
-    @GET("Community/Memberships") suspend fun memberships(@Header("Authorization") token: String): List<CommunityMembershipDto>
-    @GET("Community/Communities") suspend fun communities(@Header("Authorization") token: String): List<CommunityDto>
-    @GET("gamification/families/{id}/score") suspend fun familyScore(@Header("Authorization") token: String, @Path("id") id: Long): FamilyScoreDto
-    @POST("gamification/achievement-shares") suspend fun share(@Header("Authorization") token: String, @Body body: ShareBody): ShareDto
-    @GET("gamification/achievement-shares/{id}") suspend fun shareStatus(@Header("Authorization") token: String, @Path("id") id: String): ShareDto
+    @GET("Community/Memberships") suspend fun memberships(@Tag session: Session): List<CommunityMembershipDto>
+    @GET("Community/Communities") suspend fun communities(@Tag session: Session): List<CommunityDto>
+    @GET("gamification/families/{id}/score") suspend fun familyScore(@Tag session: Session, @Path("id") id: Long): FamilyScoreDto
+    @POST("gamification/achievement-shares") suspend fun share(@Tag session: Session, @Body body: ShareBody): ShareDto
+    @GET("gamification/achievement-shares/{id}") suspend fun shareStatus(@Tag session: Session, @Path("id") id: String): ShareDto
 }
 
 // Arrays terminate on a short page; enveloped endpoints terminate only on hasNext.
