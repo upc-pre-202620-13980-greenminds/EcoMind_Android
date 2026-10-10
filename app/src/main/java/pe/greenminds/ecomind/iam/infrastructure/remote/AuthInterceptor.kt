@@ -5,7 +5,9 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.io.IOException
 import pe.greenminds.ecomind.BuildConfig
+import pe.greenminds.ecomind.iam.domain.model.Session
 import pe.greenminds.ecomind.iam.domain.repositories.SessionRepository
 import javax.inject.Inject
 
@@ -26,6 +28,13 @@ class AuthInterceptor @Inject constructor(
         }
 
         val session = runBlocking { sessionRepository.getSession().first() }
+        // Retrofit tags stay inside the client. A captured session is a guard,
+        // never a separate Authorization header or part of the HTTP payload.
+        val capturedSession = request.tag(Session::class.java)
+        if (capturedSession != null &&
+            (capturedSession != session || capturedSession.isExpired(System.currentTimeMillis()))) {
+            throw IOException("Session changed before the request could be sent")
+        }
         if (session == null || session.isExpired(System.currentTimeMillis())) {
             return chain.proceed(request)
         }
@@ -33,4 +42,3 @@ class AuthInterceptor @Inject constructor(
             .header("Authorization", "Bearer ${session.accessToken}").build())
     }
 }
-

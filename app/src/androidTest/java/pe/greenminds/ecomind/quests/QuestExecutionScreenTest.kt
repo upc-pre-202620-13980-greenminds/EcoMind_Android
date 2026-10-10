@@ -25,6 +25,7 @@ class QuestExecutionScreenTest {
         val activities = listOf(Activity(1, 1, "Turn off your lights", 1, ActivityType.CHECKBOX, emptyMap(), null),
             Activity(2, 1, "Unplug your devices", 2, ActivityType.CHECKBOX, emptyMap(), null))
         var state by mutableStateOf(QuestExecutionState(QuestExecution(quest, activities, null, emptyList())))
+        var openedRewards = false
         compose.setContent {
             EcoMindTheme {
                 QuestExecutionContent(state, {}, {}, {
@@ -37,7 +38,7 @@ class QuestExecutionScreenTest {
                     val progress = checks.map { it.progress }.average()
                     state = state.copy(execution = execution.copy(checks = checks, assignment = execution.assignment!!.copy(
                         progress = progress, status = if (progress == 100.0) QuestStatus.READY_TO_COMPLETE else QuestStatus.IN_PROGRESS)))
-                }, { state = state.copy(stage = QuestStage.FINISHED) })
+                }, { state = state.copy(stage = QuestStage.FINISHED) }, { openedRewards = true })
             }
         }
         compose.onNodeWithText("Invite friends").assertDoesNotExist()
@@ -52,6 +53,8 @@ class QuestExecutionScreenTest {
         compose.onNodeWithText("Finish Quest").assertIsEnabled().performClick()
         compose.onNodeWithText("Quest completed!\nGood job!").assertExists()
         compose.onNodeWithText("+50 ecoPoints").assertExists()
+        compose.onNodeWithText("View rewards and achievements").performClick()
+        compose.runOnIdle { org.junit.Assert.assertTrue(openedRewards) }
         screenshot("quest-finished.png")
     }
     private fun screenshot(name: String) {

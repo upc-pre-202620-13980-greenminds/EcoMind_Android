@@ -1,6 +1,9 @@
 package pe.greenminds.ecomind.users.infrastructure.di
 
 import dagger.Binds
+import dagger.Provides
+import pe.greenminds.ecomind.BuildConfig
+import pe.greenminds.ecomind.users.infrastructure.remote.*
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -16,12 +19,12 @@ import pe.greenminds.ecomind.users.infrastructure.local.LocalProfileRepository
 @InstallIn(SingletonComponent::class)
 interface UsersRepositoryModule {
 
-    @Binds
-    fun bindProfileRepository(impl: LocalProfileRepository): ProfileRepository
-
-    @Binds
-    fun bindFriendRepository(impl: LocalFriendRepository): FriendRepository
-
-    @Binds
-    fun bindFamilyRepository(impl: LocalFamilyRepository): FamilyRepository
+    companion object {
+        @Provides fun profile(local: LocalProfileRepository, remote: RemoteProfileRepository): ProfileRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+        @Provides fun friends(local: LocalFriendRepository, remote: RemoteFriendRepository): FriendRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+        @Provides fun family(local: LocalFamilyRepository, remote: RemoteFamilyRepository): FamilyRepository =
+            if (BuildConfig.REMOTE_BACKEND) remote else local
+    }
 }

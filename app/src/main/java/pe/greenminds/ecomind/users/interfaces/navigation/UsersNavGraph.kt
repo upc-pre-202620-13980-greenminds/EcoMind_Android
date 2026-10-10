@@ -6,6 +6,9 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileScreen
+import pe.greenminds.ecomind.gamification.interfaces.achievements.AchievementsScreen
+import pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute
+import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
 
 @Serializable
 data object ProfileRoute
@@ -29,6 +32,7 @@ data object AddCommitmentRoute
 data object EditCommitmentRoute
 
 @Serializable
+// Existing Profile entry point; the collection itself is implemented by Gamification.
 data object MyMedalsRoute
 
 @Serializable
@@ -69,7 +73,13 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     composable<FavoritesRoute> { PlaceholderScreen() }
     composable<AddCommitmentRoute> { PlaceholderScreen() }
     composable<EditCommitmentRoute> { PlaceholderScreen() }
-    composable<MyMedalsRoute> { PlaceholderScreen() }
+    composable<MyMedalsRoute> {
+        AchievementsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenAchievement = { id -> navController.navigate(AchievementDetailRoute(id)) { launchSingleTop = true } },
+            onSignIn = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } }
+        )
+    }
     composable<InviteFriendsRoute> { PlaceholderScreen() }
     composable<FindFriendsRoute> { PlaceholderScreen() }
     composable<FriendRequestsRoute> { PlaceholderScreen() }

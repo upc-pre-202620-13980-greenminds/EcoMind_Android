@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.gamification.domain.model.Ranking
 import pe.greenminds.ecomind.gamification.domain.model.RankingEntry
@@ -40,20 +41,28 @@ import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
-fun RankingScreen(viewModel: RankingViewModel = hiltViewModel()) {
+fun RankingScreen(onProgress: () -> Unit = {}, viewModel: RankingViewModel = hiltViewModel()) {
+    LifecycleResumeEffect(Unit) {
+        viewModel.load()
+        onPauseOrDispose { }
+    }
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    RankingContent(
+    Column(Modifier.fillMaxSize()) {
+        androidx.compose.material3.TextButton(onClick = onProgress, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.gamification_progress))
+        }
+        RankingContent(
         state = state,
         onTypeSelected = viewModel::onTypeSelected,
         onPeriodSelected = viewModel::onPeriodSelected,
         onRetry = viewModel::load
-    )
+        )
+    }
 }
 
 @Composable
@@ -80,6 +89,8 @@ private fun RankingContent(
                 .padding(top = 12.dp, bottom = 16.dp)
                 .semantics { heading() }
         )
+
+        if (!pe.greenminds.ecomind.BuildConfig.REMOTE_BACKEND) Text(stringResource(R.string.ranking_demo), style = interTextStyle(11), color = MaterialTheme.colorScheme.onSurfaceVariant)
 
         if (state.isLocked) {
             // Without activity there is nothing to filter, so tabs and chips are not shown
@@ -198,7 +209,7 @@ private fun RankingList(
             Text(
                 text = stringResource(R.string.ranking_points_header),
                 style = interTextStyle(12),
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 12.dp)
             )
         }
@@ -252,7 +263,7 @@ private fun RankingMessage(
                 Text(
                     text = message,
                     style = interTextStyle(13),
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp)
                 )

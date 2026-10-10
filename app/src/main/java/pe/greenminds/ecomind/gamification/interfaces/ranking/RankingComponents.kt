@@ -31,12 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.gamification.domain.model.RankingEntry
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
-import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
-import pe.greenminds.ecomind.shared.interfaces.theme.SurfaceTint
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
-import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // Positions drawn in green, as in the design
@@ -60,7 +54,7 @@ fun PeriodChips(
     ) {
         options.forEachIndexed { index, option ->
             val selected = index == selectedIndex
-            val color = if (selected) MaterialTheme.colorScheme.primary else TextSecondary
+            val color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
             // The outer box keeps a touch target of 48dp around the smaller chip
             Box(
@@ -83,12 +77,12 @@ fun PeriodChips(
                             if (selected) {
                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                             } else {
-                                White
+                                MaterialTheme.colorScheme.background
                             }
                         )
                         .border(
                             width = 1.dp,
-                            color = if (selected) MaterialTheme.colorScheme.primary else CardBorder,
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                             shape = chipShape
                         )
                         .padding(horizontal = 14.dp, vertical = 6.dp)
@@ -112,14 +106,14 @@ fun CurrentPositionCard(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 52.dp)
-            .background(SurfaceTint, shape)
-            .border(1.dp, CardBorder, shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, shape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
             .padding(horizontal = 16.dp)
     ) {
         Text(
             text = label,
             style = interTextStyle(14),
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Text(
@@ -168,14 +162,14 @@ fun RankingRow(
             Text(
                 text = entry.position.toString(),
                 style = interTextStyle(14, FontWeight.Bold),
-                color = if (isHighlighted) MaterialTheme.colorScheme.primary else TextSecondary,
+                color = if (isHighlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(28.dp)
             )
             Text(
                 text = displayName,
                 style = interTextStyle(14, FontWeight.Bold),
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp)
@@ -188,7 +182,7 @@ fun RankingRow(
         }
         // The row of the user has its own background instead of a line
         if (!entry.isCurrentUser) {
-            HorizontalDivider(thickness = 1.dp, color = RowDivider)
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         }
     }
 }

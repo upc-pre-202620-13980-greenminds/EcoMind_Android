@@ -21,10 +21,15 @@ import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.navigation.AppNavHost
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
+import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
+import pe.greenminds.ecomind.gamification.interfaces.navigation.*
 
 // Screens that hang from the main menu: they keep the bars and the main menu item active.
 // A new screen of that kind is added to this list.
-private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, LearningRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class)
+private val mainMenuChildRoutes = listOf(QuestSearchRoute::class, pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute::class, LearningRoute::class)
+
+private val supportRoutes = listOf(NotificationsRoute::class, SettingsRoute::class, NotificationPreferencesRoute::class,
+        LanguageRoute::class, ThemeRoute::class, AccountInformationRoute::class, HelpRoute::class)
 
 // Frame of the app: the top bar and the bottom bar live here, each section only draws its content
 @Composable
@@ -37,7 +42,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
     val showBars = selectedItem != null
     val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true
 
-    LaunchedEffect(showTopBar) {
+    LaunchedEffect(showTopBar, backStackEntry) {
         if (showTopBar) {
             viewModel.loadBalances()
         }
@@ -49,6 +54,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
             if (showTopBar) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
+                    unreadCount = state.unreadCount,
                     ecopoints = state.ecopoints,
                     onNotificationsClick = {
                         navController.navigate(NotificationsRoute) { launchSingleTop = true }
@@ -84,25 +90,39 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
 private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination == null) return null
 
+    if (supportRoutes.any { destination.hasRoute(it) }) return NavigationItem.PROFILE
+
     val section = NavigationItem.entries.firstOrNull { item ->
         destination.hasRoute(item.route::class)
     }
     if (section != null) return section
+
+    if (destination.hasRoute<GamificationProgressRoute>() || destination.hasRoute<RewardHistoryRoute>() || destination.hasRoute<GroupAchievementsRoute>()) return NavigationItem.RANKING
+
+    if (destination.hasRoute<ShareAchievementRoute>()) return NavigationItem.PROFILE
+
+    if (destination.hasRoute<MyMedalsRoute>() || destination.hasRoute<AchievementDetailRoute>()) {
+        return NavigationItem.PROFILE
+    }
 
     val hangsFromMainMenu = mainMenuChildRoutes.any { route -> destination.hasRoute(route) }
     return if (hangsFromMainMenu) NavigationItem.MAIN_MENU else null
 }
 
 private fun navigateToSection(navController: NavHostController, item: NavigationItem) {
+    val leavingSupport = supportRoutes.any { route ->
+        navController.currentDestination?.hasRoute(route) == true
+    }
     navController.navigate(item.route) {
         // Main menu stays at the bottom of the stack, so going back from a section returns to it
         popUpTo<MainMenuRoute> {
-            // Keeps what the section being left had on screen
-            saveState = true
+            // Global settings/inbox should close when a main section is explicitly selected.
+            // Normal section navigation still preserves its previous screen.
+            saveState = !leavingSupport
         }
         // Tapping the active item does not open the section twice
         launchSingleTop = true
         // Brings back what the section had when it was left
-        restoreState = true
+        restoreState = !leavingSupport
     }
 }

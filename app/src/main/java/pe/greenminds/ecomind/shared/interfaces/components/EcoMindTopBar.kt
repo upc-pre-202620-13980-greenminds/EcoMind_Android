@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +38,8 @@ fun EcoMindTopBar(
     ecopoints: Int,
     onNotificationsClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    unreadCount: Int = 0
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -68,11 +71,13 @@ fun EcoMindTopBar(
             )
 
             IconButton(onClick = onNotificationsClick) {
-                Image(
-                    painter = painterResource(R.drawable.ic_notifications),
-                    contentDescription = stringResource(R.string.top_bar_notifications),
-                    modifier = Modifier.size(24.dp)
-                )
+                BadgedBox(badge = { if (unreadCount > 0) Badge { Text(unreadCount.toString()) } }) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_notifications),
+                        contentDescription = stringResource(R.string.top_bar_notifications),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
             IconButton(onClick = onSettingsClick) {
                 Image(

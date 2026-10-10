@@ -6,6 +6,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+val remoteBackend = providers.gradleProperty("ecomind.remote").orElse("true").map(String::toBoolean).get()
+val configuredBackendUrl = providers.gradleProperty("ecomind.apiBaseUrl")
+val backendUrl = configuredBackendUrl.orElse("http://10.0.2.2:8092/api/v1/").get()
+val releaseBackendUrl = configuredBackendUrl.orElse("https://ecomind-backend-yxp7.onrender.com/api/v1/").get()
+require(backendUrl.endsWith("/") && releaseBackendUrl.endsWith("/")) { "ecomind.apiBaseUrl must end with /" }
+
 android {
     namespace = "pe.greenminds.ecomind"
     compileSdk {
@@ -18,21 +24,23 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("boolean", "REMOTE_BACKEND", "true")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
+            buildConfigField("boolean", "REMOTE_BACKEND", remoteBackend.toString())
             // 10.0.2.2 is the host machine seen from the Android emulator
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8092/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"${backendUrl}\"")
         }
         release {
             optimization {
                 enable = false
             }
-            // Placeholder: replace with the real host once the backend is deployed
-            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend-yxp7.onrender.com/api/v1/\"")
+            // Keep the release host configured by the team; a Gradle property can override it.
+            buildConfigField("String", "API_BASE_URL", "\"${releaseBackendUrl}\"")
         }
     }
     compileOptions {
@@ -72,6 +80,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockwebserver)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

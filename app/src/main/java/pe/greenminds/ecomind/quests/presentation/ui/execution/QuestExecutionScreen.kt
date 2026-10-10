@@ -25,17 +25,17 @@ import pe.greenminds.ecomind.shared.interfaces.theme.*
 import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
-fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel = hiltViewModel()) {
+fun QuestExecutionScreen(onBack: () -> Unit, onProgress: () -> Unit = {}, viewModel: QuestExecutionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.stage) {
         if (state.stage == QuestStage.STARTING) { delay(2200); viewModel.animationEnded() }
     }
-    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check, viewModel::finish)
+    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check, viewModel::finish, onProgress)
 }
 
 @Composable
 internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Unit, onRetry: () -> Unit,
-    onStart: () -> Unit, onCheck: (Long, Boolean) -> Unit, onFinish: () -> Unit) {
+    onStart: () -> Unit, onCheck: (Long, Boolean) -> Unit, onFinish: () -> Unit, onProgress: () -> Unit = {}) {
     Column(Modifier.fillMaxSize().background(Color.White).statusBarsPadding().padding(horizontal = 28.dp)) {
         if (state.stage != QuestStage.STARTING && state.stage != QuestStage.FINISHED) {
             TextButton(onClick = onBack, modifier = Modifier.offset(x = (-16).dp)) { Text("‹", fontSize = 30.sp, color = Color.Black) }
@@ -61,7 +61,12 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
                 if (execution.quest.reward.gems > 0) Text("+${execution.quest.reward.gems} gems", modifier = Modifier.align(Alignment.CenterHorizontally))
             }
             Spacer(Modifier.weight(1f))
-            if (finished) QuestButton("Nice!", onBack, true, true)
+            if (finished) {
+                TextButton(onClick = onProgress, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(androidx.compose.ui.res.stringResource(pe.greenminds.ecomind.R.string.quest_view_rewards))
+                }
+                QuestButton("Nice!", onBack, true, true)
+            }
             Spacer(Modifier.height(28.dp))
             return@Column
         }

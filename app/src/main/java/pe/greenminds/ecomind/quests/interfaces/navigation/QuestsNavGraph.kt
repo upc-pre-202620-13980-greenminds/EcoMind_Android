@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
+import pe.greenminds.ecomind.gamification.interfaces.navigation.GamificationProgressRoute
 import pe.greenminds.ecomind.quests.interfaces.search.QuestSearchScreen
 import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
@@ -43,7 +44,10 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
     }
 
     composable<QuestDetailRoute> {
-        pe.greenminds.ecomind.quests.presentation.ui.execution.QuestExecutionScreen(onBack = { navController.popBackStack() })
+        pe.greenminds.ecomind.quests.presentation.ui.execution.QuestExecutionScreen(
+            onBack = { navController.popBackStack() },
+            onProgress = { navController.navigate(GamificationProgressRoute) { launchSingleTop = true } }
+        )
     }
     composable<QuestFiltersRoute> { PlaceholderScreen() }
 }
