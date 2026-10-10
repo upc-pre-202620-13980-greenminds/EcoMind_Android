@@ -1,0 +1,15 @@
+<resources>
+    <string name="main_menu_energy">Energía</string>
+    <string name="main_menu_learn_more">Aprende más</string>
+    <string name="main_menu_quests">Retos</string>
+    <string name="main_menu_minigames">Minijuegos</string>
+    <string name="main_menu_collaborative">Retos colaborativos</string>
+    <string name="main_menu_videos">Videos</string>
+    <string name="main_menu_more">Más opciones</string>
+    <string name="nav_store">Tienda</string>
+    <string name="nav_ranking">Ranking</string>
+    <string name="nav_main_menu">Menú principal</string>
+    <string name="nav_progress">Progreso</string>
+    <string name="nav_community">Comunidad</string>
+    <string name="nav_profile">Perfil</string>
+</resources>

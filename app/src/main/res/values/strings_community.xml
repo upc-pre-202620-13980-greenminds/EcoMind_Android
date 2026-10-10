@@ -1,0 +1,39 @@
+<resources>
+    <string name="community_local">Local Community</string>
+    <string name="community_more">More Communities</string>
+
+    <!-- Provisional: fixed texts until the web services return the community and its goal -->
+    <string name="community_sample_name">Lima</string>
+    <string name="community_sample_manager">managed by: EcoMind</string>
+    <string name="community_sample_members">1.5k members</string>
+    <string name="community_sample_goal">Community Goal: Complete 500 Energy Quests</string>
+
+    <!-- Tabs -->
+    <string name="community_tab_awards">Awards</string>
+    <string name="community_tab_events">Events</string>
+    <string name="community_tab_news">News</string>
+
+    <!-- Events -->
+    <string name="community_search">Search</string>
+    <string name="community_create_event">+ Create</string>
+    <string name="community_my_events">My events</string>
+    <string name="community_join_event">Join event</string>
+    <string name="community_dismiss_event">Dismiss event</string>
+
+    <!-- Local demo content for Community sections; not connected to the backend -->
+    <string name="community_award_achievement_title">Community Achievement</string>
+    <string name="community_award_achievement_description">Over 1,000 members!</string>
+    <string name="community_award_family_title">Flores Family</string>
+    <string name="community_award_family_description">Completed its first family project.</string>
+    <string name="community_award_member_title">Ulises Torres</string>
+    <string name="community_award_member_description">Participated in his first community event.</string>
+    <string name="community_award_goal_title">Community Achievement</string>
+    <string name="community_award_goal_description">The third community goal was completed.</string>
+
+    <string name="community_news_author_minialex">MiniAlex</string>
+    <string name="community_news_author_tomiflash">TomiFlash</string>
+    <string name="community_news_achievement_message">He earned his first 2,000 ecoPoints.</string>
+    <string name="community_news_post_message">Hi! She has created the “Beach cleanup” event.</string>
+    <string name="community_news_time_now">Right now</string>
+    <string name="community_news_time_recent">Two days ago</string>
+</resources>

@@ -1,0 +1,56 @@
+<resources>
+    <string name="profile_title">Tu perfil</string>
+    <string name="profile_edit">Editar</string>
+    <string name="profile_role_student">Estudiante</string>
+    <string name="profile_role_parent">Madre o padre</string>
+    <string name="profile_stat_streak">Días de racha</string>
+    <string name="profile_stat_ecopoints">EcoPoints</string>
+    <string name="profile_stat_gems">Gemas</string>
+    <string name="profile_share">Compartir</string>
+    <string name="profile_favorites">Favoritos</string>
+    <string name="profile_tab_profile">Perfil</string>
+    <string name="profile_tab_friends">Amigos</string>
+    <string name="profile_tab_family">Familia</string>
+    <string name="profile_try_again">Reintentar</string>
+    <string name="profile_tab_error">No se pudo cargar esta información.</string>
+    <string name="profile_commitment_title">Mi compromiso</string>
+    <string name="profile_commitment_empty">Define un compromiso personal que te mantenga en marcha.</string>
+    <string name="profile_commitment_add">Añadir compromiso</string>
+    <string name="profile_medals_title">Medallas y logros</string>
+    <string name="profile_view_all">Ver todo</string>
+    <string name="profile_weekly_report_title">Informe semanal de la familia</string>
+    <string name="profile_view_report">Ver informe</string>
+    <string name="profile_weekly_report_empty">Aún no hay un informe de esta semana.</string>
+    <string name="profile_weekly_report_quests">%1$d de %2$d retos completados</string>
+    <string name="profile_invite_friends">Invitar amigos</string>
+    <string name="profile_find_friends">Buscar amigos</string>
+    <string name="profile_friend_requests">Solicitudes de amistad</string>
+    <string name="profile_friends_empty_title">Aún no tienes amigos</string>
+    <string name="profile_friends_empty_message">Busca a un amigo o envía una invitación.</string>
+    <string name="profile_row_you">Tú</string>
+    <string name="profile_family_empty_title">Aún no tienes familia</string>
+    <string name="profile_family_empty_student_message">Tu madre o tu padre puede crear una familia y añadirte como miembro.</string>
+    <string name="profile_family_empty_parent_message">Crea tu familia para reunir a todos.</string>
+    <string name="profile_family_create">Crear familia</string>
+    <string name="profile_family_manage">Gestionar</string>
+    <string name="profile_family_members">Miembros · %1$d</string>
+    <string name="profile_family_weekly_report">Informe semanal</string>
+    <string name="profile_family_manager">Madre o padre · gestiona la familia</string>
+    <string name="profile_family_member_progress">%1$s · %2$d/%3$d actividades</string>
+    <string name="profile_relationship_mother">Madre</string>
+    <string name="profile_relationship_father">Padre</string>
+    <string name="profile_relationship_daughter">Hija</string>
+    <string name="profile_relationship_son">Hijo</string>
+    <string name="profile_error_title">No pudimos cargar tu perfil</string>
+    <string name="profile_error_message">Tu información no está disponible en este momento.\nReintenta para cargarla de nuevo.</string>
+    <plurals name="profile_friends_count">
+        <item quantity="one">%d amigo</item>
+        <item quantity="many">%d amigos</item>
+        <item quantity="other">%d amigos</item>
+    </plurals>
+    <plurals name="profile_weekly_report_achievements">
+        <item quantity="one">%d logro obtenido esta semana</item>
+        <item quantity="many">%d logros obtenidos esta semana</item>
+        <item quantity="other">%d logros obtenidos esta semana</item>
+    </plurals>
+</resources>

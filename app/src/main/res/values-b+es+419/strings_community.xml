@@ -1,0 +1,39 @@
+<resources>
+    <string name="community_local">Comunidad local</string>
+    <string name="community_more">Más comunidades</string>
+
+    <!-- Provisional: fixed texts until the web services return the community and its goal -->
+    <string name="community_sample_name">Lima</string>
+    <string name="community_sample_manager">gestionada por: EcoMind</string>
+    <string name="community_sample_members">1.5k miembros</string>
+    <string name="community_sample_goal">Meta comunitaria: completar 500 retos de energía</string>
+
+    <!-- Tabs -->
+    <string name="community_tab_awards">Premios</string>
+    <string name="community_tab_events">Eventos</string>
+    <string name="community_tab_news">Noticias</string>
+
+    <!-- Events -->
+    <string name="community_search">Buscar</string>
+    <string name="community_create_event">+ Crear</string>
+    <string name="community_my_events">Mis eventos</string>
+    <string name="community_join_event">Unirme al evento</string>
+    <string name="community_dismiss_event">Descartar evento</string>
+
+    <!-- Contenido local de demostración; aún no conectado al backend -->
+    <string name="community_award_achievement_title">Logro de la comunidad</string>
+    <string name="community_award_achievement_description">¡Más de 1,000 miembros!</string>
+    <string name="community_award_family_title">Familia Flores</string>
+    <string name="community_award_family_description">Completó su primer proyecto familiar.</string>
+    <string name="community_award_member_title">Ulises Torres</string>
+    <string name="community_award_member_description">Participó en su primer evento comunitario.</string>
+    <string name="community_award_goal_title">Logro de la comunidad</string>
+    <string name="community_award_goal_description">Se completó la tercera meta comunitaria.</string>
+
+    <string name="community_news_author_minialex">MiniAlex</string>
+    <string name="community_news_author_tomiflash">TomiFlash</string>
+    <string name="community_news_achievement_message">Obtuvo sus primeros 2,000 ecoPoints.</string>
+    <string name="community_news_post_message">¡Hola! Ha creado el evento «Limpieza de playa».</string>
+    <string name="community_news_time_now">Ahora mismo</string>
+    <string name="community_news_time_recent">Hace dos días</string>
+</resources>
