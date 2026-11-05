@@ -64,8 +64,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun receiveResetLink(incoming: Intent) {
-        val token = PasswordResetLink.tokenFrom(incoming.dataString) ?: return
+        if (!PasswordResetLink.matches(incoming.dataString)) return
+        val token = PasswordResetLink.tokenFrom(incoming.dataString).orEmpty()
         resetLink.receive(token)
-        setIntent(Intent(incoming).setData(null))
+        // Consume the link without replacing the activity launch metadata.
+        incoming.data = null
     }
 }

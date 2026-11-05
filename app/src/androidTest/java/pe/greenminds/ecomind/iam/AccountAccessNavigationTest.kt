@@ -46,6 +46,20 @@ class AccountAccessNavigationTest {
     }
 
     @Test
+    fun aRecoveryLinkWithoutATokenShowsTheInvalidLinkState() {
+        compose.activityRule.scenario.onActivity { activity ->
+            activity.startActivity(Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(PasswordResetLink.BASE_URI),
+                activity,
+                MainActivity::class.java
+            ))
+        }
+        awaitText(R.string.recovery_invalid_link_title)
+        compose.onNodeWithText(text(R.string.recovery_invalid_link_title)).assertIsDisplayed()
+    }
+
+    @Test
     fun anIncomingLinkOpensResetWhileTheApplicationIsRunning() {
         compose.activityRule.scenario.onActivity { activity ->
             activity.startActivity(Intent(

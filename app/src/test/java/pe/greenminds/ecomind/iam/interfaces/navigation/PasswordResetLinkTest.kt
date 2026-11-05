@@ -2,11 +2,13 @@ package pe.greenminds.ecomind.iam.interfaces.navigation
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PasswordResetLinkTest {
     @Test
     fun `reads a recovery token from the registered link`() {
+        assertTrue(PasswordResetLink.matches(PasswordResetLink.BASE_URI))
         assertEquals("valid-token", PasswordResetLink.tokenFrom(
             "${PasswordResetLink.BASE_URI}?token=valid-token"
         ))

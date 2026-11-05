@@ -7,6 +7,14 @@ import java.nio.charset.StandardCharsets
 object PasswordResetLink {
     const val BASE_URI = "ecomind://authentication/reset-password"
 
+    fun matches(link: String?): Boolean {
+        if (link == null) return false
+        return runCatching {
+            val uri = URI(link)
+            uri.scheme == "ecomind" && uri.host == "authentication" && uri.path == "/reset-password"
+        }.getOrDefault(false)
+    }
+
     fun tokenFrom(link: String?): String? {
         if (link == null) return null
         return runCatching {
