@@ -29,4 +29,20 @@
     <string name="store_type_head">Sombrero</string>
     <string name="store_type_body">Cuerpo</string>
     <string name="store_type_accessory">Accesorio</string>
+    <string name="store_payment_title">Comprar paquete de gemas</string>
+    <string name="store_payment_summary">%1$d gemas por %3$s %2$.2f</string>
+    <string name="store_payment_choose_method">Elige un método de pago de prueba</string>
+    <string name="store_payment_culqi">Tarjeta / Yape</string>
+    <string name="store_payment_paypal">PayPal</string>
+    <string name="store_payment_processing">Procesando…</string>
+    <string name="store_payment_cancel">Cancelar</string>
+    <string name="store_payment_success_title">Pago aprobado</string>
+    <string name="store_payment_success_message">Se agregaron %1$d gemas a tu billetera.</string>
+    <string name="store_payment_done">Listo</string>
+    <string name="store_payment_culqi_desc">Procesado por Culqi</string>
+    <string name="store_payment_paypal_desc">Cuenta de PayPal</string>
+    <string name="store_payment_back">Volver a métodos</string>
+    <string name="store_payment_retry">Intentar nuevamente</string>
+    <string name="store_payment_processing_hint">No cierres esta ventana</string>
+    <string name="store_payment_package_name">Eco Pack</string>
 </resources>

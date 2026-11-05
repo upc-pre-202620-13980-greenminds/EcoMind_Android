@@ -75,3 +75,25 @@ data class GemPackageDto(
     val price: Double,
     val currency: String
 )
+
+data class CreateGemPurchaseDto(
+    val packageId: String,
+    val paymentMethod: String,
+    val requestId: String
+)
+
+data class PayGemPurchaseDto(
+    val sourceToken: String,
+    val email: String
+)
+
+data class GemPurchaseDto(
+    val id: String,
+    val packageId: String,
+    val gemAmount: Int,
+    val amountPaid: Double,
+    val currency: String,
+    val paymentMethod: String,
+    val paymentStatus: String,
+    val paymentReference: String?
+)
