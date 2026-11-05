@@ -7,7 +7,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -42,6 +41,7 @@ class AccountAccessNavigationTest {
         compose.onNodeWithText(text(R.string.recovery_request_title)).assertIsDisplayed()
         capture("password-recovery")
         compose.onNodeWithContentDescription(text(R.string.back)).performClick()
+        awaitText(R.string.sign_in_forgot_password)
         compose.onNodeWithText(text(R.string.sign_in_forgot_password)).assertIsDisplayed()
     }
 
@@ -80,6 +80,7 @@ class AccountAccessNavigationTest {
         compose.onNodeWithText(text(R.string.recovery_request_new_button)).performScrollTo().performClick()
         compose.onNodeWithText(text(R.string.recovery_request_title)).assertIsDisplayed()
         compose.onNodeWithContentDescription(text(R.string.back)).performClick()
+        awaitText(R.string.sign_in_forgot_password)
         compose.onNodeWithText(text(R.string.sign_in_forgot_password)).assertIsDisplayed()
     }
 
@@ -87,7 +88,10 @@ class AccountAccessNavigationTest {
 
     private fun awaitText(resource: Int) {
         compose.waitUntil(20_000) {
-            compose.onAllNodesWithText(text(resource)).fetchSemanticsNodes().isNotEmpty()
+            runCatching {
+                compose.onNodeWithText(text(resource)).assertIsDisplayed()
+                true
+            }.getOrDefault(false)
         }
     }
 

@@ -46,6 +46,7 @@ class AccountAccessBackendTest {
         }
         capture("password-updated")
         compose.onNodeWithText(text(R.string.sign_in_button)).performScrollTo().performClick()
+        awaitSignIn()
         compose.onNodeWithContentDescription(text(R.string.sign_in_email_label)).performTextInput(email)
         compose.onNodeWithContentDescription(text(R.string.sign_in_password_label)).performTextInput(password)
         compose.onNodeWithText(text(R.string.sign_in_button)).performScrollTo().performClick()
@@ -60,11 +61,21 @@ class AccountAccessBackendTest {
             compose.onAllNodesWithText(text(R.string.sign_in_forgot_password)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.activityRule.scenario.recreate()
+        awaitSignIn()
         compose.onNodeWithText(text(R.string.sign_in_forgot_password)).assertIsDisplayed()
         capture("signed-out")
     }
 
     private fun text(resource: Int) = compose.activity.getString(resource)
+
+    private fun awaitSignIn() {
+        compose.waitUntil(30_000) {
+            runCatching {
+                compose.onNodeWithText(text(R.string.sign_in_forgot_password)).assertIsDisplayed()
+                true
+            }.getOrDefault(false)
+        }
+    }
 
     private fun capture(name: String) {
         compose.waitForIdle()
