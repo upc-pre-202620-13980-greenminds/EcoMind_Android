@@ -1,0 +1,22 @@
+<resources>
+    <string name="recovery_request_title">Forgot your password?</string>
+    <string name="recovery_request_description">Enter your account email to request a password reset link.</string>
+    <string name="recovery_request_button">Send reset link</string>
+    <string name="recovery_back_to_sign_in">Back to sign in</string>
+    <string name="recovery_check_email_title">Check your email</string>
+    <string name="recovery_check_email_description">If an account exists for %1$s, you will receive a password reset link. Check your inbox and spam folder. The link expires after 30 minutes and can only be used once.</string>
+    <string name="recovery_resend_button">Request another link</string>
+    <string name="recovery_request_error">We could not request a reset link. Check your connection and try again.</string>
+    <string name="recovery_reset_title">Create a new password</string>
+    <string name="recovery_reset_description">Choose a password with 8 to 72 characters, including at least one letter and one digit.</string>
+    <string name="recovery_new_password_label">New password</string>
+    <string name="recovery_reset_button">Update password</string>
+    <string name="recovery_confirm_password_required">Confirm your new password.</string>
+    <string name="recovery_invalid_link_title">This reset link is not valid</string>
+    <string name="recovery_invalid_link_description">The link may be missing, expired or already used. Request a new link to recover your account.</string>
+    <string name="recovery_request_new_button">Request a new link</string>
+    <string name="recovery_reset_error">We could not update your password. Check your connection and try again.</string>
+    <string name="recovery_completed_title">Password updated</string>
+    <string name="recovery_completed_description">You can now sign in with your new password.</string>
+    <string name="recovery_session_clear_error">Your password was updated, but we could not clear your previous session. Tap Sign in to try again.</string>
+</resources>
