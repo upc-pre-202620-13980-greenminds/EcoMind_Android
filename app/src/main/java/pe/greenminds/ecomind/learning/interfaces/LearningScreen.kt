@@ -1,10 +1,18 @@
 package pe.greenminds.ecomind.learning.interfaces
 
+import android.content.ContentValues
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -13,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -21,6 +30,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import pe.greenminds.ecomind.learning.domain.*
+import java.io.File
 
 private val LearningGreen = Color(0xFF65A94D)
 private val TypeBlue = Color(0xFFA7DDFB)
@@ -33,6 +43,7 @@ fun LearningScreen(onOpenMaterial: (Long) -> Unit, viewModel: LearningViewModel 
     if (showFilters) {
         LearningFilters(
             state = state,
+            onQuery = viewModel::setQuery,
             onCategory = viewModel::setCategory,
             onType = viewModel::setType,
             onFavorites = viewModel::toggleFavoritesOnly,
@@ -101,72 +112,211 @@ private fun SearchBar(query: String, onQuery: (String) -> Unit, onFilters: () ->
 
 @Composable
 private fun MaterialCard(material: EducationalMaterial, onOpen: () -> Unit, onFavorite: () -> Unit) {
+    val context = LocalContext.current
     Card(
-        modifier = Modifier.fillMaxWidth().height(310.dp).clickable(onClick = onOpen),
-        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth().height(272.dp).clickable(onClick = onOpen),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         AsyncImage(
             model = material.imageUrl, contentDescription = material.title,
-            modifier = Modifier.fillMaxWidth().height(122.dp), contentScale = ContentScale.Crop
+            modifier = Modifier.fillMaxWidth().height(116.dp), contentScale = ContentScale.Crop
         )
-        Column(Modifier.fillMaxSize().padding(10.dp)) {
+        Column(Modifier.fillMaxSize().padding(9.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(material.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(if (material.downloadable) "⇩" else "", fontSize = 23.sp)
+                Text(material.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 13.sp, lineHeight = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (material.downloadable) {
+                    Text("⇩", Modifier.clickable { downloadMaterial(context, material) }.padding(3.dp), fontSize = 18.sp)
+                }
                 Surface(Modifier.padding(start = 5.dp).clickable(onClick = onFavorite), color = if (material.favorite) Color(0xFFFFD9DD) else Color(0xFFF0F0F2), shape = CircleShape) {
-                    Text(if (material.favorite) "♥" else "♡", Modifier.padding(7.dp), color = if (material.favorite) Color(0xFFE43B3B) else Color.Gray, fontSize = 18.sp)
+                    Text(if (material.favorite) "♥" else "♡", Modifier.padding(6.dp), color = if (material.favorite) Color(0xFFE43B3B) else Color.Gray, fontSize = 15.sp)
                 }
             }
-            Row(Modifier.padding(top = 7.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Tag(material.materialType.label(), TypeBlue, Color(0xFF0784C9))
                 Tag(material.category.label(), CategoryGreen, LearningGreen)
             }
-            Text(material.description, Modifier.padding(top = 18.dp), fontSize = 12.sp, lineHeight = 17.sp, maxLines = 4, overflow = TextOverflow.Ellipsis)
+            Text(material.description, Modifier.padding(top = 12.dp), fontSize = 10.sp, lineHeight = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.weight(1f))
-            Text("${material.durationMinutes} min", Modifier.align(Alignment.End), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text("${material.durationMinutes} min", Modifier.align(Alignment.End), fontSize = 9.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable private fun Tag(text: String, background: Color, foreground: Color) {
     Surface(color = background, shape = RoundedCornerShape(18.dp)) {
-        Text(text, Modifier.padding(horizontal = 12.dp, vertical = 5.dp), color = foreground, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(text, Modifier.padding(horizontal = 10.dp, vertical = 4.dp), color = foreground, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
 @Composable
 private fun LearningFilters(
     state: LearningUiState,
+    onQuery: (String) -> Unit,
     onCategory: (MaterialCategory?) -> Unit,
     onType: (MaterialType?) -> Unit,
     onFavorites: () -> Unit,
     onApply: () -> Unit
 ) {
-    Column(Modifier.fillMaxSize().background(Color.White).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("Filtros", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = LearningGreen)
-        FilterToggle("Solo favoritos", state.favoritesOnly, onFavorites)
-        Text("Categoría", fontWeight = FontWeight.SemiBold)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = state.category == null, onClick = { onCategory(null) }, label = { Text("Todas") })
+    var categoriesExpanded by rememberSaveable { mutableStateOf(false) }
+    var typesExpanded by rememberSaveable { mutableStateOf(true) }
+    var ageExpanded by rememberSaveable { mutableStateOf(false) }
+    var timeExpanded by rememberSaveable { mutableStateOf(false) }
+    var recentlyViewed by rememberSaveable { mutableStateOf(false) }
+
+    Column(
+        Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
+    ) {
+        SearchBar(query = state.query, onQuery = onQuery, onFilters = onApply)
+        Spacer(Modifier.height(14.dp))
+        CompactCheckRow("Favoritos", state.favoritesOnly, onFavorites)
+        CompactCheckRow("Vistos recientemente", recentlyViewed) { recentlyViewed = !recentlyViewed }
+        Spacer(Modifier.height(12.dp))
+
+        FilterSectionCard(
+            title = "Categorías temáticas",
+            expanded = categoriesExpanded,
+            onToggle = { categoriesExpanded = !categoriesExpanded }
+        ) {
+            CompactCheckRow("Todas", state.category == null) { onCategory(null) }
             MaterialCategory.entries.forEach { category ->
-                FilterChip(selected = state.category == category, onClick = { onCategory(category) }, label = { Text(category.label()) })
+                CompactCheckRow(category.label(), state.category == category) {
+                    onCategory(if (state.category == category) null else category)
+                }
             }
         }
-        Text("Tipo", fontWeight = FontWeight.SemiBold)
-        MaterialType.entries.forEach { type -> FilterToggle(type.label(), state.type == type) { onType(if (state.type == type) null else type) } }
-        Spacer(Modifier.weight(1f))
-        Button(onClick = onApply, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = LearningGreen), shape = RoundedCornerShape(6.dp)) {
-            Text("Aplicar")
+        Spacer(Modifier.height(14.dp))
+
+        FilterSectionCard(
+            title = "Tipo",
+            expanded = typesExpanded,
+            onToggle = { typesExpanded = !typesExpanded }
+        ) {
+            listOf(
+                MaterialType.VIDEO to "Video",
+                MaterialType.TEXT to "Texto",
+                MaterialType.INFOGRAPHIC to "Infografía"
+            ).forEach { (type, label) ->
+                CompactCheckRow(label, state.type == type) {
+                    onType(if (state.type == type) null else type)
+                }
+            }
+            CompactCheckRow("Audio", false) { }
+        }
+        Spacer(Modifier.height(14.dp))
+
+        FilterSectionCard(
+            title = "Edad recomendada",
+            expanded = ageExpanded,
+            onToggle = { ageExpanded = !ageExpanded }
+        ) {
+            CompactCheckRow("Niños", false) { }
+            CompactCheckRow("Adolescentes", false) { }
+            CompactCheckRow("Todas las edades", false) { }
+        }
+        Spacer(Modifier.height(14.dp))
+
+        FilterSectionCard(
+            title = "Tiempo estimado",
+            expanded = timeExpanded,
+            onToggle = { timeExpanded = !timeExpanded }
+        ) {
+            CompactCheckRow("Menos de 5 minutos", false) { }
+            CompactCheckRow("5 a 10 minutos", false) { }
+            CompactCheckRow("Más de 10 minutos", false) { }
+        }
+
+        Spacer(Modifier.height(34.dp))
+        Button(
+            onClick = onApply,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 18.dp).height(54.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = LearningGreen),
+            shape = RoundedCornerShape(7.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        ) {
+            Text("Aplicar", fontSize = 17.sp)
         }
     }
 }
 
-@Composable private fun FilterToggle(text: String, checked: Boolean, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked, onCheckedChange = { onClick() }, colors = CheckboxDefaults.colors(checkedColor = LearningGreen))
-        Text(text, fontSize = 13.sp)
+internal fun downloadMaterial(context: Context, material: EducationalMaterial) {
+    val safeName = material.title.replace(Regex("[^A-Za-z0-9áéíóúÁÉÍÓÚñÑ _-]"), "").trim().ifBlank { "material" }
+    val fileName = "$safeName.txt"
+    val text = buildString {
+        appendLine(material.title)
+        appendLine()
+        appendLine(material.description)
+        appendLine()
+        appendLine(material.content)
+        material.videoUrl?.let { appendLine("\nVideo: $it") }
+    }
+    runCatching {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/EcoMind")
+            }
+            val uri = requireNotNull(context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values))
+            context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
+        } else {
+            val folder = requireNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)).resolve("EcoMind")
+            folder.mkdirs()
+            File(folder, fileName).writeText(text)
+        }
+    }.onSuccess {
+        Toast.makeText(context, "Material guardado en Descargas/EcoMind", Toast.LENGTH_LONG).show()
+    }.onFailure {
+        Toast.makeText(context, "No se pudo descargar el material", Toast.LENGTH_LONG).show()
+    }
+}
+
+@Composable
+private fun FilterSectionCard(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(7.dp),
+        color = Color.White,
+        shadowElevation = 7.dp
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(title, Modifier.weight(1f), fontSize = 16.sp, color = Color(0xFF242129))
+                Text(if (expanded) "⌃" else "⌄", color = Color(0xFF999999), fontWeight = FontWeight.Bold, fontSize = 25.sp)
+            }
+            if (expanded) {
+                Column(Modifier.padding(start = 17.dp, end = 16.dp, bottom = 12.dp), content = content)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactCheckRow(text: String, checked: Boolean, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().height(42.dp).clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { onClick() },
+            modifier = Modifier.size(38.dp),
+            colors = CheckboxDefaults.colors(
+                checkedColor = LearningGreen,
+                uncheckedColor = Color(0xFF202020),
+                checkmarkColor = Color.White
+            )
+        )
+        Text(text, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp, color = Color(0xFF222222))
     }
 }
 

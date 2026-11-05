@@ -17,8 +17,15 @@ class RemoteLearningRepository @Inject constructor(private val api: LearningApi)
     private suspend fun <T : Any> execute(block: suspend () -> Response<T>): Result<T> = try {
         val response = block()
         if (response.isSuccessful) Result.success(requireNotNull(response.body()))
-        else Result.failure(IllegalStateException("Learning request failed (${response.code()})"))
+        else Result.failure(IllegalStateException(responseMessage(response.code())))
     } catch (e: CancellationException) { throw e } catch (e: Exception) { Result.failure(e) }
+
+    private fun responseMessage(code: Int) = when (code) {
+        401, 403 -> "Tu sesión venció. Inicia sesión nuevamente."
+        404 -> "El servicio de aprendizaje aún no está disponible. Reinicia el backend."
+        in 500..599 -> "El servidor no pudo cargar los materiales."
+        else -> "No se pudieron cargar los materiales educativos."
+    }
 
     private fun EducationalMaterialDto.toDomain() = EducationalMaterial(
         id, title, description, content, MaterialType.valueOf(materialType),

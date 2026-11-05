@@ -1,5 +1,7 @@
 package pe.greenminds.ecomind.learning.interfaces
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,12 +58,15 @@ fun LearningDetailScreen(id: Long, onBack: () -> Unit, viewModel: LearningDetail
 
 @Composable
 private fun MaterialDetail(material: EducationalMaterial, onBack: () -> Unit, onFavorite: () -> Unit) {
+    val context = LocalContext.current
     Column(Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(18.dp)) {
         Text("‹", modifier = Modifier.clickable(onClick = onBack).padding(vertical = 8.dp), fontSize = 44.sp, fontWeight = FontWeight.Light)
         AsyncImage(model = material.imageUrl, contentDescription = material.title, modifier = Modifier.fillMaxWidth().height(245.dp), contentScale = ContentScale.Crop)
         Row(Modifier.padding(top = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(material.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text(if (material.downloadable) "⇩" else "", fontSize = 25.sp)
+            if (material.downloadable) {
+                Text("⇩", Modifier.clickable { downloadMaterial(context, material) }.padding(5.dp), fontSize = 25.sp)
+            }
             Surface(Modifier.padding(start = 10.dp).clickable(onClick = onFavorite), color = if (material.favorite) Color(0xFFFFD9DD) else Color(0xFFF0F0F2), shape = CircleShape) {
                 Text(if (material.favorite) "♥" else "♡", Modifier.padding(9.dp), color = Color(0xFFE43B3B), fontSize = 20.sp)
             }
@@ -72,6 +78,20 @@ private fun MaterialDetail(material: EducationalMaterial, onBack: () -> Unit, on
         Row(Modifier.fillMaxWidth().padding(top = 22.dp)) {
             Text(material.description, Modifier.weight(1f), fontSize = 16.sp, lineHeight = 23.sp)
             Text("${material.durationMinutes} min", fontWeight = FontWeight.Bold)
+        }
+        material.videoUrl?.takeIf { it.isNotBlank() }?.let { videoUrl ->
+            Button(
+                onClick = {
+                    val playableUrl = videoUrl
+                        .replace("youtube.com/embed/", "youtube.com/watch?v=")
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playableUrl)))
+                },
+                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF65A94D)),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text("▶  Reproducir video", color = Color.White, fontWeight = FontWeight.Bold)
+            }
         }
         Text(material.content, Modifier.padding(top = 28.dp, bottom = 28.dp), fontSize = 14.sp, lineHeight = 22.sp)
     }
