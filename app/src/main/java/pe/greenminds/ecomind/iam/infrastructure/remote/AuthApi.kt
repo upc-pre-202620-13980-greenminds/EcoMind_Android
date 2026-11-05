@@ -20,4 +20,17 @@ interface AuthApi {
     suspend fun verifyEmail(
         @Body request: VerifyEmailRequest
     ): Response<VerifyEmailResponse>
+
+    @POST("authentication/password-recovery/request")
+    suspend fun requestPasswordRecovery(
+        @Body request: PasswordRecoveryRequest
+    ): Response<PasswordRecoveryResponse>
+
+    @POST("authentication/password-recovery/confirm")
+    suspend fun confirmPasswordRecovery(
+        @Body request: ConfirmPasswordRecoveryRequest
+    ): Response<Unit>
+
+    @POST("authentication/logout")
+    suspend fun logout(): Response<Unit>
 }

@@ -33,3 +33,16 @@ data class VerifyEmailResponse(
     val accountId: Long,
     val email: String
 )
+
+data class PasswordRecoveryRequest(
+    val email: String
+)
+
+data class PasswordRecoveryResponse(
+    val message: String
+)
+
+data class ConfirmPasswordRecoveryRequest(
+    val token: String,
+    val newPassword: String
+)

@@ -13,7 +13,10 @@ class AuthInterceptor @Inject constructor(
     private val sessionRepository: SessionRepository
 ) : Interceptor {
     private val apiUrl = BuildConfig.API_BASE_URL.toHttpUrl()
-    private val publicPaths = setOf("sign-in", "sign-up", "verify-email")
+    private val publicPaths = setOf(
+        "sign-in", "sign-up", "verify-email",
+        "password-recovery/request", "password-recovery/confirm"
+    )
         .map { "${apiUrl.encodedPath}authentication/$it" }.toSet()
 
     override fun intercept(chain: Interceptor.Chain): Response {
