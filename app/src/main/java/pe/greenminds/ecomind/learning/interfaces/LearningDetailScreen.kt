@@ -1,7 +1,12 @@
 package pe.greenminds.ecomind.learning.interfaces
 
+import android.annotation.SuppressLint
+import android.webkit.CookieManager
 import android.content.Intent
 import android.net.Uri
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,12 +17,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,34 +73,72 @@ private fun MaterialDetail(material: EducationalMaterial, onBack: () -> Unit, on
         Row(Modifier.padding(top = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(material.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 18.sp)
             if (material.downloadable) {
-                Text("⇩", Modifier.clickable { downloadMaterial(context, material) }.padding(5.dp), fontSize = 25.sp)
+                Image(DownloadIcon, "Descargar", Modifier.size(34.dp).clickable { downloadMaterial(context, material) }.padding(5.dp))
             }
             Surface(Modifier.padding(start = 10.dp).clickable(onClick = onFavorite), color = if (material.favorite) Color(0xFFFFD9DD) else Color(0xFFF0F0F2), shape = CircleShape) {
-                Text(if (material.favorite) "♥" else "♡", Modifier.padding(9.dp), color = Color(0xFFE43B3B), fontSize = 20.sp)
+                Icon(FavoriteIcon, "Favorito", Modifier.padding(9.dp).size(22.dp), tint = if (material.favorite) Color(0xFFE43B3B) else Color.Gray)
             }
         }
         Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Surface(color = Color(0xFFA7DDFB), shape = RoundedCornerShape(18.dp)) { Text(material.materialType.label(), Modifier.padding(horizontal = 18.dp, vertical = 6.dp), color = Color(0xFF0784C9), fontWeight = FontWeight.Bold) }
             Surface(color = Color(0xFFCFFFC0), shape = RoundedCornerShape(18.dp)) { Text(material.category.label(), Modifier.padding(horizontal = 18.dp, vertical = 6.dp), color = Color(0xFF65A94D), fontWeight = FontWeight.Bold) }
         }
-        Row(Modifier.fillMaxWidth().padding(top = 22.dp)) {
-            Text(material.description, Modifier.weight(1f), fontSize = 16.sp, lineHeight = 23.sp)
-            Text("${material.durationMinutes} min", fontWeight = FontWeight.Bold)
-        }
+        Text(material.description, Modifier.fillMaxWidth().padding(top = 22.dp), fontSize = 16.sp, lineHeight = 23.sp)
+        Text("${material.durationMinutes} min", Modifier.align(Alignment.End).padding(top = 8.dp), fontWeight = FontWeight.Bold)
         material.videoUrl?.takeIf { it.isNotBlank() }?.let { videoUrl ->
-            Button(
-                onClick = {
-                    val playableUrl = videoUrl
-                        .replace("youtube.com/embed/", "youtube.com/watch?v=")
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playableUrl)))
-                },
-                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF65A94D)),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text("▶  Reproducir video", color = Color.White, fontWeight = FontWeight.Bold)
-            }
+            Text("Video", Modifier.padding(top = 24.dp, bottom = 10.dp), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            EmbeddedYouTubePlayer(videoUrl)
         }
         Text(material.content, Modifier.padding(top = 28.dp, bottom = 28.dp), fontSize = 14.sp, lineHeight = 22.sp)
+        if (!material.sourceName.isNullOrBlank()) {
+            HorizontalDivider(color = Color(0xFFE2E2E2))
+            Text("Fuente y atribución", Modifier.padding(top = 18.dp), fontWeight = FontWeight.Bold, color = Color(0xFF65A94D))
+            Text(material.sourceName, Modifier.padding(top = 8.dp), fontWeight = FontWeight.SemiBold)
+            material.author?.takeIf { it.isNotBlank() }?.let { Text("Autor: $it", fontSize = 13.sp) }
+            material.license?.takeIf { it.isNotBlank() }?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
+            material.sourceUrl?.takeIf { it.isNotBlank() }?.let { url ->
+                Text("Abrir fuente original", Modifier.padding(top = 8.dp, bottom = 24.dp).clickable {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }, color = Color(0xFF0784C9), fontWeight = FontWeight.Bold)
+            }
+        }
     }
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+private fun EmbeddedYouTubePlayer(videoUrl: String) {
+    val videoId = remember(videoUrl) {
+        when {
+            "/embed/" in videoUrl -> videoUrl.substringAfter("/embed/").substringBefore('?')
+            "v=" in videoUrl -> videoUrl.substringAfter("v=").substringBefore('&')
+            "youtu.be/" in videoUrl -> videoUrl.substringAfter("youtu.be/").substringBefore('?')
+            else -> videoUrl
+        }
+    }
+    val embedUrl = remember(videoId) {
+        "https://www.youtube-nocookie.com/embed/$videoId?playsinline=1&rel=0&controls=1"
+    }
+    AndroidView(
+        modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp)),
+        factory = { context ->
+            WebView(context).apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.mediaPlaybackRequiresUserGesture = true
+                settings.loadsImagesAutomatically = true
+                settings.useWideViewPort = true
+                settings.loadWithOverviewMode = true
+                CookieManager.getInstance().setAcceptCookie(true)
+                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                webChromeClient = WebChromeClient()
+                webViewClient = WebViewClient()
+                setBackgroundColor(android.graphics.Color.BLACK)
+                loadUrl(embedUrl)
+            }
+        },
+        update = { webView ->
+            if (webView.url != embedUrl) webView.loadUrl(embedUrl)
+        }
+    )
 }

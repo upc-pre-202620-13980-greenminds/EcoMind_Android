@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,7 +50,10 @@ fun LearningScreen(onOpenMaterial: (Long) -> Unit, viewModel: LearningViewModel 
             onCategory = viewModel::setCategory,
             onType = viewModel::setType,
             onFavorites = viewModel::toggleFavoritesOnly,
-            onApply = { showFilters = false }
+            onRecent = viewModel::toggleRecentlyViewedOnly,
+            onAge = viewModel::setRecommendedAge,
+            onDuration = viewModel::setDuration,
+            onApply = { viewModel.applyFilters(); showFilters = false }
         )
         return
     }
@@ -58,7 +64,9 @@ fun LearningScreen(onOpenMaterial: (Long) -> Unit, viewModel: LearningViewModel 
             onQuery = viewModel::setQuery,
             onFilters = { showFilters = true }
         )
-        if (state.favoritesOnly) {
+        if (state.recentlyViewedOnly) {
+            FilterLabel("Vistos recientemente")
+        } else if (state.favoritesOnly) {
             FilterLabel("Favoritos")
         } else if (state.category != null || state.type != null) {
             FilterLabel("Filtros aplicados")
@@ -127,10 +135,10 @@ private fun MaterialCard(material: EducationalMaterial, onOpen: () -> Unit, onFa
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(material.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 13.sp, lineHeight = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 if (material.downloadable) {
-                    Text("⇩", Modifier.clickable { downloadMaterial(context, material) }.padding(3.dp), fontSize = 18.sp)
+                    Image(DownloadIcon, "Descargar", Modifier.size(28.dp).clickable { downloadMaterial(context, material) }.padding(4.dp))
                 }
                 Surface(Modifier.padding(start = 5.dp).clickable(onClick = onFavorite), color = if (material.favorite) Color(0xFFFFD9DD) else Color(0xFFF0F0F2), shape = CircleShape) {
-                    Text(if (material.favorite) "♥" else "♡", Modifier.padding(6.dp), color = if (material.favorite) Color(0xFFE43B3B) else Color.Gray, fontSize = 15.sp)
+                    Icon(FavoriteIcon, "Favorito", Modifier.padding(6.dp).size(18.dp), tint = if (material.favorite) Color(0xFFE43B3B) else Color.Gray)
                 }
             }
             Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -157,13 +165,15 @@ private fun LearningFilters(
     onCategory: (MaterialCategory?) -> Unit,
     onType: (MaterialType?) -> Unit,
     onFavorites: () -> Unit,
+    onRecent: () -> Unit,
+    onAge: (RecommendedAge?) -> Unit,
+    onDuration: (Int?, Int?) -> Unit,
     onApply: () -> Unit
 ) {
     var categoriesExpanded by rememberSaveable { mutableStateOf(false) }
     var typesExpanded by rememberSaveable { mutableStateOf(true) }
     var ageExpanded by rememberSaveable { mutableStateOf(false) }
     var timeExpanded by rememberSaveable { mutableStateOf(false) }
-    var recentlyViewed by rememberSaveable { mutableStateOf(false) }
 
     Column(
         Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
@@ -171,7 +181,7 @@ private fun LearningFilters(
         SearchBar(query = state.query, onQuery = onQuery, onFilters = onApply)
         Spacer(Modifier.height(14.dp))
         CompactCheckRow("Favoritos", state.favoritesOnly, onFavorites)
-        CompactCheckRow("Vistos recientemente", recentlyViewed) { recentlyViewed = !recentlyViewed }
+        CompactCheckRow("Vistos recientemente", state.recentlyViewedOnly, onRecent)
         Spacer(Modifier.height(12.dp))
 
         FilterSectionCard(
@@ -202,7 +212,6 @@ private fun LearningFilters(
                     onType(if (state.type == type) null else type)
                 }
             }
-            CompactCheckRow("Audio", false) { }
         }
         Spacer(Modifier.height(14.dp))
 
@@ -211,9 +220,10 @@ private fun LearningFilters(
             expanded = ageExpanded,
             onToggle = { ageExpanded = !ageExpanded }
         ) {
-            CompactCheckRow("Niños", false) { }
-            CompactCheckRow("Adolescentes", false) { }
-            CompactCheckRow("Todas las edades", false) { }
+            RecommendedAge.entries.forEach { age ->
+                val label = when (age) { RecommendedAge.CHILDREN -> "Niños"; RecommendedAge.TEENS -> "Adolescentes"; RecommendedAge.ALL -> "Todas las edades" }
+                CompactCheckRow(label, state.recommendedAge == age) { onAge(if (state.recommendedAge == age) null else age) }
+            }
         }
         Spacer(Modifier.height(14.dp))
 
@@ -222,9 +232,9 @@ private fun LearningFilters(
             expanded = timeExpanded,
             onToggle = { timeExpanded = !timeExpanded }
         ) {
-            CompactCheckRow("Menos de 5 minutos", false) { }
-            CompactCheckRow("5 a 10 minutos", false) { }
-            CompactCheckRow("Más de 10 minutos", false) { }
+            CompactCheckRow("Menos de 5 minutos", state.maxDurationMinutes == 4) { onDuration(null, if (state.maxDurationMinutes == 4) null else 4) }
+            CompactCheckRow("5 a 10 minutos", state.minDurationMinutes == 5 && state.maxDurationMinutes == 10) { onDuration(if (state.minDurationMinutes == 5) null else 5, if (state.maxDurationMinutes == 10) null else 10) }
+            CompactCheckRow("Más de 10 minutos", state.minDurationMinutes == 11) { onDuration(if (state.minDurationMinutes == 11) null else 11, null) }
         }
 
         Spacer(Modifier.height(34.dp))
@@ -242,7 +252,7 @@ private fun LearningFilters(
 
 internal fun downloadMaterial(context: Context, material: EducationalMaterial) {
     val safeName = material.title.replace(Regex("[^A-Za-z0-9áéíóúÁÉÍÓÚñÑ _-]"), "").trim().ifBlank { "material" }
-    val fileName = "$safeName.txt"
+    val fileName = "$safeName.pdf"
     val text = buildString {
         appendLine(material.title)
         appendLine()
@@ -250,26 +260,53 @@ internal fun downloadMaterial(context: Context, material: EducationalMaterial) {
         appendLine()
         appendLine(material.content)
         material.videoUrl?.let { appendLine("\nVideo: $it") }
+        material.sourceName?.let { appendLine("\nFuente: $it") }
+        material.author?.let { appendLine("Autor: $it") }
+        material.sourceUrl?.let { appendLine("Enlace: $it") }
+        material.license?.let { appendLine("Licencia/uso: $it") }
     }
     runCatching {
+        val pdf = createMaterialPdf(text)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
                 put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/EcoMind")
             }
             val uri = requireNotNull(context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values))
-            context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
+            context.contentResolver.openOutputStream(uri)?.use { pdf.writeTo(it) }
         } else {
             val folder = requireNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)).resolve("EcoMind")
             folder.mkdirs()
-            File(folder, fileName).writeText(text)
+            File(folder, fileName).outputStream().use { pdf.writeTo(it) }
         }
+        pdf.close()
     }.onSuccess {
         Toast.makeText(context, "Material guardado en Descargas/EcoMind", Toast.LENGTH_LONG).show()
     }.onFailure {
         Toast.makeText(context, "No se pudo descargar el material", Toast.LENGTH_LONG).show()
     }
+}
+
+private fun createMaterialPdf(text: String): PdfDocument {
+    val document = PdfDocument()
+    val paint = Paint().apply { color = android.graphics.Color.BLACK; textSize = 12f; isAntiAlias = true }
+    val titlePaint = Paint(paint).apply { textSize = 20f; isFakeBoldText = true }
+    val width = 595; val height = 842; val margin = 48f; val lineHeight = 18f
+    val paragraphs = text.lines(); var pageNumber = 0; var page: PdfDocument.Page? = null; var y = margin
+    fun newPage() { page?.let(document::finishPage); pageNumber++; page = document.startPage(PdfDocument.PageInfo.Builder(width, height, pageNumber).create()); y = margin }
+    newPage()
+    paragraphs.forEachIndexed { index, paragraph ->
+        val activePaint = if (index == 0) titlePaint else paint
+        val words = paragraph.split(" "); var line = ""
+        val wrapped = mutableListOf<String>()
+        words.forEach { word -> val candidate = if (line.isEmpty()) word else "$line $word"; if (activePaint.measureText(candidate) > width - margin * 2) { wrapped += line; line = word } else line = candidate }
+        wrapped += line
+        wrapped.forEach { value -> if (y > height - margin) newPage(); page!!.canvas.drawText(value, margin, y, activePaint); y += if (index == 0) 30f else lineHeight }
+        y += 5f
+    }
+    page?.let(document::finishPage)
+    return document
 }
 
 @Composable

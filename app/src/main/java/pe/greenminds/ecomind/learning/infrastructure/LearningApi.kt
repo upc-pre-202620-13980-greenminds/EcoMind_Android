@@ -14,7 +14,9 @@ data class EducationalMaterialDto(
     val videoUrl: String?,
     val durationMinutes: Int,
     val downloadable: Boolean,
-    val favorite: Boolean
+    val favorite: Boolean,
+    val sourceName: String?, val sourceUrl: String?, val author: String?, val license: String?,
+    val recommendedAge: String?
 )
 
 data class FavoriteStatusDto(val favorite: Boolean)
@@ -25,10 +27,14 @@ interface LearningApi {
         @Query("query") query: String?,
         @Query("category") category: String?,
         @Query("materialType") type: String?,
-        @Query("language") language: String = "es"
+        @Query("language") language: String = "es",
+        @Query("recommendedAge") recommendedAge: String?,
+        @Query("minDurationMinutes") minDurationMinutes: Int?,
+        @Query("maxDurationMinutes") maxDurationMinutes: Int?
     ): Response<List<EducationalMaterialDto>>
 
     @GET("educational-materials/{id}") suspend fun getMaterial(@Path("id") id: Long): Response<EducationalMaterialDto>
     @GET("educational-materials/favorites") suspend fun getFavorites(): Response<List<EducationalMaterialDto>>
+    @GET("educational-materials/recent") suspend fun getRecent(): Response<List<EducationalMaterialDto>>
     @POST("educational-materials/{id}/favorite") suspend fun toggleFavorite(@Path("id") id: Long): Response<FavoriteStatusDto>
 }

@@ -6,12 +6,15 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class RemoteLearningRepository @Inject constructor(private val api: LearningApi) : LearningRepository {
-    override suspend fun getMaterials(query: String, category: MaterialCategory?, type: MaterialType?) = execute {
-        api.getMaterials(query.takeIf(String::isNotBlank), category?.name, type?.name)
+    override suspend fun getMaterials(query: String, category: MaterialCategory?, type: MaterialType?,
+        recommendedAge: RecommendedAge?, minDurationMinutes: Int?, maxDurationMinutes: Int?) = execute {
+        api.getMaterials(query.takeIf(String::isNotBlank), category?.name, type?.name, "es",
+            recommendedAge?.name, minDurationMinutes, maxDurationMinutes)
     }.map { items -> items.map { it.toDomain() } }
 
     override suspend fun getMaterial(id: Long) = execute { api.getMaterial(id) }.map { it.toDomain() }
     override suspend fun getFavorites() = execute { api.getFavorites() }.map { items -> items.map { it.toDomain() } }
+    override suspend fun getRecent() = execute { api.getRecent() }.map { items -> items.map { it.toDomain() } }
     override suspend fun toggleFavorite(id: Long) = execute { api.toggleFavorite(id) }.map(FavoriteStatusDto::favorite)
 
     private suspend fun <T : Any> execute(block: suspend () -> Response<T>): Result<T> = try {
@@ -29,6 +32,7 @@ class RemoteLearningRepository @Inject constructor(private val api: LearningApi)
 
     private fun EducationalMaterialDto.toDomain() = EducationalMaterial(
         id, title, description, content, MaterialType.valueOf(materialType),
-        MaterialCategory.valueOf(category), imageUrl, videoUrl, durationMinutes, downloadable, favorite
+        MaterialCategory.valueOf(category), imageUrl, videoUrl, durationMinutes, downloadable, favorite,
+        sourceName, sourceUrl, author, license, recommendedAge?.let(RecommendedAge::valueOf)
     )
 }
