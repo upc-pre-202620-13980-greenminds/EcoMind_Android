@@ -20,6 +20,51 @@
     <string name="quest_list_error">No se pudieron cargar los retos.</string>
     <string name="quest_try_again">Reintentar</string>
 
+    <!-- Collaborative quest invitations -->
+    <string name="quest_invitations_title">Invitaciones a retos</string>
+    <string name="quest_invitations_empty">No tienes invitaciones pendientes.</string>
+    <string name="quest_invitations_error">No pudimos cargar tus invitaciones.</string>
+    <string name="quest_invitation_message">Te han invitado a participar</string>
+    <string name="quest_invitations_back">Volver</string>
+
+    <!-- Collaborative party detail -->
+    <string name="quest_party_pending">Invitaciones pendientes</string>
+    <string name="quest_party_participants">Participantes</string>
+    <string name="quest_party_awaiting_reply">%1$s, invitación pendiente</string>
+    <string name="quest_party_manage">Administrar grupo</string>
+    <string name="quest_party_accept">Aceptar</string>
+    <string name="quest_party_decline">Rechazar invitación</string>
+    <string name="quest_party_accept_blocked">Termina tu reto actual o sal de tu grupo antes de aceptar otra invitación.</string>
+    <string name="quest_party_pending_count">Invitaciones pendientes: %1$d</string>
+    <string name="quest_party_user">Usuario %1$d</string>
+    <string name="quest_party_you">Tú</string>
+    <string name="quest_party_owner">Organizador</string>
+    <string name="quest_party_remove">Quitar a %1$s del grupo</string>
+    <string name="quest_party_start">Iniciar reto</string>
+    <string name="quest_party_invite">Invitar amigos</string>
+    <string name="quest_party_leave">Salir del grupo</string>
+    <string name="quest_party_cancel_party">Cancelar grupo</string>
+    <string name="quest_party_load_error">No pudimos cargar el grupo y las invitaciones.</string>
+    <string name="quest_party_confirm_title">¿Continuar?</string>
+    <string name="quest_party_continue">Continuar</string>
+    <string name="quest_party_cancel">Cancelar</string>
+    <string name="quest_party_received_warning">Tienes invitaciones pendientes para este reto. ¿Quieres continuar?</string>
+    <string name="quest_party_start_warning">Algunos amigos aún no respondieron. Si inicias, ya no podrán unirse a este grupo.</string>
+    <string name="quest_party_leave_warning">¿Quieres salir de tu grupo actual?</string>
+    <string name="quest_party_cancel_warning">Se eliminarán el grupo pendiente y todas sus invitaciones. ¿Quieres continuar?</string>
+
+    <string name="quest_party_resume">Continuar reto</string>
+    <string name="quest_party_friends">Amigos</string>
+    <string name="quest_party_no_friends">Aún no tienes amigos aceptados.</string>
+    <string name="quest_party_no_matches">Ningún amigo coincide con tu búsqueda.</string>
+    <string name="quest_party_invite_one">Invitar</string>
+    <string name="quest_party_invited">Invitado</string>
+    <string name="quest_party_joined">Inscrito</string>
+    <string name="quest_party_unavailable">No disponible</string>
+    <string name="quest_party_capacity">%1$d/%2$d plazas reservadas</string>
+    <string name="quest_party_action_error">No pudimos completar la acción o actualizar el reto. Actualiza y comprueba su estado antes de volver a intentarlo.</string>
+    <string name="quest_party_unsupported">Este reto usa actividades que aún no están disponibles en la app.</string>
+
     <!-- Progress -->
     <string name="progress_in_progress">En curso</string>
     <string name="progress_family_quest">Reto familiar</string>

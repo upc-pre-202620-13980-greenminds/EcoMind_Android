@@ -23,30 +23,75 @@ import pe.greenminds.ecomind.quests.domain.valueobject.QuestStatus
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.*
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.saveable.rememberSaveable
+import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestPartySections
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestPartyActions
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyMembersScreen
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.InviteFriendsScreen
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyBackButton
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
 
 @Composable
 fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showParticipants by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.partyState.isEnrolled) {
+        if (!state.partyState.isEnrolled) showParticipants = false
+    }
     LaunchedEffect(state.stage) {
         if (state.stage == QuestStage.STARTING) { delay(2200); viewModel.animationEnded() }
     }
-    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check, viewModel::finish)
+    if (state.selectingFriends) {
+        androidx.activity.compose.BackHandler { viewModel.closeFriends() }
+        InviteFriendsScreen(state, viewModel::closeFriends, viewModel::inviteFriend, viewModel::openFriends,
+            onRefresh = viewModel::refreshScreen)
+        return
+    }
+    if (showParticipants && state.execution?.quest?.type == QuestType.COLLABORATIVE && state.partyState.isEnrolled) {
+        androidx.activity.compose.BackHandler { showParticipants = false }
+        PartyMembersScreen(
+            state.partyState.copy(isLoading = state.busy), onBack = { showParticipants = false },
+            onRemove = viewModel::removeMember, onInvite = viewModel::openFriends, onCancelParty = viewModel::cancelParty,
+            hasActionError = state.error, onRetry = viewModel::reload,
+            isRefreshing = state.refreshing, onRefresh = viewModel::refreshScreen
+        )
+        return
+    }
+    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check, viewModel::finish,
+        onOpenParticipants = { showParticipants = true },
+        onAcceptInvitation = viewModel::acceptInvitation, onDeclineInvitation = viewModel::declineInvitation,
+        onPartyStart = viewModel::startPartyOrSolo, onInviteFriends = viewModel::openFriends, onLeaveParty = viewModel::leaveParty,
+        onRefresh = viewModel::refreshScreen)
 }
 
 @Composable
 internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Unit, onRetry: () -> Unit,
-    onStart: () -> Unit, onCheck: (Long, Boolean) -> Unit, onFinish: () -> Unit) {
+    onStart: () -> Unit, onCheck: (Long, Boolean) -> Unit, onFinish: () -> Unit,
+    onOpenParticipants: () -> Unit = {},
+    onAcceptInvitation: ((Long) -> Unit)? = null,
+    onDeclineInvitation: ((Long) -> Unit)? = null,
+    onPartyStart: (() -> Unit)? = null,
+    onInviteFriends: (() -> Unit)? = null,
+    onLeaveParty: (() -> Unit)? = null,
+    onRefresh: () -> Unit = onRetry) {
+    QuestRefreshContainer(
+        isRefreshing = state.refreshing,
+        onRefresh = onRefresh,
+        enabled = !state.busy && state.stage in listOf(QuestStage.DETAIL, QuestStage.ACTIVITIES)
+    ) {
     Column(Modifier.fillMaxSize().background(Color.White).statusBarsPadding().padding(horizontal = 28.dp)) {
         if (state.stage != QuestStage.STARTING && state.stage != QuestStage.FINISHED) {
-            TextButton(onClick = onBack, modifier = Modifier.offset(x = (-16).dp)) { Text("‹", fontSize = 30.sp, color = Color.Black) }
+            PartyBackButton(onBack, Modifier.offset(x = (-12).dp))
         }
         if (state.error) {
-            Text("We couldn't save or load your quest. Please try again.", color = MaterialTheme.colorScheme.error)
-            TextButton(onClick = onRetry, enabled = !state.busy) { Text("Retry") }
+            Text(stringResource(R.string.quest_party_action_error), color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = onRetry, enabled = !state.busy) { Text(stringResource(R.string.quest_try_again)) }
         }
         val execution = state.execution
         if (execution == null) {
-            if (state.busy) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             return@Column
         }
         if (state.stage == QuestStage.STARTING || state.stage == QuestStage.FINISHED) {
@@ -82,7 +127,7 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             Spacer(Modifier.height(36.dp))
             if (state.stage == QuestStage.DETAIL) {
                 Text(execution.quest.description, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp)
-                if (!execution.supported) Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
+                if (!execution.supported && execution.quest.type != QuestType.COLLABORATIVE) Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
             } else {
                 execution.activities.forEach { activity ->
                     val check = execution.checks.firstOrNull { it.activityId == activity.id }
@@ -105,17 +150,36 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
                 EnergyIllustration(Modifier.size(190.dp))
             }
             Spacer(Modifier.height(24.dp))
+            if (execution.quest.type == QuestType.COLLABORATIVE && state.stage == QuestStage.DETAIL) {
+                QuestPartySections(
+                    questId = execution.quest.id,
+                    state = state.partyState.copy(isLoading = state.busy || state.partyState.isLoading),
+                    onRetry = onRetry,
+                    onOpenParticipants = onOpenParticipants,
+                    onAccept = onAcceptInvitation,
+                    onDecline = onDeclineInvitation
+                )
+            }
         }
-        if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth().padding(bottom = 12.dp))
         val completed = execution.assignment?.status == QuestStatus.COMPLETED
         if (state.stage == QuestStage.DETAIL) {
-            QuestButton(if (completed) "Restart Quest" else if (execution.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)) "Resume Quest" else "Start Quest", onStart, execution.supported && !state.busy, false)
+            if (execution.quest.type == QuestType.COLLABORATIVE) {
+                QuestPartyActions(
+                    state = state.partyState.copy(isLoading = state.busy || state.partyState.isLoading),
+                    onStart = onPartyStart,
+                    onInvite = onInviteFriends,
+                    onLeave = onLeaveParty
+                )
+            } else {
+                QuestButton(if (completed) "Restart Quest" else if (execution.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)) "Resume Quest" else "Start Quest", onStart, execution.supported && !state.busy, false)
+            }
         } else if (completed) {
             QuestButton("Restart Quest", onStart, execution.supported && !state.busy, false)
         } else {
             QuestButton("Finish Quest", onFinish, execution.canFinish && !state.busy, true)
         }
         Spacer(Modifier.height(28.dp))
+    }
     }
 }
 

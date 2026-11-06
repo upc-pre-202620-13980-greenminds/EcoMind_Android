@@ -6,7 +6,7 @@ import pe.greenminds.ecomind.quests.domain.repositories.*
 import pe.greenminds.ecomind.quests.domain.valueobject.*
 
 data class QuestExecution(val quest: Quest, val activities: List<Activity>, val assignment: QuestUser?, val checks: List<ActivityUser>) {
-    val supported get() = quest.type == QuestType.ACTIVITIES && quest.theme == QuestTheme.CHECKBOX && activities.isNotEmpty() && activities.all { it.type == ActivityType.CHECKBOX }
+    val supported get() = (quest.type == QuestType.ACTIVITIES && quest.theme == QuestTheme.CHECKBOX || quest.type == QuestType.COLLABORATIVE) && activities.isNotEmpty() && activities.all { it.type == ActivityType.CHECKBOX }
     val canFinish get() = supported && assignment?.status == QuestStatus.READY_TO_COMPLETE && assignment.progress >= 100 && activities.all { a -> checks.any { it.activityId == a.id && it.progress >= 100 } }
 }
 
