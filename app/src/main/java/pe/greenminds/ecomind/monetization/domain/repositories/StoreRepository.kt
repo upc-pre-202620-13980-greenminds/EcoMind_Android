@@ -2,6 +2,8 @@ package pe.greenminds.ecomind.monetization.domain.repositories
 
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.GemPurchase
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
@@ -30,4 +32,11 @@ interface StoreRepository {
     suspend fun purchaseStreakProtector(protectorId: String): Result<Unit>
 
     suspend fun getGemPackages(): Result<List<GemPackage>>
+
+    suspend fun purchaseGemPackage(
+        packageId: String,
+        paymentMethod: PaymentMethod,
+        sourceToken: String,
+        email: String
+    ): Result<GemPurchase>
 }

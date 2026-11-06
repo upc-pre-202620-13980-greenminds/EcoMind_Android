@@ -29,4 +29,20 @@
     <string name="store_type_head">Hat</string>
     <string name="store_type_body">Body</string>
     <string name="store_type_accessory">Accessory</string>
+    <string name="store_payment_title">Buy gem package</string>
+    <string name="store_payment_summary">%1$d gems for %3$s %2$.2f</string>
+    <string name="store_payment_choose_method">Choose a sandbox payment method</string>
+    <string name="store_payment_culqi">Card / Yape</string>
+    <string name="store_payment_paypal">PayPal</string>
+    <string name="store_payment_processing">Processing…</string>
+    <string name="store_payment_cancel">Cancel</string>
+    <string name="store_payment_success_title">Payment approved</string>
+    <string name="store_payment_success_message">%1$d gems were added to your wallet.</string>
+    <string name="store_payment_done">Done</string>
+    <string name="store_payment_culqi_desc">Powered by Culqi</string>
+    <string name="store_payment_paypal_desc">PayPal account</string>
+    <string name="store_payment_back">Back to methods</string>
+    <string name="store_payment_retry">Try again</string>
+    <string name="store_payment_processing_hint">Do not close this window</string>
+    <string name="store_payment_package_name">Eco Pack</string>
 </resources>

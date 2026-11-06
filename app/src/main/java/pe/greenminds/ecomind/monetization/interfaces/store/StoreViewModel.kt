@@ -15,11 +15,14 @@ import pe.greenminds.ecomind.monetization.application.GetGemPackagesUseCase
 import pe.greenminds.ecomind.monetization.application.GetGemBalanceUseCase
 import pe.greenminds.ecomind.monetization.application.PurchaseCosmeticUseCase
 import pe.greenminds.ecomind.monetization.application.PurchaseMultiplierUseCase
+import pe.greenminds.ecomind.monetization.application.PurchaseGemPackageUseCase
 import pe.greenminds.ecomind.monetization.application.PurchaseStreakProtectorUseCase
 import pe.greenminds.ecomind.monetization.application.SetCosmeticEquippedUseCase
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import pe.greenminds.ecomind.shared.application.GemBalanceStore
@@ -34,6 +37,7 @@ class StoreViewModel @Inject constructor(
     private val purchaseCosmetic: PurchaseCosmeticUseCase,
     private val purchaseMultiplier: PurchaseMultiplierUseCase,
     private val purchaseStreakProtector: PurchaseStreakProtectorUseCase,
+    private val purchaseGemPackage: PurchaseGemPackageUseCase,
     private val setCosmeticEquipped: SetCosmeticEquippedUseCase,
     private val getCurrentProfile: GetCurrentProfileUseCase,
     private val gemBalanceStore: GemBalanceStore
@@ -78,6 +82,66 @@ class StoreViewModel @Inject constructor(
 
     fun dismissPurchaseNotice() {
         _state.update { it.copy(showPurchaseComingSoon = false) }
+    }
+
+    fun selectGemPackage(gemPackage: GemPackage) {
+        _state.update {
+            it.copy(selectedGemPackage = gemPackage, paymentError = null, paymentSucceededGems = null)
+        }
+    }
+
+    fun dismissPaymentDialog() {
+        if (_state.value.isPaymentProcessing) return
+        _state.update { it.copy(selectedGemPackage = null, paymentError = null) }
+    }
+
+    fun dismissPaymentResult() {
+        _state.update { it.copy(paymentSucceededGems = null, paymentError = null) }
+    }
+
+    fun payForGemPackage(
+        paymentMethod: PaymentMethod,
+        sourceToken: String,
+        email: String
+    ) {
+        val gemPackage = _state.value.selectedGemPackage ?: return
+        if (sourceToken.isBlank() || email.isBlank()) {
+            _state.update { it.copy(paymentError = "Complete the payment token and email") }
+            return
+        }
+
+        _state.update { it.copy(isPaymentProcessing = true, paymentError = null) }
+        viewModelScope.launch {
+            purchaseGemPackage(
+                packageId = gemPackage.id,
+                paymentMethod = paymentMethod,
+                sourceToken = sourceToken.trim(),
+                email = email.trim()
+            ).fold(
+                onSuccess = { purchase ->
+                    val newBalance = getGemBalance()
+                        .getOrDefault(_state.value.gemBalance + purchase.gemAmount)
+                    gemBalanceStore.update(newBalance)
+                    _state.update {
+                        it.copy(
+                            gemBalance = newBalance,
+                            selectedGemPackage = null,
+                            isPaymentProcessing = false,
+                            paymentSucceededGems = purchase.gemAmount,
+                            paymentError = null
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _state.update {
+                        it.copy(
+                            isPaymentProcessing = false,
+                            paymentError = error.message ?: "Payment could not be processed"
+                        )
+                    }
+                }
+            )
+        }
     }
 
     private fun buyCosmetic(item: StoreItem) {

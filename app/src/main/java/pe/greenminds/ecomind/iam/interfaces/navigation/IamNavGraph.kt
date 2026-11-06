@@ -7,7 +7,9 @@ import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.iam.interfaces.signin.SignInScreen
 import pe.greenminds.ecomind.iam.interfaces.signup.SignUpScreen
 import pe.greenminds.ecomind.iam.interfaces.splash.SplashScreen
-import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
+import pe.greenminds.ecomind.iam.interfaces.recovery.RequestPasswordRecoveryScreen
+import pe.greenminds.ecomind.iam.interfaces.recovery.ResetPasswordScreen
+import pe.greenminds.ecomind.iam.interfaces.terms.TermsScreen
 
 @Serializable
 data object SplashRoute
@@ -21,12 +23,21 @@ data object SignUpRoute
 @Serializable
 data object TermsRoute
 
+@Serializable
+data object RequestPasswordRecoveryRoute
+
+@Serializable
+data object ResetPasswordRoute
+
 fun NavGraphBuilder.iamNavGraph(
     navController: NavController,
-    onAuthenticated: () -> Unit
+    onAuthenticated: () -> Unit,
+    passwordResetToken: String? = null,
+    onPasswordResetHandled: () -> Unit = {},
+    onAccessReset: () -> Unit = {}
 ) {
     composable<SplashRoute> {
-        SplashScreen(
+        if (passwordResetToken == null) SplashScreen(
             onNavigateToSignIn = {
                 navController.navigate(SignInRoute) {
                     // The loading screen leaves the back stack so "back" does not return to it
@@ -44,6 +55,9 @@ fun NavGraphBuilder.iamNavGraph(
             onSignedIn = onAuthenticated,
             onNavigateToSignUp = {
                 navController.navigate(SignUpRoute)
+            },
+            onRecoverPassword = {
+                navController.navigate(RequestPasswordRecoveryRoute)
             }
         )
     }
@@ -61,6 +75,32 @@ fun NavGraphBuilder.iamNavGraph(
     }
 
     composable<TermsRoute> {
-        PlaceholderScreen()
+        TermsScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<RequestPasswordRecoveryRoute> {
+        RequestPasswordRecoveryScreen(onBack = {
+            if (!navController.popBackStack()) {
+                navController.navigate(SplashRoute) {
+                    popUpTo(navController.graph.id) { inclusive = true }
+                }
+            }
+        })
+    }
+
+    composable<ResetPasswordRoute> {
+        ResetPasswordScreen(
+            token = passwordResetToken.orEmpty(),
+            onBack = {
+                onPasswordResetHandled()
+                navController.navigate(RequestPasswordRecoveryRoute) {
+                    popUpTo<ResetPasswordRoute> { inclusive = true }
+                }
+            },
+            onCompleted = {
+                onPasswordResetHandled()
+                onAccessReset()
+            }
+        )
     }
 }

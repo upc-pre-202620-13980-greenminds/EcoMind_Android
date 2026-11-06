@@ -14,4 +14,8 @@ class GemBalanceStore @Inject constructor() {
     fun update(balance: Int) {
         _balance.value = balance
     }
+
+    fun clear() {
+        _balance.value = null
+    }
 }

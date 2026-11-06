@@ -18,4 +18,10 @@ interface AuthRepository {
 
     // Creates the account when the code is correct
     suspend fun verifyEmail(email: String, code: String): Result<Unit>
+
+    suspend fun requestPasswordRecovery(email: String): Result<Unit>
+
+    suspend fun confirmPasswordRecovery(token: String, newPassword: String): Result<Unit>
+
+    suspend fun logout(): Result<Unit>
 }
