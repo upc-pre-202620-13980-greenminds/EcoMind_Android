@@ -63,13 +63,14 @@ internal fun ProgressContent(
                 onOpenEntry = { onOpenQuest(it.questId) },
                 emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_active)
             )
-            ProgressSectionCard(
-                label = stringResource(R.string.progress_family_quest), entries = state.familyQuests.take(2),
-                actionLabel = stringResource(R.string.progress_see_family_quest),
-                onAction = { onOpenList(ProgressSection.FAMILY) },
-                onOpenEntry = { onOpenQuest(it.questId) },
-                emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_family)
-            )
+            if (state.familyQuests.isNotEmpty()) {
+                ProgressSectionCard(
+                    label = stringResource(R.string.progress_family_quest), entries = state.familyQuests.take(2),
+                    actionLabel = stringResource(R.string.progress_see_family_quest),
+                    onAction = { onOpenList(ProgressSection.FAMILY) },
+                    onOpenEntry = { onOpenQuest(it.questId) }
+                )
+            }
             ProgressSectionCard(
                 label = stringResource(R.string.progress_finished), entries = state.finished.take(2),
                 actionLabel = stringResource(R.string.progress_view_history),
