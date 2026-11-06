@@ -21,9 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +41,7 @@ import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
@@ -66,6 +64,10 @@ fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
         onCosmeticAction = viewModel::onCosmeticAction,
         onMultiplierBuy = viewModel::buyMultiplier,
         onProtectorBuy = viewModel::buyStreakProtector,
+        onGemPackageBuy = viewModel::selectGemPackage,
+        onPayGemPackage = viewModel::payForGemPackage,
+        onDismissPayment = viewModel::dismissPaymentDialog,
+        onDismissPaymentResult = viewModel::dismissPaymentResult,
         onDismissPurchaseNotice = viewModel::dismissPurchaseNotice
     )
 }
@@ -78,11 +80,13 @@ private fun StoreContent(
     onCosmeticAction: (StoreItem) -> Unit,
     onMultiplierBuy: (Multiplier) -> Unit,
     onProtectorBuy: (StreakProtector) -> Unit,
+    onGemPackageBuy: (GemPackage) -> Unit,
+    onPayGemPackage: (PaymentMethod, String, String) -> Unit,
+    onDismissPayment: () -> Unit,
+    onDismissPaymentResult: () -> Unit,
     onDismissPurchaseNotice: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showComingSoon by rememberSaveable { mutableStateOf(false) }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -207,14 +211,23 @@ private fun StoreContent(
         } else if (state.selectedCategory == StoreCategory.GEMS) {
             GemPackagesContent(
                 packages = state.gemPackages,
-                onBuy = { showComingSoon = true }
+                onBuy = onGemPackageBuy
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
     }
 
-    if (showComingSoon) {
-        ComingSoonDialog(onDismiss = { showComingSoon = false })
+    state.selectedGemPackage?.let { gemPackage ->
+        GemPaymentDialog(
+            gemPackage = gemPackage,
+            isProcessing = state.isPaymentProcessing,
+            errorMessage = state.paymentError,
+            onPay = onPayGemPackage,
+            onDismiss = onDismissPayment
+        )
+    }
+    state.paymentSucceededGems?.let { gems ->
+        GemPaymentSuccessDialog(gems = gems, onDismiss = onDismissPaymentResult)
     }
     if (state.showPurchaseComingSoon) {
         ComingSoonDialog(onDismiss = onDismissPurchaseNotice)
@@ -224,7 +237,7 @@ private fun StoreContent(
 @Composable
 private fun GemPackagesContent(
     packages: List<GemPackage>,
-    onBuy: () -> Unit
+    onBuy: (GemPackage) -> Unit
 ) {
     val regularPackages = packages.filter { it.gemAmount != 10_000 }
     val megaPackage = packages.firstOrNull { it.gemAmount == 10_000 }
@@ -238,7 +251,7 @@ private fun GemPackagesContent(
                 rowPackages.forEach { gemPackage ->
                     GemPackageCard(
                         gemPackage = gemPackage,
-                        onBuy = onBuy,
+                        onBuy = { onBuy(gemPackage) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -246,7 +259,7 @@ private fun GemPackagesContent(
             }
         }
         megaPackage?.let {
-            MegaGemPackageCard(gemPackage = it, onBuy = onBuy)
+            MegaGemPackageCard(gemPackage = it, onBuy = { onBuy(it) })
         }
     }
 }
@@ -375,6 +388,10 @@ private fun StoreContentPreview() {
             onCosmeticAction = {},
             onMultiplierBuy = {},
             onProtectorBuy = {},
+            onGemPackageBuy = {},
+            onPayGemPackage = { _, _, _ -> },
+            onDismissPayment = {},
+            onDismissPaymentResult = {},
             onDismissPurchaseNotice = {}
         )
     }

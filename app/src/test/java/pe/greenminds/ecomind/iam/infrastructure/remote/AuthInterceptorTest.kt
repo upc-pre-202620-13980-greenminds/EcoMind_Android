@@ -42,6 +42,15 @@ class AuthInterceptorTest {
     @Test fun skipsPublicLogin() {
         assertNull(headerFor("authentication/sign-in", Long.MAX_VALUE))
     }
+    @Test fun skipsPublicRecoveryRequest() {
+        assertNull(headerFor("authentication/password-recovery/request", Long.MAX_VALUE))
+    }
+    @Test fun skipsPublicRecoveryConfirmation() {
+        assertNull(headerFor("authentication/password-recovery/confirm", Long.MAX_VALUE))
+    }
+    @Test fun authenticatesLogoutBeforeTheSessionIsCleared() {
+        assertEquals("Bearer test-token", headerFor("authentication/logout", Long.MAX_VALUE))
+    }
     @Test fun skipsExpiredSession() {
         assertNull(headerFor("quests", 0L))
     }

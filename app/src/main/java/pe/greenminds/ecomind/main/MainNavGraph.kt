@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestCategoryMenu
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestListFilter
@@ -25,8 +26,14 @@ import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
+import pe.greenminds.ecomind.iam.interfaces.navigation.TermsRoute
+import pe.greenminds.ecomind.iam.interfaces.settings.SettingsScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.SettingsViewModel
+import pe.greenminds.ecomind.iam.interfaces.settings.HelpSupportScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.FaqScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.FaqDetailScreen
 
-fun NavGraphBuilder.mainNavGraph(navController: NavController) {
+fun NavGraphBuilder.mainNavGraph(navController: NavController, settingsViewModel: SettingsViewModel) {
     composable<MainMenuRoute> {
         // The category menu is drawn over the main menu, so it is state of this screen
         var showCategories by rememberSaveable { mutableStateOf(false) }
@@ -93,7 +100,31 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
     }
 
     composable<SettingsRoute> {
-        PlaceholderScreen()
+        SettingsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenTerms = { navController.navigate(TermsRoute) },
+            onOpenHelp = { navController.navigate(HelpSupportRoute) },
+            viewModel = settingsViewModel
+        )
+    }
+
+    composable<HelpSupportRoute> {
+        HelpSupportScreen(
+            onBack = { navController.popBackStack() },
+            onOpenFaq = { navController.navigate(FaqRoute) }
+        )
+    }
+
+    composable<FaqRoute> {
+        FaqScreen(
+            onBack = { navController.popBackStack() },
+            onOpenQuestion = { navController.navigate(FaqDetailRoute(it)) }
+        )
+    }
+
+    composable<FaqDetailRoute> { entry ->
+        val route = entry.toRoute<FaqDetailRoute>()
+        FaqDetailScreen(route.questionId) { navController.popBackStack() }
     }
 
     composable<PlaceholderRoute> {

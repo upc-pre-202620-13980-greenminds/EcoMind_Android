@@ -3,6 +3,9 @@ package pe.greenminds.ecomind.monetization.infrastructure.remote
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticType
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.GemPurchase
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
+import pe.greenminds.ecomind.monetization.domain.model.PaymentStatus
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
@@ -64,4 +67,15 @@ fun GemPackageDto.toDomain(): GemPackage = GemPackage(
         gemAmount >= 1_000 -> "gem_pack_1"
         else -> "gem_pack_0"
     }
+)
+
+fun GemPurchaseDto.toDomain(): GemPurchase = GemPurchase(
+    id = id,
+    packageId = packageId,
+    gemAmount = gemAmount,
+    amountPaid = amountPaid,
+    currency = currency,
+    paymentMethod = PaymentMethod.valueOf(paymentMethod),
+    paymentStatus = PaymentStatus.valueOf(paymentStatus),
+    paymentReference = paymentReference
 )

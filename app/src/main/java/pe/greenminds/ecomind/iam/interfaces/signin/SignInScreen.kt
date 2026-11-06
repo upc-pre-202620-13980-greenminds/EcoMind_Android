@@ -41,6 +41,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 fun SignInScreen(
     onSignedIn: () -> Unit,
     onNavigateToSignUp: () -> Unit,
+    onRecoverPassword: () -> Unit,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -56,7 +57,8 @@ fun SignInScreen(
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
         onSignIn = viewModel::signIn,
-        onNavigateToSignUp = onNavigateToSignUp
+        onNavigateToSignUp = onNavigateToSignUp,
+        onRecoverPassword = onRecoverPassword
     )
 }
 
@@ -68,6 +70,7 @@ private fun SignInContent(
     onPasswordChange: (String) -> Unit,
     onSignIn: () -> Unit,
     onNavigateToSignUp: () -> Unit,
+    onRecoverPassword: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -130,7 +133,18 @@ private fun SignInContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        TextButton(
+            onClick = onRecoverPassword,
+            enabled = !state.isLoading,
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(
+                text = stringResource(R.string.sign_in_forgot_password),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         PrimaryButton(
             text = stringResource(R.string.sign_in_button),
             onClick = onSignIn,
@@ -163,7 +177,8 @@ private fun SignInContentPreview() {
             onEmailChange = {},
             onPasswordChange = {},
             onSignIn = {},
-            onNavigateToSignUp = {}
+            onNavigateToSignUp = {},
+            onRecoverPassword = {}
         )
     }
 }
@@ -181,7 +196,8 @@ private fun SignInContentErrorPreview() {
             onEmailChange = {},
             onPasswordChange = {},
             onSignIn = {},
-            onNavigateToSignUp = {}
+            onNavigateToSignUp = {},
+            onRecoverPassword = {}
         )
     }
 }

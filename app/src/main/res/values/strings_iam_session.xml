@@ -1,0 +1,8 @@
+<resources>
+    <string name="sign_in_forgot_password">Forgot password?</string>
+    <string name="settings_account">Account</string>
+    <string name="log_out">Log out</string>
+    <string name="logging_out">Logging out…</string>
+    <string name="error_logout_storage">Your session could not be removed from this device. Please try again.</string>
+    <string name="terms_title">Terms &amp; policy</string>
+</resources>
