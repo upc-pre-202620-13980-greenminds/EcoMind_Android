@@ -11,6 +11,7 @@ data class ActivityUserDto(val id: Long, val questUserId: Long, val activityId: 
 data class CheckboxRequest(val data: Map<String, Boolean>)
 
 interface QuestExecutionApi {
+    @GET("quest-users/me/status/{status}") suspend fun getByStatus(@Path("status") status: String): List<QuestUserDto>
     @GET("quest-users/me/quest/{questId}") suspend fun find(@Path("questId") id: Long): Response<QuestUserDto>
     @POST("quest-users") suspend fun start(@Body request: CreateQuestUserRequest): QuestUserDto
     @GET("quest-users/{id}") suspend fun get(@Path("id") id: Long): QuestUserDto

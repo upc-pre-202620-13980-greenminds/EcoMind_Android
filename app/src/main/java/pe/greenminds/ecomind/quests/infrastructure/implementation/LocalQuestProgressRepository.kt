@@ -35,8 +35,8 @@ class LocalQuestProgressRepository @Inject constructor() : QuestProgressReposito
         }
     }
     override suspend fun getQuestUsers() = Result.success(assignments)
-    override suspend fun getActivityUsers() = Result.success(activities)
-    override suspend fun getQuests() = Result.success(quests)
+    override suspend fun getActivityUsers(questUserId: Long) = Result.success(activities.filter { it.questUserId == questUserId })
+    override suspend fun getQuests(questIds: Set<Long>) = Result.success(quests.filter { it.id in questIds })
 
     private fun assignment(id: Long, questId: Long, progress: Double,
         status: QuestStatus = QuestStatus.IN_PROGRESS) = QuestUser(

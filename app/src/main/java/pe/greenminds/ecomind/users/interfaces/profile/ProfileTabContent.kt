@@ -31,6 +31,7 @@ import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.ProgressRoute
 
 // Profile tab: a parent sees the weekly report of the family, a student sees their commitment
 @Composable
@@ -39,6 +40,12 @@ fun ProfileTabContent(
     state: ProfileUiState,
     onNavigate: (Any) -> Unit
 ) {
+    SectionHeaderRow(
+        title = stringResource(R.string.progress_history),
+        action = stringResource(R.string.progress_view_progress),
+        onAction = { onNavigate(ProgressRoute) }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
     if (profile.socialRole == SocialRole.PARENT) {
         when {
             state.isLoadingFamily -> TabLoading()

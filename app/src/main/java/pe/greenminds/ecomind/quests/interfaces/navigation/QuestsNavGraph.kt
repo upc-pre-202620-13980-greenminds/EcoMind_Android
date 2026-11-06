@@ -3,9 +3,12 @@ package pe.greenminds.ecomind.quests.interfaces.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.quests.interfaces.search.QuestSearchScreen
 import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressScreen
+import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressListScreen
+import pe.greenminds.ecomind.quests.application.ProgressSection
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 
 // Opened from the main menu, not from the bottom bar.
@@ -19,6 +22,9 @@ data class QuestSearchRoute(
 
 @Serializable
 data object ProgressRoute
+
+@Serializable
+data class ProgressListRoute(val section: String)
 
 // Hook routes: screens of the design that are not built yet.
 // To build one, replace PlaceholderScreen() in its composable below.
@@ -39,7 +45,20 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
     }
 
     composable<ProgressRoute> {
-        ProgressScreen()
+        ProgressScreen(
+            onOpenList = { navController.navigate(ProgressListRoute(it.name)) { launchSingleTop = true } },
+            onOpenQuest = { navController.navigate(QuestDetailRoute(it)) { launchSingleTop = true } }
+        )
+    }
+
+    composable<ProgressListRoute> { backStackEntry ->
+        val route = backStackEntry.toRoute<ProgressListRoute>()
+        val section = ProgressSection.entries.firstOrNull { it.name == route.section } ?: ProgressSection.HISTORY
+        ProgressListScreen(
+            section = section,
+            onBack = { navController.popBackStack() },
+            onOpenQuest = { navController.navigate(QuestDetailRoute(it)) { launchSingleTop = true } }
+        )
     }
 
     composable<QuestDetailRoute> {

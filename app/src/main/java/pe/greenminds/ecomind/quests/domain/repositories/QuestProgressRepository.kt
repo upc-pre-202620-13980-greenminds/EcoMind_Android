@@ -6,6 +6,6 @@ import pe.greenminds.ecomind.quests.domain.entity.QuestUser
 
 interface QuestProgressRepository {
     suspend fun getQuestUsers(): Result<List<QuestUser>>
-    suspend fun getActivityUsers(): Result<List<ActivityUser>>
-    suspend fun getQuests(): Result<List<Quest>>
+    suspend fun getActivityUsers(questUserId: Long): Result<List<ActivityUser>>
+    suspend fun getQuests(questIds: Set<Long>): Result<List<Quest>>
 }
