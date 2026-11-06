@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.quests.application
+package pe.greenminds.ecomind.quests.application.usecase
 
 import pe.greenminds.ecomind.quests.domain.entity.Quest
 import pe.greenminds.ecomind.quests.domain.repositories.QuestRepository

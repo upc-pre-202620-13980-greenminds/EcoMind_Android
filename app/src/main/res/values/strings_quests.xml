@@ -20,6 +20,51 @@
     <string name="quest_list_error">The quests could not be loaded.</string>
     <string name="quest_try_again">Try again</string>
 
+    <!-- Collaborative quest invitations -->
+    <string name="quest_invitations_title">Quest invitations</string>
+    <string name="quest_invitations_empty">You have no pending invitations.</string>
+    <string name="quest_invitations_error">We couldn’t load your invitations.</string>
+    <string name="quest_invitation_message">You have been invited to participate</string>
+    <string name="quest_invitations_back">Back</string>
+
+    <!-- Collaborative party detail -->
+    <string name="quest_party_pending">Pending invites</string>
+    <string name="quest_party_participants">Participants</string>
+    <string name="quest_party_awaiting_reply">%1$s, invitation pending</string>
+    <string name="quest_party_manage">Manage party</string>
+    <string name="quest_party_accept">Accept</string>
+    <string name="quest_party_decline">Decline invitation</string>
+    <string name="quest_party_accept_blocked">Finish your current quest or leave your party before accepting another invitation.</string>
+    <string name="quest_party_pending_count">Pending invitations: %1$d</string>
+    <string name="quest_party_user">User %1$d</string>
+    <string name="quest_party_you">You</string>
+    <string name="quest_party_owner">Owner</string>
+    <string name="quest_party_remove">Remove %1$s from the party</string>
+    <string name="quest_party_start">Start Quest</string>
+    <string name="quest_party_invite">Invite friends</string>
+    <string name="quest_party_leave">Leave party</string>
+    <string name="quest_party_cancel_party">Cancel party</string>
+    <string name="quest_party_load_error">We couldn’t load the party and invitations.</string>
+    <string name="quest_party_confirm_title">Continue?</string>
+    <string name="quest_party_continue">Continue</string>
+    <string name="quest_party_cancel">Cancel</string>
+    <string name="quest_party_received_warning">You have pending invitations for this quest. Do you want to continue?</string>
+    <string name="quest_party_start_warning">Some friends haven’t answered yet. If you start, they won’t be able to join this party.</string>
+    <string name="quest_party_leave_warning">Do you want to leave your current party?</string>
+    <string name="quest_party_cancel_warning">This will delete the pending party and all its invitations. Do you want to continue?</string>
+
+    <string name="quest_party_resume">Resume Quest</string>
+    <string name="quest_party_friends">Friends</string>
+    <string name="quest_party_no_friends">No accepted friends yet.</string>
+    <string name="quest_party_no_matches">No friends match your search.</string>
+    <string name="quest_party_invite_one">Invite</string>
+    <string name="quest_party_invited">Invited</string>
+    <string name="quest_party_joined">Joined</string>
+    <string name="quest_party_unavailable">Unavailable</string>
+    <string name="quest_party_capacity">%1$d/%2$d places reserved</string>
+    <string name="quest_party_action_error">We couldn’t complete the action or refresh the quest. Refresh and check its current status before trying again.</string>
+    <string name="quest_party_unsupported">This quest uses activities that are not available in the app yet.</string>
+
     <!-- Progress -->
     <string name="progress_in_progress">In Progress</string>
     <string name="progress_family_quest">Family Quest</string>
