@@ -72,4 +72,26 @@
     <string name="progress_see_more">Ver más</string>
     <string name="progress_see_family_quest">Ver reto familiar</string>
     <string name="progress_entry_description">%1$s, %2$d por ciento</string>
+    <string name="progress_view_history">Ver historial</string>
+    <string name="progress_history">Historial de retos</string>
+    <string name="progress_empty_active">No tienes ninguna actividad activa.</string>
+    <string name="progress_empty_family">No tienes retos familiares en curso.</string>
+    <string name="progress_empty_finished">No has completado ninguna actividad. ¡Empieza una!</string>
+    <string name="progress_view_progress">Ver progreso</string>
+    <string name="progress_empty_list">Aún no hay retos en esta lista.</string>
+    <string name="progress_load_error">No pudimos actualizar tu progreso. Desliza hacia abajo o vuelve a intentarlo.</string>
+    <string name="progress_unknown_quest">Reto no disponible</string>
+    <string name="progress_percent">%1$d%%</string>
+    <string name="progress_end_date">Finalizó: %1$s</string>
+    <string name="progress_completed_on">Completado el %1$s</string>
+    <string name="progress_show_completions">Mostrar otras fechas de finalización</string>
+    <string name="progress_hide_completions">Ocultar otras fechas de finalización</string>
+    <string name="progress_completion_date_unknown">Fecha de finalización no disponible</string>
+    <string name="progress_status_ready">Listo para finalizar</string>
+    <string name="progress_status_completed">Completado</string>
+    <string name="progress_status_expired">Vencido</string>
+    <string name="progress_status_cancelled">Cancelado</string>
+    <string name="progress_activities">Actividades</string>
+    <string name="progress_no_activities">No hay actividades registradas para este intento.</string>
+    <string name="progress_activity_number">Actividad %1$d</string>
 </resources>

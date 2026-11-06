@@ -83,6 +83,7 @@ fun MainShell(viewModel: MainShellViewModel = hiltViewModel()) {
 // Null means the destination is shown without bars (loading, access and placeholder screens)
 private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination == null) return null
+    if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
 
     val section = NavigationItem.entries.firstOrNull { item ->
         destination.hasRoute(item.route::class)

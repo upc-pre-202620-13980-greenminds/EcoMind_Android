@@ -2,13 +2,16 @@ package pe.greenminds.ecomind.quests.application
 
 import pe.greenminds.ecomind.quests.domain.entity.ActivityUser
 import pe.greenminds.ecomind.quests.domain.entity.QuestUser
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import kotlin.math.roundToInt
 
 // Read model for the overview; the assignment remains the source of quest progress.
 data class ProgressEntry(
     val questUser: QuestUser,
     val title: String,
-    val activityUsers: List<ActivityUser> = emptyList()
+    val activityUsers: List<ActivityUser> = emptyList(),
+    val questType: QuestType? = null,
+    val otherCompletions: List<QuestUser> = emptyList()
 ) {
     val questId: Long get() = questUser.questId
     val percent: Int get() = if (questUser.progress.isFinite()) {
@@ -19,5 +22,8 @@ data class ProgressEntry(
 data class ProgressOverview(
     val inProgress: List<ProgressEntry>,
     val familyQuests: List<ProgressEntry>,
-    val finished: List<ProgressEntry>
+    val finished: List<ProgressEntry>,
+    val history: List<ProgressEntry> = finished
 )
+
+enum class ProgressSection { IN_PROGRESS, FAMILY, HISTORY }

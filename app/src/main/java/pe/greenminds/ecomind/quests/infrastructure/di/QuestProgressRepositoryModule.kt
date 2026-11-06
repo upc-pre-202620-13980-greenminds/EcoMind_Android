@@ -5,11 +5,11 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.quests.domain.repositories.QuestProgressRepository
-import pe.greenminds.ecomind.quests.infrastructure.implementation.LocalQuestProgressRepository
+import pe.greenminds.ecomind.quests.infrastructure.implementation.RemoteQuestProgressRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
 interface QuestProgressRepositoryModule {
     @Binds
-    fun bindQuestProgressRepository(impl: LocalQuestProgressRepository): QuestProgressRepository
+    fun bindQuestProgressRepository(impl: RemoteQuestProgressRepository): QuestProgressRepository
 }
