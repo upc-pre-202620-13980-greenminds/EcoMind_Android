@@ -27,6 +27,17 @@ interface MonetizationApi {
     @GET("monetization/gem-packages")
     suspend fun getGemPackages(): Response<List<GemPackageDto>>
 
+    @POST("monetization/me/gem-purchases")
+    suspend fun createGemPurchase(
+        @Body request: CreateGemPurchaseDto
+    ): Response<GemPurchaseDto>
+
+    @POST("monetization/me/gem-purchases/{purchaseId}/payment")
+    suspend fun payGemPurchase(
+        @Path("purchaseId") purchaseId: String,
+        @Body request: PayGemPurchaseDto
+    ): Response<GemPurchaseDto>
+
     @POST("monetization/me/cosmetics/purchases")
     suspend fun purchaseCosmetic(@Body request: BuyItemDto): Response<UserCosmeticDto>
 

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,6 +7,15 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
+
+val localProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) propertiesFile.inputStream().use { load(it) }
+}
+val debugApiBaseUrl = localProperties.getProperty(
+    "api.base.url",
+    "http://10.0.2.2:8092/api/v1/"
+)
 
 android {
     namespace = "pe.greenminds.ecomind"
@@ -19,13 +30,22 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // Sandbox public credentials from the previous EcoMind web checkout.
+        // Provider secret keys remain exclusively in the backend.
+        buildConfigField("String", "CULQI_PUBLIC_KEY", "\"pk_test_Z2WRdxu0EQOGU2Ge\"")
+        buildConfigField(
+            "String",
+            "PAYPAL_CLIENT_ID",
+            "\"AUmHZeDzviWVJj_rnXU_c5wEhRKANH7yy_HFdJVDWxgsc1lX_8xYrfG0NJqLJHynBKAsXy4YsaIzZeh2\""
+        )
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            // 10.0.2.2 is the host machine seen from the Android emulator
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8092/api/v1/\"")
+            // Defaults to the emulator host. A physical device can override it in local.properties.
+            buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
         }
         release {
             optimization {

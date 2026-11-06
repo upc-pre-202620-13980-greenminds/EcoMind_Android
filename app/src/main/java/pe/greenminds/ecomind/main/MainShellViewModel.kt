@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class MainShellViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MainShellUiState())
     val state: StateFlow<MainShellUiState> = _state.asStateFlow()
+    private var balanceRequest: Job? = null
 
     init {
         viewModelScope.launch {
@@ -33,7 +35,8 @@ class MainShellViewModel @Inject constructor(
 
     // Called when the bars appear, because before signing in there is no profile to read
     fun loadBalances() {
-        viewModelScope.launch {
+        balanceRequest?.cancel()
+        balanceRequest = viewModelScope.launch {
             getCurrentProfile().onSuccess { profile ->
                 gemBalanceStore.update(profile.gemBalance)
                 _state.update { currentState ->
@@ -44,5 +47,11 @@ class MainShellViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun clearBalances() {
+        balanceRequest?.cancel()
+        gemBalanceStore.clear()
+        _state.value = MainShellUiState()
     }
 }

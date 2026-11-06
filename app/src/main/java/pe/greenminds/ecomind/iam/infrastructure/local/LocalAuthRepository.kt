@@ -69,6 +69,16 @@ class LocalAuthRepository @Inject constructor(
     private var nextAccountId = FIRST_NEW_ACCOUNT_ID
     private var pendingAccount: PendingAccount? = null
 
+    override suspend fun requestPasswordRecovery(email: String): Result<Unit> {
+        return Result.failure(UnsupportedOperationException("Password recovery requires the remote service"))
+    }
+
+    override suspend fun confirmPasswordRecovery(token: String, newPassword: String): Result<Unit> {
+        return Result.failure(UnsupportedOperationException("Password recovery requires the remote service"))
+    }
+
+    override suspend fun logout(): Result<Unit> = Result.success(Unit)
+
     override suspend fun signIn(email: String, password: String): Result<Session> {
         // Simulates the time a request to the web services would take
         delay(SIMULATED_DELAY_MILLIS)

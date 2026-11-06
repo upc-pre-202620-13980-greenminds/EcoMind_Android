@@ -1,0 +1,8 @@
+<resources>
+    <string name="sign_in_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="settings_account">Cuenta</string>
+    <string name="log_out">Cerrar sesión</string>
+    <string name="logging_out">Cerrando sesión…</string>
+    <string name="error_logout_storage">No se pudo eliminar tu sesión de este dispositivo. Inténtalo de nuevo.</string>
+    <string name="terms_title">Términos y política</string>
+</resources>

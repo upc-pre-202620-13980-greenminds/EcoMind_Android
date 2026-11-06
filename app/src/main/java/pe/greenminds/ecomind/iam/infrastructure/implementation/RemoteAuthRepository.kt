@@ -11,6 +11,8 @@ import pe.greenminds.ecomind.iam.domain.model.SocialRole
 import pe.greenminds.ecomind.iam.domain.repositories.AuthRepository
 import pe.greenminds.ecomind.iam.infrastructure.mapper.toDomain
 import pe.greenminds.ecomind.iam.infrastructure.remote.AuthApi
+import pe.greenminds.ecomind.iam.infrastructure.remote.ConfirmPasswordRecoveryRequest
+import pe.greenminds.ecomind.iam.infrastructure.remote.PasswordRecoveryRequest
 import pe.greenminds.ecomind.iam.infrastructure.remote.SignInRequest
 import pe.greenminds.ecomind.iam.infrastructure.remote.SignUpRequest
 import pe.greenminds.ecomind.iam.infrastructure.remote.VerifyEmailRequest
@@ -48,6 +50,32 @@ class RemoteAuthRepository @Inject constructor(
             request = { api.verifyEmail(VerifyEmailRequest(email, code)) },
             transform = { }
         )
+    }
+
+    override suspend fun requestPasswordRecovery(email: String): Result<Unit> {
+        return execute(
+            request = { api.requestPasswordRecovery(PasswordRecoveryRequest(email)) },
+            transform = { }
+        )
+    }
+
+    override suspend fun confirmPasswordRecovery(token: String, newPassword: String): Result<Unit> {
+        return executeEmpty { api.confirmPasswordRecovery(ConfirmPasswordRecoveryRequest(token, newPassword)) }
+    }
+
+    override suspend fun logout(): Result<Unit> {
+        return executeEmpty { api.logout() }
+    }
+
+    private suspend fun executeEmpty(request: suspend () -> Response<Unit>): Result<Unit> {
+        return try {
+            val response = request()
+            if (response.isSuccessful) Result.success(Unit) else Result.failure(toException(response))
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
     }
 
     // Shares response handling while keeping DTOs inside infrastructure.
@@ -90,6 +118,8 @@ class RemoteAuthRepository @Inject constructor(
             "INVALID_CREDENTIALS" -> AuthException(AuthError.INVALID_CREDENTIALS)
             "EMAIL_CONFLICT" -> AuthException(AuthError.EMAIL_CONFLICT)
             "VERIFICATION_CODE_INVALID" -> AuthException(AuthError.VERIFICATION_CODE_INVALID)
+            "PASSWORD_POLICY_VIOLATION" -> AuthException(AuthError.PASSWORD_POLICY_VIOLATION)
+            "PASSWORD_RESET_TOKEN_INVALID" -> AuthException(AuthError.PASSWORD_RESET_TOKEN_INVALID)
             else -> HttpException(response)
         }
     }
