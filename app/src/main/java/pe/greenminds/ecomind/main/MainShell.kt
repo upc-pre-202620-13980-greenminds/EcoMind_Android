@@ -22,6 +22,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
+import pe.greenminds.ecomind.learning.interfaces.TutorialOverlay
 import pe.greenminds.ecomind.navigation.AppNavHost
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
@@ -90,6 +91,7 @@ private fun MainShellContent(
         }
     }
 
+    androidx.compose.foundation.layout.Box {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -128,6 +130,8 @@ private fun MainShellContent(
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
         )
+    }
+    TutorialOverlay(active = showBars)
     }
 }
 

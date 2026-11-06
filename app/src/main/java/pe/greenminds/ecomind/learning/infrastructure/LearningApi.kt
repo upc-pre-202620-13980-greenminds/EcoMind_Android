@@ -20,6 +20,7 @@ data class EducationalMaterialDto(
 )
 
 data class FavoriteStatusDto(val favorite: Boolean)
+data class TutorialProgressDto(val currentStep: Int, val totalSteps: Int, val completed: Boolean)
 
 interface LearningApi {
     @GET("educational-materials")
@@ -37,4 +38,7 @@ interface LearningApi {
     @GET("educational-materials/favorites") suspend fun getFavorites(): Response<List<EducationalMaterialDto>>
     @GET("educational-materials/recent") suspend fun getRecent(): Response<List<EducationalMaterialDto>>
     @POST("educational-materials/{id}/favorite") suspend fun toggleFavorite(@Path("id") id: Long): Response<FavoriteStatusDto>
+    @GET("tutorials/progress") suspend fun getTutorialProgress(): Response<TutorialProgressDto>
+    @POST("tutorials/progress/step") suspend fun completeTutorialStep(): Response<TutorialProgressDto>
+    @POST("tutorials/progress/complete") suspend fun completeTutorial(): Response<TutorialProgressDto>
 }
