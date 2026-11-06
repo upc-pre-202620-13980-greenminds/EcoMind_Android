@@ -33,17 +33,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
+import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.SurfaceSoft
 
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
     onOpenTerms: () -> Unit,
+    onOpenHelp: () -> Unit,
     viewModel: SettingsViewModel
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
-    SettingsContent(state, onBack, onOpenTerms, viewModel::logout)
+    SettingsContent(state, onBack, onOpenTerms, onOpenHelp, viewModel::logout)
 }
 
 @Composable
@@ -51,6 +52,7 @@ internal fun SettingsContent(
     state: SettingsUiState,
     onBack: () -> Unit,
     onOpenTerms: () -> Unit,
+    onOpenHelp: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -66,7 +68,7 @@ internal fun SettingsContent(
             Text(
                 stringResource(R.string.top_bar_settings),
                 style = MaterialTheme.typography.titleMedium,
-                color = EcoGreenDark,
+                color = EcoGreen,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
@@ -74,7 +76,7 @@ internal fun SettingsContent(
         Text(
             stringResource(R.string.settings_account),
             style = MaterialTheme.typography.titleMedium,
-            color = EcoGreenDark
+            color = EcoGreen
         )
         TextButton(
             onClick = onOpenTerms,
@@ -91,6 +93,19 @@ internal fun SettingsContent(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
+                Icon(painterResource(R.drawable.ic_chevron_back), null, Modifier.rotate(180f))
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+        Text("Ayuda", style = MaterialTheme.typography.titleMedium, color = EcoGreen)
+        TextButton(
+            onClick = onOpenHelp,
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.textButtonColors(containerColor = SurfaceSoft, contentColor = MaterialTheme.colorScheme.onBackground),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("Ayuda y soporte", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                 Icon(painterResource(R.drawable.ic_chevron_back), null, Modifier.rotate(180f))
             }
         }
@@ -125,5 +140,5 @@ internal fun SettingsContent(
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 private fun SettingsPreview() {
-    EcoMindTheme { SettingsContent(SettingsUiState(), {}, {}, {}) }
+    EcoMindTheme { SettingsContent(SettingsUiState(), {}, {}, {}, {}) }
 }

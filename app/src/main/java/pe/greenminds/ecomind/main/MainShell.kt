@@ -138,7 +138,8 @@ private fun MainShellContent(
 // Null means the destination is shown without bars (loading, access and placeholder screens)
 private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination == null) return null
-    if (destination.hasRoute<SettingsRoute>()) return NavigationItem.PROFILE
+    if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
+        destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
 
     val section = NavigationItem.entries.firstOrNull { item ->
         destination.hasRoute(item.route::class)
