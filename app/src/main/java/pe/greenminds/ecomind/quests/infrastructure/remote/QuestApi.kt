@@ -13,7 +13,8 @@ interface QuestApi {
     suspend fun searchQuests(
         @Query("title") title: String,
         @Query("category") category: String?,
-        @Query("questType") questType: String?
+        @Query("questType") questType: String?,
+        @Query("type") theme: String? = null
     ): Response<List<QuestDto>>
 
     @GET("quests/{questId}")
