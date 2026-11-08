@@ -37,7 +37,7 @@ internal fun FamilyPlanProgressSection(
             if (active != null) {
                 if (currentEntries.isEmpty()) FamilyPlanProgress(active.progress)
                 FamilyPlanButton(stringResource(R.string.progress_see_family_quest), { onOpen(active.id) },
-                    Modifier.align(Alignment.End).widthIn(max = 200.dp), enabled = !state.busy)
+                    Modifier.align(Alignment.End).widthIn(max = 180.dp), enabled = !state.busy, compact = true)
             } else if (overview?.isParent == true) {
                 FamilyPlanButton(stringResource(if (overview.draftPlan != null) R.string.family_plan_continue else R.string.family_plan_new),
                     onCreate, Modifier.align(Alignment.CenterHorizontally).widthIn(max = 220.dp), enabled = !state.busy)
