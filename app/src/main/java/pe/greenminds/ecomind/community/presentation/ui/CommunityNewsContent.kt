@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.sections
+package pe.greenminds.ecomind.community.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

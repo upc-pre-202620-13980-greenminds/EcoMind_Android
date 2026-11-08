@@ -1,6 +1,6 @@
-package pe.greenminds.ecomind.community.application
+package pe.greenminds.ecomind.community.application.usecase
 
-import pe.greenminds.ecomind.community.domain.model.CommunityEvent
+import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 import pe.greenminds.ecomind.community.domain.repositories.CommunityRepository
 import javax.inject.Inject
 

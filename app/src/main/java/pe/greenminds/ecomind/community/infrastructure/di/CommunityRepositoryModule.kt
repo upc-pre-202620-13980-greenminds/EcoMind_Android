@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pe.greenminds.ecomind.community.domain.repositories.CommunityRepository
-import pe.greenminds.ecomind.community.infrastructure.local.LocalCommunityRepository
+import pe.greenminds.ecomind.community.infrastructure.implementation.LocalCommunityRepository
 
 @Module
 @InstallIn(SingletonComponent::class)

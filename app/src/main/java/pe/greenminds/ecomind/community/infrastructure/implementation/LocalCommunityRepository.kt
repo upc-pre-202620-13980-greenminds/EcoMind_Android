@@ -1,10 +1,10 @@
-package pe.greenminds.ecomind.community.infrastructure.local
+package pe.greenminds.ecomind.community.infrastructure.implementation
 
 import kotlinx.coroutines.delay
-import pe.greenminds.ecomind.community.domain.model.CommunityEvent
+import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 import pe.greenminds.ecomind.community.domain.repositories.CommunityRepository
 import pe.greenminds.ecomind.community.infrastructure.remote.CommunityEventDto
-import pe.greenminds.ecomind.community.infrastructure.remote.toDomain
+import pe.greenminds.ecomind.community.infrastructure.mapper.toDomain
 import javax.inject.Inject
 
 class LocalCommunityRepository @Inject constructor() : CommunityRepository {

@@ -1,6 +1,6 @@
 package pe.greenminds.ecomind.community.domain.repositories
 
-import pe.greenminds.ecomind.community.domain.model.CommunityEvent
+import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 
 interface CommunityRepository {
 

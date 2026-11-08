@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.events
+package pe.greenminds.ecomind.community.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.community.domain.model.CommunityEvent
+import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 import pe.greenminds.ecomind.shared.interfaces.theme.DividerGray
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.MutedGray

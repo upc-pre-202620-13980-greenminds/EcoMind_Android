@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.events
+package pe.greenminds.ecomind.community.presentation.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,9 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.community.interfaces.sections.CommunityAwardsContent
-import pe.greenminds.ecomind.community.interfaces.sections.CommunityNewsContent
-import pe.greenminds.ecomind.community.interfaces.sections.CommunitySection
+import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
+import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityViewModel
+import pe.greenminds.ecomind.community.presentation.ui.CommunityAwardsContent
+import pe.greenminds.ecomind.community.presentation.ui.CommunityNewsContent
+import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.Black
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark

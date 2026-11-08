@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.sections
+package pe.greenminds.ecomind.community.presentation.states
 
 enum class CommunitySection {
     AWARDS,

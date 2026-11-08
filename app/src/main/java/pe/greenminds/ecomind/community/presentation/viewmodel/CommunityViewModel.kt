@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.events
+package pe.greenminds.ecomind.community.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pe.greenminds.ecomind.community.application.GetCommunityEventsUseCase
-import pe.greenminds.ecomind.community.interfaces.sections.CommunitySection
+import pe.greenminds.ecomind.community.application.usecase.GetCommunityEventsUseCase
+import pe.greenminds.ecomind.community.presentation.states.CommunitySection
+import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
 import javax.inject.Inject
 
 @HiltViewModel
