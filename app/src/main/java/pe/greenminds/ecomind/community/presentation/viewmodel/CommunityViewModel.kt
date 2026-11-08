@@ -13,19 +13,23 @@ import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.community.application.usecase.GetCommunityEventsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetLocalCommunitiesUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetMyCommunityMembershipsUseCase
+import pe.greenminds.ecomind.community.application.usecase.GetTopicCommunitiesUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetPreferredLocalityUseCase
 import pe.greenminds.ecomind.community.application.usecase.JoinCommunityUseCase
 import pe.greenminds.ecomind.community.application.usecase.SavePreferredLocalityUseCase
 import pe.greenminds.ecomind.community.domain.entity.Community
 import pe.greenminds.ecomind.community.domain.valueobjects.CommunityType
+import pe.greenminds.ecomind.community.presentation.states.CommunityDirectoryTab
 import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
+import pe.greenminds.ecomind.community.presentation.states.TopicCommunityListMode
 
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val getEvents: GetCommunityEventsUseCase,
     private val getMemberships: GetMyCommunityMembershipsUseCase,
     private val getLocalCommunities: GetLocalCommunitiesUseCase,
+    private val getTopicCommunities: GetTopicCommunitiesUseCase,
     private val joinCommunity: JoinCommunityUseCase,
     private val getPreferredLocality: GetPreferredLocalityUseCase,
     private val savePreferredLocality: SavePreferredLocalityUseCase
@@ -50,6 +54,45 @@ class CommunityViewModel @Inject constructor(
         _state.update { it.copy(searchQuery = value) }
     }
 
+    fun showMoreCommunities() {
+        _state.update {
+            it.copy(
+                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                isShowingMoreCommunitiesList = true,
+                topicListMode = TopicCommunityListMode.MEMBERS,
+                searchQuery = ""
+            )
+        }
+        loadTopicCommunities()
+    }
+
+    fun showLocalCommunity() {
+        _state.update {
+            it.copy(
+                activeDirectoryTab = CommunityDirectoryTab.LOCAL,
+                isShowingMoreCommunitiesList = false,
+                selectedCommunity = it.selectedLocalCommunity
+            )
+        }
+    }
+
+    fun showTopicDiscovery() {
+        _state.update {
+            it.copy(
+                topicListMode = TopicCommunityListMode.DISCOVER,
+                searchQuery = ""
+            )
+        }
+    }
+
+    fun showMyTopicCommunities() {
+        _state.update {
+            it.copy(
+                topicListMode = TopicCommunityListMode.MEMBERS,
+                searchQuery = ""
+            )
+        }
+    }
     fun showCommunityDetails(community: Community) {
         _state.update {
             it.copy(pendingCommunityDetails = community, errorMessage = null, errorMessageRes = null)
@@ -62,6 +105,19 @@ class CommunityViewModel @Inject constructor(
                 it.copy(pendingCommunityDetails = null, errorMessage = null, errorMessageRes = null)
             }
         }
+    }
+
+    fun enterTopicCommunity(community: Community) {
+        _state.update {
+            it.copy(
+                selectedCommunity = community,
+                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                isShowingMoreCommunitiesList = false,
+                errorMessage = null,
+                errorMessageRes = null
+            )
+        }
+        loadEvents()
     }
 
     fun saveLocalityAndSearch() {
@@ -83,9 +139,24 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun retry() {
-        loadEntry()
-    }
+        when {
+            _state.value.isShowingMoreCommunitiesList -> {
+                loadTopicCommunities()
+            }
 
+            _state.value.preferredLocality != null -> {
+                val locality = _state.value.preferredLocality.orEmpty()
+
+                viewModelScope.launch {
+                    loadLocalCommunities(locality)
+                }
+            }
+
+            else -> {
+                loadEntry()
+            }
+        }
+    }
     fun joinPendingCommunity() {
         val community = _state.value.pendingCommunityDetails ?: return
         if (_state.value.joiningCommunityId != null) return
@@ -96,25 +167,101 @@ class CommunityViewModel @Inject constructor(
             }
 
             joinCommunity(community.id)
-                .onSuccess {
-                    _state.update {
-                        it.copy(
-                            selectedCommunity = community,
-                            pendingCommunityDetails = null,
-                            joiningCommunityId = null,
-                            isLoadingCommunity = false,
-                            errorMessage = null,
-                            errorMessageRes = null
-                        )
+                .onSuccess { membership ->
+                    if (community.type == CommunityType.LOCAL) {
+                        _state.update {
+                            it.copy(
+                                selectedCommunity = community,
+                                selectedLocalCommunity = community,
+                                activeDirectoryTab = CommunityDirectoryTab.LOCAL,
+                                isShowingMoreCommunitiesList = false,
+                                pendingCommunityDetails = null,
+                                joiningCommunityId = null,
+                                isLoadingCommunity = false,
+                                errorMessage = null,
+                                errorMessageRes = null
+                            )
+                        }
+                        loadEvents()
+                    } else {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                topicMembershipIds =
+                                    currentState.topicMembershipIds + membership.communityId,
+                                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                                isShowingMoreCommunitiesList = true,
+                                topicListMode = TopicCommunityListMode.MEMBERS,
+                                pendingCommunityDetails = null,
+                                joiningCommunityId = null,
+                                errorMessage = null,
+                                errorMessageRes = null
+                            )
+                        }
                     }
-                    loadEvents()
                 }
                 .onFailure { error ->
-                    _state.update {
-                        it.copy(
+                    handleJoinFailure(community, error)
+                }
+        }
+    }
+
+    private fun handleJoinFailure(community: Community, error: Throwable) {
+        if (community.type != CommunityType.TOPIC) {
+            _state.update {
+                it.copy(
+                    joiningCommunityId = null,
+                    errorMessage = error.message,
+                    errorMessageRes = if (error.message == null) {
+                        R.string.community_join_error
+                    } else {
+                        null
+                    }
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            getMemberships()
+                .onSuccess { memberships ->
+                    val memberIds = memberships.map { it.communityId }.toSet()
+
+                    _state.update { currentState ->
+                        if (community.id in memberIds) {
+                            currentState.copy(
+                                topicMembershipIds = memberIds,
+                                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                                isShowingMoreCommunitiesList = true,
+                                topicListMode = TopicCommunityListMode.MEMBERS,
+                                pendingCommunityDetails = null,
+                                joiningCommunityId = null,
+                                errorMessage = null,
+                                errorMessageRes = null
+                            )
+                        } else {
+                            currentState.copy(
+                                topicMembershipIds = memberIds,
+                                joiningCommunityId = null,
+                                errorMessage = error.message,
+                                errorMessageRes = if (error.message == null) {
+                                    R.string.community_join_error
+                                } else {
+                                    null
+                                }
+                            )
+                        }
+                    }
+                }
+                .onFailure {
+                    _state.update { currentState ->
+                        currentState.copy(
                             joiningCommunityId = null,
                             errorMessage = error.message,
-                            errorMessageRes = if (error.message == null) R.string.community_join_error else null
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_join_error
+                            } else {
+                                null
+                            }
                         )
                     }
                 }
@@ -138,7 +285,13 @@ class CommunityViewModel @Inject constructor(
                     }
                 }
                 .onSuccess { memberships ->
-
+                    _state.update {
+                        it.copy(
+                            topicMembershipIds = memberships
+                                .map { membership -> membership.communityId }
+                                .toSet()
+                        )
+                    }
                     getLocalCommunities(null)
                         .onFailure { error ->
                             _state.update {
@@ -235,18 +388,78 @@ class CommunityViewModel @Inject constructor(
             }
     }
 
+    private fun loadTopicCommunities() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingTopicCommunities = true) }
+
+            getMemberships()
+                .onSuccess { memberships ->
+                    _state.update {
+                        it.copy(
+                            topicMembershipIds = memberships
+                                .map { membership -> membership.communityId }
+                                .toSet()
+                        )
+                    }
+
+                    getTopicCommunities()
+                        .onSuccess { communities ->
+                            _state.update {
+                                it.copy(
+                                    topicCommunities = communities.filter { community ->
+                                        community.type == CommunityType.TOPIC
+                                    },
+                                    isLoadingTopicCommunities = false,
+                                    errorMessage = null,
+                                    errorMessageRes = null
+                                )
+                            }
+                        }
+                        .onFailure { error ->
+                            _state.update {
+                                it.copy(
+                                    isLoadingTopicCommunities = false,
+                                    errorMessage = error.message,
+                                    errorMessageRes = if (error.message == null) {
+                                        R.string.community_load_list_error
+                                    } else {
+                                        null
+                                    }
+                                )
+                            }
+                        }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoadingTopicCommunities = false,
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_load_error
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                }
+        }
+    }
     private fun selectCommunity(community: Community) {
         _state.update {
             it.copy(
                 isLoadingCommunity = false,
                 selectedCommunity = community,
+                selectedLocalCommunity =
+                    if (community.type == CommunityType.LOCAL) community
+                    else it.selectedLocalCommunity,
+                activeDirectoryTab = CommunityDirectoryTab.LOCAL,
+                isShowingMoreCommunitiesList = false,
                 errorMessage = null,
                 errorMessageRes = null
             )
         }
         loadEvents()
     }
-
     private fun loadEvents() {
         viewModelScope.launch {
             _state.update { it.copy(isLoadingEvents = true) }

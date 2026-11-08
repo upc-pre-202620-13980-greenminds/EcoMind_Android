@@ -57,4 +57,10 @@
     <string name="community_load_list_error">The communities could not be loaded.</string>
     <string name="community_location_error">The location could not be found.</string>
     <string name="community_events_error">The events could not be loaded.</string>
+    <string name="community_communities">Communities</string>
+    <string name="community_create">+ Create</string>
+    <string name="community_no_joined_topics">You are not currently in any community.</string>
+    <string name="community_join_one">Join one!</string>
+    <string name="community_no_topic_results">No communities are available.</string>
+    <string name="community_back_to_topics">Back to my communities</string>
 </resources>

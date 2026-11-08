@@ -36,6 +36,17 @@ class RemoteCommunityDirectoryRepository @Inject constructor(
             transform = { list -> list.map { it.toDomain() } }
         )
 
+    override suspend fun getTopicCommunities(): Result<List<Community>> =
+        execute(
+            request = {
+                api.getCommunities(
+                    type = "topic",
+                    locality = null
+                )
+            },
+            transform = { communities -> communities.map { it.toDomain() } }
+        )
+
     override suspend fun joinCommunity(
         communityId: Long
     ): Result<CommunityMembership> =

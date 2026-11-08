@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.community.domain.entity.Community
+import pe.greenminds.ecomind.community.domain.valueobjects.CommunityType
+import pe.greenminds.ecomind.community.presentation.states.CommunityDirectoryTab
 import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
 import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityViewModel
@@ -64,7 +67,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
-
+import pe.greenminds.ecomind.community.presentation.states.TopicCommunityListMode
 @Composable
 fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -78,7 +81,28 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 CircularProgressIndicator()
             }
         }
+        state.isShowingMoreCommunitiesList -> {
+            MoreCommunitiesScreen(
+                state = state,
+                onLocalTab = viewModel::showLocalCommunity,
+                onSearchQueryChange = viewModel::updateSearchQuery,
+                onToggleList = {
+                    when (state.topicListMode) {
+                        TopicCommunityListMode.MEMBERS ->
+                            viewModel.showTopicDiscovery()
 
+                        TopicCommunityListMode.DISCOVER ->
+                            viewModel.showMyTopicCommunities()
+                    }
+                },
+                onCreateCommunity = {},
+                onOpenDetails = viewModel::showCommunityDetails,
+                onConfirmJoin = viewModel::joinPendingCommunity,
+                onCancelDetails = viewModel::dismissCommunityDetails,
+                onEnterCommunity = viewModel::enterTopicCommunity,
+                onRetry = viewModel::retry
+            )
+        }
         state.selectedCommunity == null -> {
             LocalCommunitySelectionScreen(
                 state = state,
@@ -88,7 +112,8 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 onEnter = viewModel::showCommunityDetails,
                 onJoin = viewModel::joinPendingCommunity,
                 onCancelDetails = viewModel::dismissCommunityDetails,
-                onRetry = viewModel::retry
+                onRetry = viewModel::retry,
+                onMoreTab = viewModel::showMoreCommunities
             )
         }
 
@@ -96,7 +121,10 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
             CommunityContent(
                 state = state,
                 community = checkNotNull(state.selectedCommunity),
-                onSectionSelected = viewModel::selectSection
+                onSectionSelected = viewModel::selectSection,
+                onLocalTab = viewModel::showLocalCommunity,
+                onMoreTab = viewModel::showMoreCommunities,
+                onBackToTopicCommunities = viewModel::showMoreCommunities
             )
         }
     }
@@ -106,9 +134,12 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
 private fun CommunityContent(
     state: CommunityUiState,
     community: Community,
-    onSectionSelected: (CommunitySection) -> Unit = {},
+    onSectionSelected: (CommunitySection) -> Unit,
+    onLocalTab: () -> Unit,
+    onMoreTab: () -> Unit,
+    onBackToTopicCommunities: () -> Unit,
     modifier: Modifier = Modifier
-) {
+)  {
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
 
@@ -119,7 +150,19 @@ private fun CommunityContent(
             .verticalScroll(rememberScrollState())
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            CommunitySelector(onOtherCommunities = openComingSoon)
+            CommunitySelector(
+                selectedTab = state.activeDirectoryTab,
+                onLocalTab = onLocalTab,
+                onMoreTab = onMoreTab
+            )
+            if (community.type == CommunityType.TOPIC) {
+                IconButton(onClick = onBackToTopicCommunities) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_chevron_back),
+                        contentDescription = stringResource(R.string.community_back_to_topics)
+                    )
+                }
+            }
             CommunityHeader(community)
             GoalCard(onClick = openComingSoon)
         }
@@ -167,11 +210,14 @@ private fun CommunityContent(
 
 @Composable
 internal fun CommunitySelector(
-    onOtherCommunities: () -> Unit,
-    moreCommunitiesEnabled: Boolean = true
+    selectedTab: CommunityDirectoryTab,
+    onLocalTab: () -> Unit,
+    onMoreTab: () -> Unit
 ) {
     val containerShape = RoundedCornerShape(percent = 50)
     val tabShape = RoundedCornerShape(percent = 50)
+    val localSelected = selectedTab == CommunityDirectoryTab.LOCAL
+    val moreSelected = selectedTab == CommunityDirectoryTab.MORE
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -187,35 +233,42 @@ internal fun CommunitySelector(
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 38.dp)
-                .background(MaterialTheme.colorScheme.primary, tabShape)
-                .semantics { selected = true }
+                .clip(tabShape)
+                .background(
+                    if (localSelected) MaterialTheme.colorScheme.primary
+                    else Color.Transparent,
+                    tabShape
+                )
+                .clickable(role = Role.Tab, onClick = onLocalTab)
+                .semantics { selected = localSelected }
         ) {
             Text(
                 text = stringResource(R.string.community_local),
                 style = poppinsTextStyle(14, FontWeight.SemiBold),
-                color = White,
+                color = if (localSelected) White else SageGreen,
                 textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth()
+                maxLines = 1
             )
         }
+
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 38.dp)
                 .clip(tabShape)
-                .background(if (moreCommunitiesEnabled) Color.Transparent else Color(0xFFE7E7E7))
-                .clickable(
-                    enabled = moreCommunitiesEnabled,
-                    role = Role.Tab,
-                    onClick = onOtherCommunities
+                .background(
+                    if (moreSelected) MaterialTheme.colorScheme.primary
+                    else Color.Transparent,
+                    tabShape
                 )
+                .clickable(role = Role.Tab, onClick = onMoreTab)
+                .semantics { selected = moreSelected }
         ) {
             Text(
                 text = stringResource(R.string.community_more),
                 style = poppinsTextStyle(14, FontWeight.SemiBold),
-                color = if (moreCommunitiesEnabled) SageGreen else FadedGray,
+                color = if (moreSelected) White else SageGreen,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -403,7 +456,7 @@ private fun SearchRow(onAction: () -> Unit) {
 }
 
 @Composable
-private fun SmallActionPill(text: String, onClick: () -> Unit) {
+internal fun SmallActionPill(text: String, onClick: () -> Unit) {
     val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
@@ -444,7 +497,11 @@ private fun CommunityContentPreview() {
                 memberLimit = 100,
                 iconUrl = null,
                 createdBy = null
-            )
+            ),
+            onSectionSelected = {},
+            onLocalTab = {},
+            onMoreTab = {},
+            onBackToTopicCommunities = {}
         )
     }
 }

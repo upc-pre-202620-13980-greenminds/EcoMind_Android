@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import pe.greenminds.ecomind.community.domain.entity.Community
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.community.presentation.states.CommunityDirectoryTab
 import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.White
@@ -44,15 +45,17 @@ fun LocalCommunitySelectionScreen(
     onEnter: (Community) -> Unit,
     onJoin: () -> Unit,
     onCancelDetails: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onMoreTab: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         CommunitySelector(
-            onOtherCommunities = {},
-            moreCommunitiesEnabled = false
+            selectedTab = CommunityDirectoryTab.LOCAL,
+            onLocalTab = {},
+            onMoreTab = onMoreTab
         )
 
         if (state.preferredLocality == null) {

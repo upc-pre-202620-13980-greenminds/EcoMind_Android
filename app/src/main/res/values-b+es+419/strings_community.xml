@@ -57,4 +57,10 @@
     <string name="community_load_list_error">No se pudieron cargar las comunidades.</string>
     <string name="community_location_error">No se pudo encontrar la ubicación.</string>
     <string name="community_events_error">No se pudieron cargar los eventos.</string>
+    <string name="community_communities">Comunidades</string>
+    <string name="community_create">+ Crear</string>
+    <string name="community_no_joined_topics">Aún no perteneces a ninguna comunidad.</string>
+    <string name="community_join_one">¡Únete a una!</string>
+    <string name="community_no_topic_results">No hay comunidades disponibles.</string>
+    <string name="community_back_to_topics">Volver a mis comunidades</string>
 </resources>

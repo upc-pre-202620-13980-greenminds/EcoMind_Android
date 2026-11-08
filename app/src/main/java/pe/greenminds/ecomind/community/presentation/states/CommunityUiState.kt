@@ -18,7 +18,15 @@ data class CommunityUiState(
     val joiningCommunityId: Long? = null,
     val selectedCommunity: Community? = null,
     val errorMessage: String? = null,
-    val errorMessageRes: Int? = null
+    val errorMessageRes: Int? = null,
+
+    val activeDirectoryTab: CommunityDirectoryTab = CommunityDirectoryTab.LOCAL,
+    val isShowingMoreCommunitiesList: Boolean = false,
+    val selectedLocalCommunity: Community? = null,
+    val topicCommunities: List<Community> = emptyList(),
+    val topicMembershipIds: Set<Long> = emptySet(),
+    val topicListMode: TopicCommunityListMode = TopicCommunityListMode.MEMBERS,
+    val isLoadingTopicCommunities: Boolean = false,
 ) {
     val filteredLocalCommunities: List<Community>
         get() {
@@ -27,6 +35,25 @@ data class CommunityUiState(
 
             return localCommunities.filter {
                 it.name.contains(query, ignoreCase = true)
+        }
+    }
+
+    val visibleTopicCommunities: List<Community>
+        get() {
+            val matchingCommunities = topicCommunities.filter { community ->
+                val isMember = community.id in topicMembershipIds
+
+                when (topicListMode) {
+                    TopicCommunityListMode.MEMBERS -> isMember
+                    TopicCommunityListMode.DISCOVER -> !isMember
+                }
+            }
+
+            val query = searchQuery.trim()
+            if (query.isEmpty()) return matchingCommunities
+
+            return matchingCommunities.filter { community ->
+                community.name.contains(query, ignoreCase = true)
             }
         }
 }
