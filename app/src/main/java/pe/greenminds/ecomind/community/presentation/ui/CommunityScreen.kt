@@ -166,9 +166,12 @@ private fun CommunityContent(
 }
 
 @Composable
-private fun CommunitySelector(onOtherCommunities: () -> Unit) {
-    val containerShape = RoundedCornerShape(19.dp)
-    val activeShape = RoundedCornerShape(12.dp)
+internal fun CommunitySelector(
+    onOtherCommunities: () -> Unit,
+    moreCommunitiesEnabled: Boolean = true
+) {
+    val containerShape = RoundedCornerShape(percent = 50)
+    val tabShape = RoundedCornerShape(percent = 50)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -176,14 +179,15 @@ private fun CommunitySelector(onOtherCommunities: () -> Unit) {
             .fillMaxWidth()
             .padding(top = 12.dp)
             .shadow(elevation = 3.dp, shape = containerShape)
-            .background(White, containerShape)
-            .padding(horizontal = 8.dp)
+            .background(Color(0xFFE7E7E7), containerShape)
+            .padding(4.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 48.dp)
+                .heightIn(min = 38.dp)
+                .background(MaterialTheme.colorScheme.primary, tabShape)
                 .semantics { selected = true }
         ) {
             Text(
@@ -192,24 +196,26 @@ private fun CommunitySelector(onOtherCommunities: () -> Unit) {
                 color = White,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary, activeShape)
-                    .padding(vertical = 4.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 48.dp)
-                .clip(activeShape)
-                .clickable(role = Role.Tab, onClick = onOtherCommunities)
+                .heightIn(min = 38.dp)
+                .clip(tabShape)
+                .background(if (moreCommunitiesEnabled) Color.Transparent else Color(0xFFE7E7E7))
+                .clickable(
+                    enabled = moreCommunitiesEnabled,
+                    role = Role.Tab,
+                    onClick = onOtherCommunities
+                )
         ) {
             Text(
                 text = stringResource(R.string.community_more),
                 style = poppinsTextStyle(14, FontWeight.SemiBold),
-                color = SageGreen,
+                color = if (moreCommunitiesEnabled) SageGreen else FadedGray,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
