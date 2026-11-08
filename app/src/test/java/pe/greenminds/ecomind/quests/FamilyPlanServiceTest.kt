@@ -159,4 +159,21 @@ class FamilyPlanServiceTest {
         assertTrue(fixture.service.complete(9).isFailure)
         assertEquals(0, fixture.mutations)
     }
+
+    @Test fun movingADraftQuestPersistsTheRequestedOrder() = runBlocking {
+        val fixture = Fixture().apply { plan = plan.copy(status = FamilyPlanStatus.DRAFT,
+            items = listOf(FamilyPlanItem(1, 3, null, 0.0), FamilyPlanItem(2, 4, null, 0.0))) }
+        val result = fixture.service.moveQuest(9, 4, -1).getOrThrow()
+        assertEquals(listOf(4L, 3L), result.items.map { it.questId })
+        assertEquals(1, fixture.mutations)
+    }
+
+    @Test fun movingPastAnEdgeDoesNotSaveAndActivePlansCannotReorder() = runBlocking {
+        val fixture = Fixture().apply { plan = plan.copy(status = FamilyPlanStatus.DRAFT) }
+        fixture.service.moveQuest(9, 3, -1).getOrThrow()
+        assertEquals(0, fixture.mutations)
+        fixture.plan = fixture.plan.copy(status = FamilyPlanStatus.ACTIVE)
+        assertTrue(fixture.service.moveQuest(9, 3, 1).isFailure)
+        assertEquals(0, fixture.mutations)
+    }
 }

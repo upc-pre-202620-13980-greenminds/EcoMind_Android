@@ -7,5 +7,5 @@ import pe.greenminds.ecomind.quests.infrastructure.remote.FamilyPlanDto
 
 fun FamilyPlanDto.toDomain() = FamilyPlan(
     id, familyId, ownerUserId, FamilyPlanStatus.valueOf(status), progress,
-    items.map { FamilyPlanItem(it.id, it.questId, it.collaborativeSessionId, it.progress) }
+    items.sortedBy { it.id }.map { FamilyPlanItem(it.id, it.questId, it.collaborativeSessionId, it.progress) }
 )

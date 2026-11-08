@@ -60,6 +60,24 @@ class FamilyPlanService @Inject constructor(
         plans.updateDraft(planId, current.items.map { it.questId }.filterNot { it == questId }).getOrThrow()
     }
 
+    suspend fun saveDraft(planId: Long): Result<FamilyPlan> = result {
+        val current = editableDraft(planId)
+        plans.updateDraft(planId, current.items.map { it.questId }).getOrThrow()
+    }
+
+    suspend fun moveQuest(planId: Long, questId: Long, direction: Int): Result<FamilyPlan> = result {
+        require(direction == -1 || direction == 1)
+        val current = editableDraft(planId)
+        val ids = current.items.map { it.questId }.toMutableList()
+        val index = ids.indexOf(questId)
+        require(index >= 0)
+        val target = index + direction
+        if (target !in ids.indices) current else {
+            ids.add(target, ids.removeAt(index))
+            plans.updateDraft(planId, ids).getOrThrow()
+        }
+    }
+
     suspend fun activate(planId: Long): Result<FamilyPlan> = result {
         check(getDetails(planId).getOrThrow().canActivate) { "The draft must have an owner and at least one challenge" }
         plans.activate(planId).getOrThrow()

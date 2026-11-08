@@ -7,6 +7,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -22,21 +24,43 @@ import pe.greenminds.ecomind.quests.presentation.states.ProgressUiState
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
 import pe.greenminds.ecomind.quests.presentation.viewmodel.ProgressViewModel
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
+import pe.greenminds.ecomind.quests.presentation.viewmodel.FamilyPlansViewModel
+import pe.greenminds.ecomind.quests.presentation.states.FamilyPlansUiState
+import pe.greenminds.ecomind.quests.presentation.ui.family.FamilyPlanProgressSection
+import pe.greenminds.ecomind.quests.application.ProgressEntry
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 
 @Composable
 fun ProgressScreen(
     onOpenList: (ProgressSection) -> Unit = {},
     onOpenQuest: (Long) -> Unit = {},
-    viewModel: ProgressViewModel = hiltViewModel()
+    onCreateFamilyPlan: () -> Unit = {},
+    onLoadFamilyPlans: () -> Unit = {},
+    onOpenFamilyPlan: (Long) -> Unit = {},
+    viewModel: ProgressViewModel = hiltViewModel(),
+    familyViewModel: FamilyPlansViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val familyState = familyViewModel.state.collectAsStateWithLifecycle().value
     // Refresh once when returning from another screen, never on a timer.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (viewModel.state.value.hasLoaded) viewModel.loadProgress()
+        familyViewModel.refresh()
     }
     ProgressContent(
-        state = state, onRetry = viewModel::loadProgress, onRefresh = viewModel::refreshProgress,
-        onOpenList = onOpenList, onOpenQuest = onOpenQuest
+        state = state, onRetry = viewModel::loadProgress,
+        onRefresh = { viewModel.refreshProgress(); familyViewModel.refresh() },
+        onOpenList = onOpenList, onOpenQuest = onOpenQuest, familyState = familyState,
+        onCreateFamilyPlan = onCreateFamilyPlan, onLoadFamilyPlans = onLoadFamilyPlans,
+        onOpenFamilyPlan = onOpenFamilyPlan, onRetryFamily = familyViewModel::refresh,
+        onOpenEntry = { entry ->
+            if (entry.questType == QuestType.FAMILY) {
+                val plan = familyState.overview?.plans?.find { plan ->
+                    plan.items.any { it.collaborativeSessionId != null && it.collaborativeSessionId == entry.questUser.collaborativeSessionId }
+                }
+                if (plan != null) onOpenFamilyPlan(plan.id) else onLoadFamilyPlans()
+            } else onOpenQuest(entry.questId)
+        }
     )
 }
 
@@ -47,7 +71,13 @@ internal fun ProgressContent(
     onRetry: () -> Unit = {},
     onRefresh: () -> Unit = onRetry,
     onOpenList: (ProgressSection) -> Unit = {},
-    onOpenQuest: (Long) -> Unit = {}
+    onOpenQuest: (Long) -> Unit = {},
+    familyState: FamilyPlansUiState? = null,
+    onCreateFamilyPlan: () -> Unit = {},
+    onLoadFamilyPlans: () -> Unit = {},
+    onOpenFamilyPlan: (Long) -> Unit = {},
+    onRetryFamily: () -> Unit = {},
+    onOpenEntry: ((ProgressEntry) -> Unit)? = null
 ) {
     QuestRefreshContainer(state.isRefreshing, onRefresh, enabled = !state.isLoading) {
         Column(
@@ -60,10 +90,13 @@ internal fun ProgressContent(
                 label = stringResource(R.string.progress_in_progress), entries = state.inProgress.take(2),
                 actionLabel = stringResource(R.string.progress_see_more),
                 onAction = { onOpenList(ProgressSection.IN_PROGRESS) },
-                onOpenEntry = { onOpenQuest(it.questId) },
+                onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
                 emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_active)
             )
-            if (state.familyQuests.isNotEmpty()) {
+            if (familyState != null) {
+                FamilyPlanProgressSection(familyState, state.familyQuests, onCreateFamilyPlan,
+                    onOpenFamilyPlan, onRetryFamily)
+            } else if (state.familyQuests.isNotEmpty()) {
                 ProgressSectionCard(
                     label = stringResource(R.string.progress_family_quest), entries = state.familyQuests.take(2),
                     actionLabel = stringResource(R.string.progress_see_family_quest),
@@ -75,9 +108,12 @@ internal fun ProgressContent(
                 label = stringResource(R.string.progress_finished), entries = state.finished.take(2),
                 actionLabel = stringResource(R.string.progress_view_history),
                 onAction = { onOpenList(ProgressSection.HISTORY) },
-                onOpenEntry = { onOpenQuest(it.questId) },
+                onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
                 emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_finished)
             )
+        }
+        if (!state.isRefreshing && (state.isLoading || state.isUpdating || familyState?.busy == true)) {
+            LinearProgressIndicator(Modifier.fillMaxWidth().height(2.dp).align(Alignment.TopCenter))
         }
     }
 }

@@ -12,5 +12,5 @@ data class FamilyPlan(
 ) {
     val completedItems: Int get() = items.count { it.progress >= 100.0 }
     val readyToComplete: Boolean get() = status == FamilyPlanStatus.ACTIVE &&
-        items.isNotEmpty() && items.all { it.progress >= 100.0 }
+        progress >= 100.0 && items.isNotEmpty() && items.all { it.progress >= 100.0 }
 }

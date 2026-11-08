@@ -59,7 +59,8 @@ fun ProgressSectionCard(
     actionLabel: String? = null,
     onAction: () -> Unit = {},
     onOpenEntry: ((ProgressEntry) -> Unit)? = null,
-    emptyText: String? = null
+    emptyText: String? = null,
+    contentAfterEntries: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit = {}
 ) {
     val cardShape = RoundedCornerShape(18.dp)
 
@@ -81,6 +82,8 @@ fun ProgressSectionCard(
             if (entries.isEmpty() && emptyText != null) {
                 Text(emptyText, style = interTextStyle(15), color = TextPrimary, modifier = Modifier.padding(bottom = 12.dp))
             }
+
+            contentAfterEntries()
 
             if (actionLabel != null) {
                 // The chip is small as in the design; the box keeps a touch target of 48dp

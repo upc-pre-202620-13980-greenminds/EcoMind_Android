@@ -19,12 +19,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.learning.interfaces.TutorialOverlay
 import pe.greenminds.ecomind.navigation.AppNavHost
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.FamilyPlanBuilderRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.FamilyPlanListRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.FamilyPlanDetailRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.ProgressRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.FamilyQuestStartedRoute
 import pe.greenminds.ecomind.shared.interfaces.components.EcoMindTopBar
 import pe.greenminds.ecomind.iam.interfaces.settings.SettingsViewModel
 
@@ -81,9 +87,14 @@ private fun MainShellContent(
     }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val selectedItem = selectedItemFor(backStackEntry?.destination)
+    val detailRoute = backStackEntry?.takeIf {
+        it.destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>()
+    }?.toRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>()
+    val selectedItem = if (detailRoute?.previewOnly == true || detailRoute?.familyPlanId != null) NavigationItem.PROGRESS
+        else selectedItemFor(backStackEntry?.destination)
     val showBars = selectedItem != null
-    val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true
+    val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true &&
+        backStackEntry?.destination?.hasRoute<FamilyQuestStartedRoute>() != true
 
     LaunchedEffect(showTopBar) {
         if (showTopBar) {
@@ -138,6 +149,9 @@ private fun MainShellContent(
 // Null means the destination is shown without bars (loading, access and placeholder screens)
 private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination == null) return null
+    if (destination.hasRoute<FamilyPlanBuilderRoute>() || destination.hasRoute<FamilyPlanListRoute>() ||
+        destination.hasRoute<FamilyPlanDetailRoute>() ||
+        destination.hasRoute<FamilyQuestStartedRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
@@ -152,6 +166,16 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
 }
 
 private fun navigateToSection(navController: NavHostController, item: NavigationItem) {
+    if (item == NavigationItem.PROGRESS) {
+        if (navController.currentDestination?.hasRoute<ProgressRoute>() == true) return
+        if (navController.popBackStack<ProgressRoute>(inclusive = false)) return
+        navController.navigate(ProgressRoute) {
+            popUpTo<MainMenuRoute> { saveState = true }
+            launchSingleTop = true
+            restoreState = false
+        }
+        return
+    }
     navController.navigate(item.route) {
         // Main menu stays at the bottom of the stack, so going back from a section returns to it
         popUpTo<MainMenuRoute> {

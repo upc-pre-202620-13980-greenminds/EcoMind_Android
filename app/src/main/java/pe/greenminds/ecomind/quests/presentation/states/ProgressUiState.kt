@@ -10,5 +10,6 @@ data class ProgressUiState(
     val inProgress: List<ProgressEntry> = emptyList(),
     val familyQuests: List<ProgressEntry> = emptyList(),
     val finished: List<ProgressEntry> = emptyList(),
-    val history: List<ProgressEntry> = finished
+    val history: List<ProgressEntry> = finished,
+    val isUpdating: Boolean = false
 )

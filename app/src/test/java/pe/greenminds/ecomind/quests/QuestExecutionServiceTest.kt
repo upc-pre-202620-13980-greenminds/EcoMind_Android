@@ -63,4 +63,25 @@ class QuestExecutionServiceTest {
         assertEquals(QuestStatus.COMPLETED, result.assignment?.status)
         assertEquals(1, repository.finishes)
     }
+
+    @Test fun familyQuestUsesTheExistingUiWithoutStartingASoloAttempt() = runBlocking {
+        val repository = FakeRepository(assignment)
+        val family = snapshot.copy(quest = quest.copy(type = QuestType.FAMILY), familyPlanId = 9)
+        assertTrue(family.supported)
+        assertFalse(family.copy(familyPlanId = null).supported)
+        try { QuestExecutionService(catalog, repository).start(family); fail("Family activation already created the assignment") }
+        catch (_: IllegalStateException) { }
+        assertEquals(0, repository.starts)
+    }
+
+    @Test fun readyFamilyQuestCannotBeCompletedThroughTheIndividualEndpoint() = runBlocking {
+        val repository = FakeRepository(assignment)
+        val family = snapshot.copy(quest = quest.copy(type = QuestType.FAMILY), familyPlanId = 9,
+            assignment = assignment.copy(status = QuestStatus.READY_TO_COMPLETE, progress = 100.0),
+            checks = snapshot.checks.map { it.copy(progress = 100.0) })
+        assertFalse(family.canFinish)
+        try { QuestExecutionService(catalog, repository).finish(family); fail("Completion belongs to the family plan") }
+        catch (_: IllegalStateException) { }
+        assertEquals(0, repository.finishes)
+    }
 }
