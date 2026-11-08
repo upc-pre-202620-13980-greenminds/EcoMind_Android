@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pe.greenminds.ecomind.community.domain.entity.Community
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
+import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.White
@@ -57,35 +59,38 @@ fun LocalCommunitySelectionScreen(
             OutlinedTextField(
                 value = state.localityInput,
                 onValueChange = onLocalityInputChange,
-                label = { Text("Your locality") },
+                label = { Text(stringResource(R.string.community_locality_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Button(
                 onClick = onSearch,
                 enabled = state.localityInput.isNotBlank()
             ) {
-                Text("Search communities")
+                Text(stringResource(R.string.community_search_communities))
             }
         } else {
-            Text("Local communities in ${state.preferredLocality}")
+            Text(stringResource(R.string.community_local_in_locality, state.preferredLocality))
 
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = onSearchQueryChange,
-                label = { Text("Search by name") },
+                label = { Text(stringResource(R.string.community_search_by_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             when {
                 state.isLoadingCommunity -> CircularProgressIndicator()
 
-                state.errorMessage != null -> {
-                    Text(state.errorMessage)
-                    TextButton(onClick = onRetry) { Text("Retry") }
+                state.errorMessage != null || state.errorMessageRes != null -> {
+                    Text(
+                        state.errorMessage
+                            ?: state.errorMessageRes?.let { stringResource(it) }.orEmpty()
+                    )
+                    TextButton(onClick = onRetry) { Text(stringResource(R.string.community_retry)) }
                 }
 
                 state.filteredLocalCommunities.isEmpty() ->
-                    Text("No communities are available in this locality.")
+                    Text(stringResource(R.string.community_no_local_communities))
 
                 else -> LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -103,7 +108,8 @@ fun LocalCommunitySelectionScreen(
         CommunityDetailsDialog(
             community = pendingCommunity,
             isJoining = state.joiningCommunityId == pendingCommunity.id,
-            errorMessage = state.errorMessage,
+            errorMessage = state.errorMessage
+                ?: state.errorMessageRes?.let { stringResource(it) },
             onJoin = onJoin,
             onCancel = onCancelDetails
         )
@@ -144,7 +150,7 @@ private fun LocalCommunityRow(
                 vertical = 0.dp
             )
         ) {
-            Text("Enter", color = White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.community_enter), color = White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import pe.greenminds.ecomind.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,14 +52,14 @@ class CommunityViewModel @Inject constructor(
 
     fun showCommunityDetails(community: Community) {
         _state.update {
-            it.copy(pendingCommunityDetails = community, errorMessage = null)
+            it.copy(pendingCommunityDetails = community, errorMessage = null, errorMessageRes = null)
         }
     }
 
     fun dismissCommunityDetails() {
         if (_state.value.joiningCommunityId == null) {
             _state.update {
-                it.copy(pendingCommunityDetails = null, errorMessage = null)
+                it.copy(pendingCommunityDetails = null, errorMessage = null, errorMessageRes = null)
             }
         }
     }
@@ -66,14 +67,16 @@ class CommunityViewModel @Inject constructor(
     fun saveLocalityAndSearch() {
         val locality = _state.value.localityInput.trim()
         if (locality.isBlank()) {
-            _state.update { it.copy(errorMessage = "Enter your location.") }
+            _state.update {
+                it.copy(errorMessage = null, errorMessageRes = R.string.community_enter_location_error)
+            }
             return
         }
 
         viewModelScope.launch {
             savePreferredLocality(locality)
             _state.update {
-                it.copy(preferredLocality = locality, errorMessage = null)
+                it.copy(preferredLocality = locality, errorMessage = null, errorMessageRes = null)
             }
             loadLocalCommunities(locality)
         }
@@ -89,7 +92,7 @@ class CommunityViewModel @Inject constructor(
 
         viewModelScope.launch {
             _state.update {
-                it.copy(joiningCommunityId = community.id, errorMessage = null)
+                it.copy(joiningCommunityId = community.id, errorMessage = null, errorMessageRes = null)
             }
 
             joinCommunity(community.id)
@@ -100,7 +103,8 @@ class CommunityViewModel @Inject constructor(
                             pendingCommunityDetails = null,
                             joiningCommunityId = null,
                             isLoadingCommunity = false,
-                            errorMessage = null
+                            errorMessage = null,
+                            errorMessageRes = null
                         )
                     }
                     loadEvents()
@@ -109,7 +113,8 @@ class CommunityViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             joiningCommunityId = null,
-                            errorMessage = error.message ?: "It could not be joined."
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) R.string.community_join_error else null
                         )
                     }
                 }
@@ -119,7 +124,7 @@ class CommunityViewModel @Inject constructor(
     private fun loadEntry() {
         viewModelScope.launch {
             _state.update {
-                it.copy(isLoadingCommunity = true, errorMessage = null)
+                it.copy(isLoadingCommunity = true, errorMessage = null, errorMessageRes = null)
             }
 
             getMemberships()
@@ -127,7 +132,8 @@ class CommunityViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoadingCommunity = false,
-                            errorMessage = error.message ?: "Your community could not be loaded."
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) R.string.community_load_error else null
                         )
                     }
                 }
@@ -138,8 +144,12 @@ class CommunityViewModel @Inject constructor(
                             _state.update {
                                 it.copy(
                                     isLoadingCommunity = false,
-                                    errorMessage = error.message
-                                        ?: "The communities could not be loaded."
+                                    errorMessage = error.message,
+                                    errorMessageRes = if (error.message == null) {
+                                        R.string.community_load_list_error
+                                    } else {
+                                        null
+                                    }
                                 )
                             }
                         }
@@ -170,7 +180,8 @@ class CommunityViewModel @Inject constructor(
                     isLoadingCommunity = false,
                     localCommunities = emptyList(),
                     preferredLocality = null,
-                    errorMessage = null
+                    errorMessage = null,
+                    errorMessageRes = null
                 )
             }
             return
@@ -183,7 +194,8 @@ class CommunityViewModel @Inject constructor(
                 it.copy(
                     isLoadingCommunity = false,
                     localCommunities = allLocals,
-                    errorMessage = null
+                    errorMessage = null,
+                    errorMessageRes = null
                 )
             }
         } else {
@@ -192,7 +204,9 @@ class CommunityViewModel @Inject constructor(
     }
 
     private suspend fun loadLocalCommunities(locality: String) {
-        _state.update { it.copy(isLoadingCommunity = true, errorMessage = null) }
+        _state.update {
+            it.copy(isLoadingCommunity = true, errorMessage = null, errorMessageRes = null)
+        }
 
         getLocalCommunities(locality)
             .onSuccess { communities ->
@@ -201,7 +215,8 @@ class CommunityViewModel @Inject constructor(
                         isLoadingCommunity = false,
                         preferredLocality = locality,
                         localCommunities = communities,
-                        errorMessage = null
+                        errorMessage = null,
+                        errorMessageRes = null
                     )
                 }
             }
@@ -209,7 +224,12 @@ class CommunityViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLoadingCommunity = false,
-                        errorMessage = error.message ?: "The location could not be found."
+                        errorMessage = error.message,
+                        errorMessageRes = if (error.message == null) {
+                            R.string.community_location_error
+                        } else {
+                            null
+                        }
                     )
                 }
             }
@@ -220,7 +240,8 @@ class CommunityViewModel @Inject constructor(
             it.copy(
                 isLoadingCommunity = false,
                 selectedCommunity = community,
-                errorMessage = null
+                errorMessage = null,
+                errorMessageRes = null
             )
         }
         loadEvents()
@@ -240,7 +261,12 @@ class CommunityViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoadingEvents = false,
-                            errorMessage = error.message ?: "The events could not be loaded."
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_events_error
+                            } else {
+                                null
+                            }
                         )
                     }
                 }

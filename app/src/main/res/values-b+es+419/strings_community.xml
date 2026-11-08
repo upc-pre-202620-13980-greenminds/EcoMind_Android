@@ -36,4 +36,25 @@
     <string name="community_news_post_message">¡Hola! Ha creado el evento «Limpieza de playa».</string>
     <string name="community_news_time_now">Ahora mismo</string>
     <string name="community_news_time_recent">Hace dos días</string>
+    <string name="community_locality_label">Tu localidad</string>
+    <string name="community_search_communities">Buscar comunidades</string>
+    <string name="community_local_in_locality">Comunidades locales en %1$s</string>
+    <string name="community_search_by_name">Buscar por nombre</string>
+    <string name="community_retry">Reintentar</string>
+    <string name="community_no_local_communities">No hay comunidades disponibles en esta localidad.</string>
+    <string name="community_enter">Entrar</string>
+    <string name="community_member_limit">Límite de miembros</string>
+    <string name="community_locality">Localidad</string>
+    <string name="community_description">Descripción</string>
+    <string name="community_no_description">No hay descripción disponible.</string>
+    <string name="community_joining">Uniéndose…</string>
+    <string name="community_join">Unirse</string>
+    <string name="community_cancel">Cancelar</string>
+    <string name="community_icon_content_description">Icono de %1$s</string>
+    <string name="community_enter_location_error">Ingresa tu ubicación.</string>
+    <string name="community_join_error">No se pudo unir.</string>
+    <string name="community_load_error">No se pudo cargar tu comunidad.</string>
+    <string name="community_load_list_error">No se pudieron cargar las comunidades.</string>
+    <string name="community_location_error">No se pudo encontrar la ubicación.</string>
+    <string name="community_events_error">No se pudieron cargar los eventos.</string>
 </resources>

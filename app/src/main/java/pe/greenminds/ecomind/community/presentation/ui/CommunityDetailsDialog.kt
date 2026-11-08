@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import pe.greenminds.ecomind.community.domain.entity.Community
+import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.MossGreen
@@ -99,15 +101,15 @@ fun CommunityDetailsDialog(
                             verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             community.memberLimit?.let { limit ->
-                                CommunityDetailLine(label = "Member limit", value = limit.toString())
+                                CommunityDetailLine(label = stringResource(R.string.community_member_limit), value = limit.toString())
                             }
                             community.locality?.let { locality ->
-                                CommunityDetailLine(label = "Locality", value = locality)
+                                CommunityDetailLine(label = stringResource(R.string.community_locality), value = locality)
                             }
                             CommunityDetailLine(
-                                label = "Description",
+                                label = stringResource(R.string.community_description),
                                 value = community.description?.takeIf(String::isNotBlank)
-                                    ?: "No description available."
+                                    ?: stringResource(R.string.community_no_description)
                             )
 
                             if (errorMessage != null) {
@@ -155,7 +157,7 @@ fun CommunityDetailsDialog(
                     colors = ButtonDefaults.buttonColors(containerColor = EcoGreen)
                 ) {
                     Text(
-                        text = if (isJoining) "Joining…" else "Join",
+                        text = stringResource(if (isJoining) R.string.community_joining else R.string.community_join),
                         color = White,
                         fontSize = 13.sp
                     )
@@ -175,7 +177,7 @@ fun CommunityDetailsDialog(
                         disabledContainerColor = CommunityDialogCancel.copy(alpha = 0.55f)
                     )
                 ) {
-                    Text("Cancel", color = White, fontSize = 13.sp)
+                    Text(stringResource(R.string.community_cancel), color = White, fontSize = 13.sp)
                 }
             }
         }
@@ -220,7 +222,7 @@ internal fun CommunityIcon(
         if (imageUrl != null && !imageLoadFailed) {
             AsyncImage(
                 model = imageUrl,
-                contentDescription = "${community.name} icon",
+                contentDescription = stringResource(R.string.community_icon_content_description, community.name),
                 modifier = Modifier
                     .size(62.dp)
                     .clip(CircleShape),

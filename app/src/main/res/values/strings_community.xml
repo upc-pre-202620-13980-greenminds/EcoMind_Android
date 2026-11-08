@@ -36,4 +36,25 @@
     <string name="community_news_post_message">Hi! She has created the “Beach cleanup” event.</string>
     <string name="community_news_time_now">Right now</string>
     <string name="community_news_time_recent">Two days ago</string>
+    <string name="community_locality_label">Your locality</string>
+    <string name="community_search_communities">Search communities</string>
+    <string name="community_local_in_locality">Local communities in %1$s</string>
+    <string name="community_search_by_name">Search by name</string>
+    <string name="community_retry">Retry</string>
+    <string name="community_no_local_communities">No communities are available in this locality.</string>
+    <string name="community_enter">Enter</string>
+    <string name="community_member_limit">Member limit</string>
+    <string name="community_locality">Locality</string>
+    <string name="community_description">Description</string>
+    <string name="community_no_description">No description available.</string>
+    <string name="community_joining">Joining…</string>
+    <string name="community_join">Join</string>
+    <string name="community_cancel">Cancel</string>
+    <string name="community_icon_content_description">%1$s icon</string>
+    <string name="community_enter_location_error">Enter your location.</string>
+    <string name="community_join_error">It could not be joined.</string>
+    <string name="community_load_error">Your community could not be loaded.</string>
+    <string name="community_load_list_error">The communities could not be loaded.</string>
+    <string name="community_location_error">The location could not be found.</string>
+    <string name="community_events_error">The events could not be loaded.</string>
 </resources>

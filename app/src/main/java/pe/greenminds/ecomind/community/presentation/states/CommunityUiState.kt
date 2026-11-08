@@ -17,7 +17,8 @@ data class CommunityUiState(
     val pendingCommunityDetails: Community? = null,
     val joiningCommunityId: Long? = null,
     val selectedCommunity: Community? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val errorMessageRes: Int? = null
 ) {
     val filteredLocalCommunities: List<Community>
         get() {
