@@ -48,11 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.community.domain.entity.Community
+import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
 import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityViewModel
-import pe.greenminds.ecomind.community.presentation.ui.CommunityAwardsContent
-import pe.greenminds.ecomind.community.presentation.ui.CommunityNewsContent
-import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.Black
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
@@ -70,15 +69,43 @@ import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    CommunityContent(
-        state = state,
-        onSectionSelected = viewModel::selectSection
-    )
+    when {
+        state.isLoadingCommunity -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        state.selectedCommunity == null -> {
+            LocalCommunitySelectionScreen(
+                state = state,
+                onLocalityInputChange = viewModel::updateLocalityInput,
+                onSearchQueryChange = viewModel::updateSearchQuery,
+                onSearch = viewModel::saveLocalityAndSearch,
+                onEnter = viewModel::showCommunityDetails,
+                onJoin = viewModel::joinPendingCommunity,
+                onCancelDetails = viewModel::dismissCommunityDetails,
+                onRetry = viewModel::retry
+            )
+        }
+
+        else -> {
+            CommunityContent(
+                state = state,
+                community = checkNotNull(state.selectedCommunity),
+                onSectionSelected = viewModel::selectSection
+            )
+        }
+    }
 }
 
 @Composable
 private fun CommunityContent(
     state: CommunityUiState,
+    community: Community,
     onSectionSelected: (CommunitySection) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -93,7 +120,7 @@ private fun CommunityContent(
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             CommunitySelector(onOtherCommunities = openComingSoon)
-            CommunityHeader()
+            CommunityHeader(community)
             GoalCard(onClick = openComingSoon)
         }
 
@@ -111,7 +138,7 @@ private fun CommunityContent(
                 CommunitySection.EVENTS -> {
                     SearchRow(onAction = openComingSoon)
 
-                    if (state.isLoading) {
+                    if (state.isLoadingEvents) {
                         val loadingDescription = stringResource(R.string.loading)
                         CircularProgressIndicator(
                             modifier = Modifier
@@ -191,24 +218,21 @@ private fun CommunitySelector(onOtherCommunities: () -> Unit) {
 }
 
 @Composable
-private fun CommunityHeader() {
+private fun CommunityHeader(community: Community) {
     Column(modifier = Modifier.padding(top = 12.dp)) {
         Text(
-            text = stringResource(R.string.community_sample_name),
+            text = community.name,
             style = poppinsTextStyle(24, FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.semantics { heading() }
         )
-        Text(
-            text = stringResource(R.string.community_sample_manager),
-            style = poppinsTextStyle(13, FontWeight.Light),
-            color = Black
-        )
-        Text(
-            text = stringResource(R.string.community_sample_members),
-            style = poppinsTextStyle(10, FontWeight.Light),
-            color = Black
-        )
+        community.locality?.let { locality ->
+            Text(
+                text = locality,
+                style = poppinsTextStyle(13, FontWeight.Light),
+                color = Black
+            )
+        }
     }
 }
 
@@ -402,6 +426,19 @@ private fun SmallActionPill(text: String, onClick: () -> Unit) {
 @Composable
 private fun CommunityContentPreview() {
     EcoMindTheme {
-        CommunityContent(state = CommunityUiState(isLoading = false))
+        CommunityContent(
+            state = CommunityUiState(isLoadingEvents = false),
+            community = Community(
+                id = 1L,
+                name = "Lima Community",
+                description = "Local community",
+                type = pe.greenminds.ecomind.community.domain.valueobjects.CommunityType.LOCAL,
+                topic = null,
+                locality = "Lima",
+                memberLimit = 100,
+                iconUrl = null,
+                createdBy = null
+            )
+        )
     }
 }
