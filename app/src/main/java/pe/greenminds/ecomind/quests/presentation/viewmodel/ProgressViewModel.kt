@@ -28,7 +28,8 @@ class ProgressViewModel @Inject constructor(
     private fun load(showRefresh: Boolean) {
         if (loadJob?.isActive == true) return
         loadJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, isRefreshing = showRefresh, hasError = false) }
+            _state.update { it.copy(isLoading = !it.hasLoaded, isRefreshing = showRefresh,
+                isUpdating = it.hasLoaded, hasError = false) }
             try {
                 getProgressOverview().onSuccess { overview ->
                     _state.value = ProgressUiState(
@@ -36,12 +37,12 @@ class ProgressViewModel @Inject constructor(
                         familyQuests = overview.familyQuests, finished = overview.finished, history = overview.history
                     )
                 }.onFailure {
-                    _state.update { it.copy(isLoading = false, isRefreshing = false, hasError = true) }
+                    _state.update { it.copy(isLoading = false, isRefreshing = false, isUpdating = false, hasError = true) }
                 }
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Exception) {
-                _state.update { it.copy(isLoading = false, isRefreshing = false, hasError = true) }
+                _state.update { it.copy(isLoading = false, isRefreshing = false, isUpdating = false, hasError = true) }
             }
         }
     }

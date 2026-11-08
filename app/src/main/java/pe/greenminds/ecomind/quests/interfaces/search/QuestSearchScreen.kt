@@ -140,7 +140,7 @@ internal fun QuestSearchContent(
 }
 
 @Composable
-private fun QuestSearchBar(
+internal fun QuestSearchBar(
     query: String,
     requestFocus: Boolean,
     onQueryChange: (String) -> Unit,

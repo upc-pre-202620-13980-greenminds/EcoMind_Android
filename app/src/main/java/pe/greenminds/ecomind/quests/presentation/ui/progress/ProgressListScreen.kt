@@ -20,19 +20,34 @@ import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshCont
 import pe.greenminds.ecomind.quests.presentation.viewmodel.ProgressViewModel
 import pe.greenminds.ecomind.quests.presentation.states.ProgressUiState
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
+import pe.greenminds.ecomind.quests.presentation.viewmodel.FamilyPlansViewModel
+import pe.greenminds.ecomind.quests.application.ProgressEntry
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 
 @Composable
 fun ProgressListScreen(
     section: ProgressSection,
     onBack: () -> Unit,
     onOpenQuest: (Long) -> Unit,
-    viewModel: ProgressViewModel = hiltViewModel()
+    viewModel: ProgressViewModel = hiltViewModel(),
+    familyViewModel: FamilyPlansViewModel = hiltViewModel(),
+    onOpenFamilyPlan: (Long?) -> Unit = {}
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val familyState = familyViewModel.state.collectAsStateWithLifecycle().value
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (viewModel.state.value.hasLoaded) viewModel.loadProgress()
+        familyViewModel.refresh()
     }
-    ProgressListContent(section, state, onBack, onOpenQuest, viewModel::loadProgress, viewModel::refreshProgress)
+    ProgressListContent(section, state, onBack, onOpenQuest, viewModel::loadProgress, viewModel::refreshProgress,
+        onOpenEntry = { entry ->
+            if (entry.questType == QuestType.FAMILY) {
+                val plan = familyState.overview?.plans?.find { plan -> plan.items.any {
+                    it.collaborativeSessionId != null && it.collaborativeSessionId == entry.questUser.collaborativeSessionId
+                } }
+                onOpenFamilyPlan(plan?.id)
+            } else onOpenQuest(entry.questId)
+        })
 }
 
 @Composable
@@ -42,7 +57,8 @@ internal fun ProgressListContent(
     onBack: () -> Unit,
     onOpenQuest: (Long) -> Unit,
     onRetry: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onOpenEntry: ((ProgressEntry) -> Unit)? = null
 ) {
     val entries = when (section) {
         ProgressSection.IN_PROGRESS -> state.inProgress
@@ -65,7 +81,7 @@ internal fun ProgressListContent(
                 ProgressSectionCard(
                     label = title,
                     entries = entries,
-                    onOpenEntry = { onOpenQuest(it.questId) },
+                    onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
                     emptyText = if (state.isLoading) null else stringResource(when (section) {
                         ProgressSection.IN_PROGRESS -> R.string.progress_empty_active
                         ProgressSection.FAMILY -> R.string.progress_empty_family

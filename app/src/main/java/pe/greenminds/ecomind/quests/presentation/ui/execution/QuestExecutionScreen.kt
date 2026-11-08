@@ -35,7 +35,7 @@ import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyBackButton
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
 
 @Composable
-fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel = hiltViewModel()) {
+fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel = hiltViewModel(), previewOnly: Boolean = false) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showParticipants by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state.partyState.isEnrolled) {
@@ -60,11 +60,12 @@ fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel 
         )
         return
     }
-    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check, viewModel::finish,
+    QuestExecutionContent(state, onBack, viewModel::reload, viewModel::start, viewModel::check,
+        onFinish = if (state.familyExecution != null) onBack else viewModel::finish,
         onOpenParticipants = { showParticipants = true },
         onAcceptInvitation = viewModel::acceptInvitation, onDeclineInvitation = viewModel::declineInvitation,
         onPartyStart = viewModel::startPartyOrSolo, onInviteFriends = viewModel::openFriends, onLeaveParty = viewModel::leaveParty,
-        onRefresh = viewModel::refreshScreen)
+        onRefresh = viewModel::refreshScreen, readOnly = previewOnly)
 }
 
 @Composable
@@ -76,7 +77,8 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
     onPartyStart: (() -> Unit)? = null,
     onInviteFriends: (() -> Unit)? = null,
     onLeaveParty: (() -> Unit)? = null,
-    onRefresh: () -> Unit = onRetry) {
+    onRefresh: () -> Unit = onRetry,
+    readOnly: Boolean = false) {
     QuestRefreshContainer(
         isRefreshing = state.refreshing,
         onRefresh = onRefresh,
@@ -91,6 +93,7 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             TextButton(onClick = onRetry, enabled = !state.busy) { Text(stringResource(R.string.quest_try_again)) }
         }
         val execution = state.execution
+        val family = state.familyExecution
         if (execution == null) {
             return@Column
         }
@@ -127,21 +130,23 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             Spacer(Modifier.height(36.dp))
             if (state.stage == QuestStage.DETAIL) {
                 Text(execution.quest.description, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp)
-                if (!execution.supported && execution.quest.type != QuestType.COLLABORATIVE) Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
+                if (!readOnly && !execution.supported && execution.quest.type != QuestType.COLLABORATIVE) Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
             } else {
                 execution.activities.forEach { activity ->
                     val check = execution.checks.firstOrNull { it.activityId == activity.id }
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = check != null && check.progress >= 100,
                             onCheckedChange = { checked -> check?.let { onCheck(it.id, checked) } },
-                            enabled = check != null && !state.busy && execution.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE),
+                            enabled = check != null && !state.busy && (family == null || family.canCheck) &&
+                                execution.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE),
                             colors = CheckboxDefaults.colors(checkedColor = EcoGreen))
                         Text(check?.description?.takeIf { it.isNotBlank() } ?: activity.description, modifier = Modifier.weight(1f))
                     }
                 }
-                val progress by animateFloatAsState(((execution.assignment?.progress ?: 0.0) / 100).toFloat().coerceIn(0f, 1f), label = "Quest progress")
+                val currentProgress = family?.item?.progress ?: execution.assignment?.progress ?: 0.0
+                val progress by animateFloatAsState((currentProgress / 100).toFloat().coerceIn(0f, 1f), label = "Quest progress")
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(16.dp), color = EcoGreen, trackColor = Color(0xFFE5E5E5))
-                Text("${(execution.assignment?.progress ?: 0.0).toInt()}% completed", fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+                Text("${currentProgress.toInt()}% completed", fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
             }
             Spacer(Modifier.height(32.dp))
             if (!execution.quest.imageUrl.isNullOrBlank()) {
@@ -150,7 +155,7 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
                 EnergyIllustration(Modifier.size(190.dp))
             }
             Spacer(Modifier.height(24.dp))
-            if (execution.quest.type == QuestType.COLLABORATIVE && state.stage == QuestStage.DETAIL) {
+            if (!readOnly && execution.quest.type == QuestType.COLLABORATIVE && state.stage == QuestStage.DETAIL) {
                 QuestPartySections(
                     questId = execution.quest.id,
                     state = state.partyState.copy(isLoading = state.busy || state.partyState.isLoading),
@@ -162,8 +167,13 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             }
         }
         val completed = execution.assignment?.status == QuestStatus.COMPLETED
-        if (state.stage == QuestStage.DETAIL) {
-            if (execution.quest.type == QuestType.COLLABORATIVE) {
+        if (readOnly) {
+            Spacer(Modifier.height(12.dp))
+        } else if (state.stage == QuestStage.DETAIL) {
+            if (family != null) {
+                QuestButton(if (completed) stringResource(R.string.family_plan_open_activities) else "Resume Quest", onStart,
+                    execution.supported && !state.busy && (family.canCheck || completed), false)
+            } else if (execution.quest.type == QuestType.COLLABORATIVE) {
                 QuestPartyActions(
                     state = state.partyState.copy(isLoading = state.busy || state.partyState.isLoading),
                     onStart = onPartyStart,
@@ -173,6 +183,8 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             } else {
                 QuestButton(if (completed) "Restart Quest" else if (execution.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)) "Resume Quest" else "Start Quest", onStart, execution.supported && !state.busy, false)
             }
+        } else if (family != null) {
+            QuestButton("Finish Quest", onFinish, family.readyToReturnToPlan && !state.busy, true)
         } else if (completed) {
             QuestButton("Restart Quest", onStart, execution.supported && !state.busy, false)
         } else {
@@ -208,7 +220,7 @@ private fun EnergyIllustration(modifier: Modifier) {
     }
 }
 @Composable
-private fun EcoMascot(confetti: Boolean, modifier: Modifier) {
+internal fun EcoMascot(confetti: Boolean, modifier: Modifier) {
     val transition = rememberInfiniteTransition(label = "Quest mascot")
     val hop by transition.animateFloat(6f, -8f,
         infiniteRepeatable(tween(760), RepeatMode.Reverse), label = "Started hop")

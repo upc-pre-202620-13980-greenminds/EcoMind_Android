@@ -5,9 +5,11 @@ import pe.greenminds.ecomind.quests.domain.entity.*
 import pe.greenminds.ecomind.quests.domain.repositories.*
 import pe.greenminds.ecomind.quests.domain.valueobject.*
 
-data class QuestExecution(val quest: Quest, val activities: List<Activity>, val assignment: QuestUser?, val checks: List<ActivityUser>) {
-    val supported get() = (quest.type == QuestType.ACTIVITIES && quest.theme == QuestTheme.CHECKBOX || quest.type == QuestType.COLLABORATIVE) && activities.isNotEmpty() && activities.all { it.type == ActivityType.CHECKBOX }
-    val canFinish get() = supported && assignment?.status == QuestStatus.READY_TO_COMPLETE && assignment.progress >= 100 && activities.all { a -> checks.any { it.activityId == a.id && it.progress >= 100 } }
+data class QuestExecution(val quest: Quest, val activities: List<Activity>, val assignment: QuestUser?, val checks: List<ActivityUser>,
+    val familyPlanId: Long? = null) {
+    val supported get() = (quest.type == QuestType.ACTIVITIES && quest.theme == QuestTheme.CHECKBOX || quest.type == QuestType.COLLABORATIVE ||
+        quest.type == QuestType.FAMILY && familyPlanId != null) && activities.isNotEmpty() && activities.all { it.type == ActivityType.CHECKBOX }
+    val canFinish get() = quest.type != QuestType.FAMILY && supported && assignment?.status == QuestStatus.READY_TO_COMPLETE && assignment.progress >= 100 && activities.all { a -> checks.any { it.activityId == a.id && it.progress >= 100 } }
 }
 
 class QuestExecutionService @Inject constructor(private val quests: QuestRepository, private val repository: QuestExecutionRepository) {
@@ -18,6 +20,7 @@ class QuestExecutionService @Inject constructor(private val quests: QuestReposit
         return QuestExecution(quest, activities, assignment, assignment?.let { repository.activityUsers(it.id) }.orEmpty())
     }
     suspend fun start(current: QuestExecution): QuestExecution {
+        check(current.quest.type != QuestType.FAMILY)
         check(current.supported)
         val previous = repository.find(current.quest.id)
         val assignment = previous?.takeIf {
