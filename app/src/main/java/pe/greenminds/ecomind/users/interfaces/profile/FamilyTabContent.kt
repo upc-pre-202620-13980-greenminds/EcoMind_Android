@@ -24,7 +24,6 @@ import pe.greenminds.ecomind.users.domain.model.FamilyRole
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.users.interfaces.navigation.CreateFamilyRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.FamilyActivityProgressRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ManageFamilyRoute
 
@@ -147,12 +146,8 @@ private fun FamilyContent(
             } else {
                 null
             },
-            // In the design only a parent opens the progress of another member
-            onClick = if (isManager && !member.isCurrentUser) {
-                { onNavigate(FamilyActivityProgressRoute(member.userId)) }
-            } else {
-                null
-            }
+            // The progress of a member (frame 22) is not built yet, so the rows do not open anything
+            onClick = null
         )
     }
 }

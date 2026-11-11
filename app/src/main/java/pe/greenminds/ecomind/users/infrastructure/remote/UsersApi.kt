@@ -9,7 +9,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-// Profile and friend routes of the web services (Users context)
+// Profile, friend and family routes of the web services (Users context)
 interface UsersApi {
 
     @GET("user")
@@ -39,6 +39,14 @@ interface UsersApi {
         @Path("id") friendshipId: Long,
         @Body request: RespondFriendRequestRequest
     ): Response<FriendDto>
+
+    // Membership of one user: an empty list when they have no family
+    @GET("family_user")
+    suspend fun getFamilyMemberships(@Query("user_id") userId: Long): Response<List<FamilyMemberDto>>
+
+    // Every family with its members; there is no route for a single family
+    @GET("family")
+    suspend fun getFamilies(): Response<List<FamilyDto>>
 
     // Answers 204 without a body; either of the two users can remove the friendship
     @DELETE("friend/{id}")
