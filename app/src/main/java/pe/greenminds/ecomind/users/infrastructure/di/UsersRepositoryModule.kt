@@ -9,15 +9,16 @@ import pe.greenminds.ecomind.users.domain.repositories.FriendRepository
 import pe.greenminds.ecomind.users.domain.repositories.ProfileRepository
 import pe.greenminds.ecomind.users.infrastructure.local.LocalFamilyRepository
 import pe.greenminds.ecomind.users.infrastructure.local.LocalFriendRepository
-import pe.greenminds.ecomind.users.infrastructure.local.LocalProfileRepository
+import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteProfileRepository
 
 // The only place to change when the remote implementations exist
 @Module
 @InstallIn(SingletonComponent::class)
 interface UsersRepositoryModule {
 
+    // Connected to the web services; friends and family still use local data
     @Binds
-    fun bindProfileRepository(impl: LocalProfileRepository): ProfileRepository
+    fun bindProfileRepository(impl: RemoteProfileRepository): ProfileRepository
 
     @Binds
     fun bindFriendRepository(impl: LocalFriendRepository): FriendRepository

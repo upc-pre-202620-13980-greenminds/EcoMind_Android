@@ -42,6 +42,16 @@ class LocalProfileRepository @Inject constructor(
         dataSource.addProfile(userId, name, socialRole.name)
     }
 
+    override suspend fun updateName(userId: Long, name: String): Result<UserProfile> {
+        val index = dataSource.profiles.indexOfFirst { it.id == userId }
+        if (index == -1) {
+            return Result.failure(IllegalArgumentException("The user profile was not found"))
+        }
+        val updated = dataSource.profiles[index].copy(name = name)
+        dataSource.profiles[index] = updated
+        return Result.success(updated.toDomain(ProvisionalProfileData.commitmentOf(userId)))
+    }
+
     override suspend fun spendGems(userId: Long, amount: Int): Result<Int> {
         val index = dataSource.profiles.indexOfFirst { it.id == userId }
         if (index == -1) {

@@ -53,4 +53,22 @@
         <item quantity="many">%d logros obtenidos esta semana</item>
         <item quantity="other">%d logros obtenidos esta semana</item>
     </plurals>
+
+    <!-- Edit and share profile -->
+    <string name="edit_profile_title">Editar perfil</string>
+    <string name="edit_profile_name_label">Nombre</string>
+    <string name="edit_profile_name_placeholder">Escribe tu nombre</string>
+    <string name="edit_profile_role_label">Rol</string>
+    <string name="edit_profile_save">Guardar cambios</string>
+    <string name="edit_profile_cancel">Cancelar</string>
+    <string name="edit_profile_name_required">Ingresa tu nombre.</string>
+    <string name="edit_profile_name_length">El nombre debe tener entre 2 y 120 caracteres.</string>
+    <string name="edit_profile_save_failed">No pudimos guardar tus cambios.</string>
+    <string name="edit_profile_save_failed_hint">Tu texto sigue aquí. Inténtalo de nuevo.</string>
+    <string name="share_profile_title">Compartir perfil</string>
+    <string name="share_profile_subtitle">Perfil de EcoMind</string>
+    <string name="share_profile_copy">Copiar enlace</string>
+    <string name="share_profile_send">Enviar a…</string>
+    <string name="share_profile_copied">Enlace del perfil copiado</string>
+    <string name="share_profile_chooser">Comparte tu perfil</string>
 </resources>
