@@ -9,7 +9,7 @@ import pe.greenminds.ecomind.users.domain.repositories.FamilyRepository
 import pe.greenminds.ecomind.users.domain.repositories.FriendRepository
 import pe.greenminds.ecomind.users.domain.repositories.ProfileRepository
 import pe.greenminds.ecomind.users.infrastructure.local.LocalCommitmentRepository
-import pe.greenminds.ecomind.users.infrastructure.local.LocalFamilyRepository
+import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteFamilyRepository
 import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteFriendRepository
 import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteProfileRepository
 
@@ -18,7 +18,7 @@ import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteProfileRe
 @InstallIn(SingletonComponent::class)
 interface UsersRepositoryModule {
 
-    // Profile and friends are connected to the web services; family still uses local data
+    // Profile, friends and family are connected to the web services
     @Binds
     fun bindProfileRepository(impl: RemoteProfileRepository): ProfileRepository
 
@@ -26,7 +26,7 @@ interface UsersRepositoryModule {
     fun bindFriendRepository(impl: RemoteFriendRepository): FriendRepository
 
     @Binds
-    fun bindFamilyRepository(impl: LocalFamilyRepository): FamilyRepository
+    fun bindFamilyRepository(impl: RemoteFamilyRepository): FamilyRepository
 
     // There is no route for the personal commitment, so it stays on the device
     @Binds

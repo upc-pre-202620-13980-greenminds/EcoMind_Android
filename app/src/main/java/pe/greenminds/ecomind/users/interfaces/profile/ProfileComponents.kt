@@ -55,7 +55,8 @@ fun TextLink(
     }
 }
 
-// Row of a friend or a family member; it ends with a label such as "You" or with an arrow
+// Row of a friend or a family member; it ends with a label such as "You", or with an arrow
+// when the row opens another screen
 @Composable
 fun PersonRow(
     name: String,
@@ -99,7 +100,7 @@ fun PersonRow(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
-            } else {
+            } else if (onClick != null) {
                 // The arrow is decorative, so the screen reader skips it
                 Text(
                     text = stringResource(R.string.profile_row_arrow),
