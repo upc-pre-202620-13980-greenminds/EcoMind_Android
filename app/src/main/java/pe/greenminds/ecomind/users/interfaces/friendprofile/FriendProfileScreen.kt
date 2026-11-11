@@ -36,11 +36,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorRed
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.FriendProfile
 import pe.greenminds.ecomind.users.domain.model.SocialRole
@@ -135,7 +131,7 @@ private fun FriendHeader(profile: FriendProfile) {
     Text(
         text = profile.name,
         style = interTextStyle(22, FontWeight.Bold),
-        color = TextPrimary,
+        color = EcoMindTheme.colors.textPrimary,
         textAlign = TextAlign.Center,
         modifier = Modifier
             .padding(top = 14.dp)
@@ -192,7 +188,7 @@ private fun FriendStat(
         Text(
             text = label,
             style = interTextStyle(12),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             modifier = Modifier.padding(top = 9.dp)
         )
     }
@@ -211,7 +207,7 @@ private fun FriendshipActions(onRemoveRequested: () -> Unit) {
         text = stringResource(R.string.friend_profile_remove),
         onClick = onRemoveRequested,
         style = interTextStyle(14, FontWeight.Bold),
-        color = ErrorRed,
+        color = EcoMindTheme.colors.errorRed,
         modifier = Modifier.padding(top = 12.dp)
     )
 }
@@ -232,7 +228,7 @@ private fun RemoveFriendCard(
             .padding(top = 136.dp)
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface, shape)
-            .border(1.dp, CardBorder, shape)
+            .border(1.dp, EcoMindTheme.colors.cardBorder, shape)
             .padding(start = 16.dp, end = 16.dp, top = 15.dp, bottom = 8.dp)
             // The screen reader announces the question as soon as the card appears
             .semantics { liveRegion = LiveRegionMode.Polite }
@@ -246,14 +242,14 @@ private fun RemoveFriendCard(
         Text(
             text = stringResource(R.string.friend_profile_remove_message),
             style = interTextStyle(13),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             modifier = Modifier.padding(top = 15.dp)
         )
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
                 style = interTextStyle(13),
-                color = ErrorRed,
+                color = EcoMindTheme.colors.errorRed,
                 modifier = Modifier.padding(top = 12.dp)
             )
         }
@@ -279,7 +275,7 @@ private fun RemoveFriendCard(
                     text = stringResource(R.string.friend_profile_remove),
                     onClick = onConfirm,
                     style = interTextStyle(14, FontWeight.Bold),
-                    color = ErrorRed
+                    color = EcoMindTheme.colors.errorRed
                 )
             }
             TextLink(

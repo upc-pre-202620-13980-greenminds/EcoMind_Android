@@ -38,10 +38,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorText
-import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.FriendRequest
 import pe.greenminds.ecomind.users.domain.model.FriendRequests
@@ -157,7 +153,7 @@ private fun EmptySectionText(text: String) {
     Text(
         text = text,
         style = interTextStyle(13),
-        color = TextSecondary,
+        color = EcoMindTheme.colors.textSecondary,
         modifier = Modifier.padding(top = 6.dp)
     )
 }
@@ -185,12 +181,12 @@ private fun RequestPerson(
             Text(
                 text = request.name,
                 style = interTextStyle(14, FontWeight.Bold),
-                color = TextPrimary
+                color = EcoMindTheme.colors.textPrimary
             )
             Text(
                 text = subtitle,
                 style = interTextStyle(12),
-                color = TextSecondary,
+                color = EcoMindTheme.colors.textSecondary,
                 modifier = Modifier.padding(top = 7.dp)
             )
         }
@@ -205,7 +201,7 @@ private fun RequestPerson(
     }
     HorizontalDivider(
         thickness = 1.dp,
-        color = RowDivider,
+        color = EcoMindTheme.colors.rowDivider,
         modifier = Modifier.padding(top = 16.dp)
     )
 }
@@ -257,7 +253,7 @@ private fun ReceivedRequestRow(
         Text(
             text = errorMessage,
             style = interTextStyle(13),
-            color = ErrorText,
+            color = EcoMindTheme.colors.errorText,
             modifier = Modifier
                 .padding(bottom = 8.dp)
                 .semantics { liveRegion = LiveRegionMode.Polite }
@@ -287,12 +283,12 @@ private fun SentRequestRow(
             Text(
                 text = stringResource(R.string.friend_requests_declined_notice),
                 style = interTextStyle(13),
-                color = TextSecondary
+                color = EcoMindTheme.colors.textSecondary
             )
             Text(
                 text = stringResource(R.string.friend_requests_retry_notice),
                 style = interTextStyle(13),
-                color = TextSecondary,
+                color = EcoMindTheme.colors.textSecondary,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }

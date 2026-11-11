@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_preferences">Preferencias</string>
+    <string name="settings_notification_preferences">Preferencias de notificaciones</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_help">Ayuda</string>
+    <string name="settings_help_support">Ayuda y soporte</string>
+    <string name="settings_language_description">Elige el idioma de la aplicación.</string>
+    <string name="settings_theme_description">Elige cómo se ve EcoMind.</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_notifications_description">Elige qué notificaciones quieres recibir.</string>
+    <string name="notifications_quests">Misiones nuevas y diarias</string>
+    <string name="notifications_quests_description">Misiones nuevas disponibles y misiones diarias</string>
+    <string name="notifications_learning">Recordatorios de aprendizaje</string>
+    <string name="notifications_learning_description">Materiales pendientes que aún no revisas</string>
+    <string name="notifications_achievements">Logros e insignias</string>
+    <string name="notifications_achievements_description">Medallas e insignias que desbloqueas</string>
+    <string name="notifications_weekly">Resumen semanal de progreso</string>
+    <string name="notifications_weekly_description">Tu progreso de la semana</string>
+    <string name="notifications_events">Eventos de la comunidad</string>
+    <string name="notifications_events_description">Eventos publicados en tu comunidad</string>
+    <string name="notifications_activity">Actividad de la comunidad</string>
+    <string name="notifications_activity_description">Reacciones, logros compartidos y metas de la comunidad</string>
+    <string name="preferences_save_failed">No se pudo guardar tu preferencia. Inténtalo de nuevo.</string>
+</resources>

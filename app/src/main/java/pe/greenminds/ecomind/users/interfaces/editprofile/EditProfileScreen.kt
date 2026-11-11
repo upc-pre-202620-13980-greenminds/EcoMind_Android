@@ -43,9 +43,6 @@ import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorRed
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.interfaces.profile.TextLink
@@ -140,7 +137,7 @@ private fun EditProfileContent(
                 Text(
                     text = stringResource(R.string.edit_profile_role_label),
                     style = interTextStyle(14),
-                    color = TextSecondary,
+                    color = EcoMindTheme.colors.textSecondary,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
@@ -152,7 +149,7 @@ private fun EditProfileContent(
                         }
                     ),
                     style = interTextStyle(14, FontWeight.Bold),
-                    color = TextPrimary
+                    color = EcoMindTheme.colors.textPrimary
                 )
             }
 
@@ -166,12 +163,12 @@ private fun EditProfileContent(
                     Text(
                         text = stringResource(R.string.edit_profile_save_failed),
                         style = interTextStyle(14, FontWeight.Bold),
-                        color = ErrorRed
+                        color = EcoMindTheme.colors.errorRed
                     )
                     Text(
                         text = stringResource(R.string.edit_profile_save_failed_hint),
                         style = interTextStyle(13),
-                        color = ErrorRed,
+                        color = EcoMindTheme.colors.errorRed,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
@@ -204,7 +201,7 @@ private fun EditProfileContent(
                     text = stringResource(R.string.edit_profile_cancel),
                     onClick = onBack,
                     style = interTextStyle(13),
-                    color = TextSecondary,
+                    color = EcoMindTheme.colors.textSecondary,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }

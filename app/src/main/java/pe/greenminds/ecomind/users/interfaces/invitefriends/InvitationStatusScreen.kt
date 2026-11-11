@@ -33,12 +33,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
-import pe.greenminds.ecomind.shared.interfaces.theme.StatusSurface
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.InvitationDetails
 import pe.greenminds.ecomind.users.domain.model.InvitationStatus
@@ -140,12 +135,12 @@ private fun FriendRow(invitation: InvitationDetails) {
             Text(
                 text = invitation.name,
                 style = interTextStyle(14, FontWeight.Bold),
-                color = TextPrimary
+                color = EcoMindTheme.colors.textPrimary
             )
             Text(
                 text = stringResource(subtitle),
                 style = interTextStyle(12),
-                color = TextSecondary,
+                color = EcoMindTheme.colors.textSecondary,
                 modifier = Modifier.padding(top = 5.dp)
             )
         }
@@ -160,7 +155,7 @@ private fun FriendRow(invitation: InvitationDetails) {
     }
     HorizontalDivider(
         thickness = 1.dp,
-        color = RowDivider,
+        color = EcoMindTheme.colors.rowDivider,
         modifier = Modifier.padding(top = 20.dp)
     )
 }
@@ -177,13 +172,13 @@ private fun AwaitingResponse() {
     Text(
         text = stringResource(R.string.invitation_status_waiting),
         style = interTextStyle(13),
-        color = TextSecondary,
+        color = EcoMindTheme.colors.textSecondary,
         modifier = Modifier.padding(top = 19.dp)
     )
     Text(
         text = stringResource(R.string.invitation_status_expires),
         style = interTextStyle(13),
-        color = TextSecondary,
+        color = EcoMindTheme.colors.textSecondary,
         modifier = Modifier.padding(top = 6.dp)
     )
 }
@@ -206,8 +201,8 @@ private fun StatusBox(
             .padding(top = topPadding.dp)
             .fillMaxWidth()
             .heightIn(min = minHeight.dp)
-            .background(StatusSurface, shape)
-            .border(1.dp, CardBorder, shape)
+            .background(EcoMindTheme.colors.statusSurface, shape)
+            .border(1.dp, EcoMindTheme.colors.cardBorder, shape)
             .padding(12.dp)
     ) {
         Text(
@@ -241,7 +236,7 @@ private fun CenteredMessage(
         Text(
             text = stringResource(message),
             style = interTextStyle(13),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 16.dp)
         )
@@ -254,13 +249,13 @@ private fun DeclinedNotice() {
     Text(
         text = stringResource(R.string.friend_requests_declined_notice),
         style = interTextStyle(13),
-        color = TextSecondary,
+        color = EcoMindTheme.colors.textSecondary,
         modifier = Modifier.padding(top = 16.dp)
     )
     Text(
         text = stringResource(R.string.friend_requests_retry_notice),
         style = interTextStyle(13),
-        color = TextSecondary,
+        color = EcoMindTheme.colors.textSecondary,
         modifier = Modifier.padding(top = 4.dp)
     )
 }

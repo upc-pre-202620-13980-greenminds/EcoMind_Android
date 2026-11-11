@@ -42,13 +42,6 @@ import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorSurface
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorText
-import pe.greenminds.ecomind.shared.interfaces.theme.FieldBorderGreen
-import pe.greenminds.ecomind.shared.interfaces.theme.PlaceholderGray
-import pe.greenminds.ecomind.shared.interfaces.theme.RequiredRed
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.PersonalCommitment
 import pe.greenminds.ecomind.users.interfaces.editprofile.SubScreenHeader
@@ -119,7 +112,7 @@ private fun CommitmentContent(
                 Text(
                     text = stringResource(R.string.commitment_subtitle),
                     style = interTextStyle(13),
-                    color = TextSecondary
+                    color = EcoMindTheme.colors.textSecondary
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -153,7 +146,7 @@ private fun CommitmentContent(
                 text = stringResource(R.string.commitment_cancel),
                 onClick = onBack,
                 style = interTextStyle(13),
-                color = TextSecondary,
+                color = EcoMindTheme.colors.textSecondary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -184,7 +177,7 @@ private fun CommitmentField(
     BasicTextField(
         value = text,
         onValueChange = onTextChange,
-        textStyle = interTextStyle(14).copy(color = TextPrimary),
+        textStyle = interTextStyle(14).copy(color = EcoMindTheme.colors.textPrimary),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
         // The screen reader announces the label and, if there is one, the error
@@ -203,7 +196,11 @@ private fun CommitmentField(
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .border(
                         width = 1.dp,
-                        color = if (errorMessage != null) RequiredRed else FieldBorderGreen,
+                        color = if (errorMessage != null) {
+                            EcoMindTheme.colors.requiredRed
+                        } else {
+                            EcoMindTheme.colors.fieldBorder
+                        },
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(horizontal = 14.dp, vertical = 15.dp)
@@ -212,7 +209,7 @@ private fun CommitmentField(
                     Text(
                         text = stringResource(R.string.commitment_placeholder),
                         style = interTextStyle(14),
-                        color = PlaceholderGray
+                        color = EcoMindTheme.colors.placeholder
                     )
                 }
                 innerTextField()
@@ -230,7 +227,7 @@ private fun CommitmentField(
         Text(
             text = errorMessage.orEmpty(),
             style = interTextStyle(13),
-            color = RequiredRed,
+            color = EcoMindTheme.colors.requiredRed,
             modifier = Modifier
                 .weight(1f)
                 .semantics { liveRegion = LiveRegionMode.Polite }
@@ -242,7 +239,7 @@ private fun CommitmentField(
                 PersonalCommitment.MAX_LENGTH
             ),
             style = interTextStyle(12),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             // "42 of 150 characters" is read instead of "42/150"
             modifier = Modifier
                 .padding(start = 8.dp)
@@ -257,19 +254,19 @@ private fun SaveFailureBox(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(ErrorSurface, RoundedCornerShape(12.dp))
+            .background(EcoMindTheme.colors.errorSurface, RoundedCornerShape(12.dp))
             .padding(horizontal = 15.dp, vertical = 16.dp)
             .semantics { liveRegion = LiveRegionMode.Polite }
     ) {
         Text(
             text = stringResource(R.string.commitment_save_failed),
             style = interTextStyle(14, FontWeight.Bold),
-            color = ErrorText
+            color = EcoMindTheme.colors.errorText
         )
         Text(
             text = stringResource(R.string.commitment_save_failed_hint),
             style = interTextStyle(13),
-            color = ErrorText,
+            color = EcoMindTheme.colors.errorText,
             modifier = Modifier.padding(top = 8.dp)
         )
     }

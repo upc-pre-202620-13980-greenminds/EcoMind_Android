@@ -11,6 +11,10 @@ data object NotificationsRoute
 @Serializable
 data object SettingsRoute
 
+@Serializable data object NotificationPreferencesRoute
+@Serializable data object LanguageRoute
+@Serializable data object ThemeRoute
+
 @Serializable data object HelpSupportRoute
 @Serializable data object FaqRoute
 @Serializable data class FaqDetailRoute(val questionId: Int)

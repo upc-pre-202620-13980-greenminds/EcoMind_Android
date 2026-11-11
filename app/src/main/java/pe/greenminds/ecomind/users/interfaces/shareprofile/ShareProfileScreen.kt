@@ -38,8 +38,6 @@ import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.interfaces.editprofile.SubScreenHeader
 
@@ -104,12 +102,12 @@ private fun ShareProfileContent(
                     Text(
                         text = state.name,
                         style = interTextStyle(18, FontWeight.Bold),
-                        color = TextPrimary
+                        color = EcoMindTheme.colors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.share_profile_subtitle),
                         style = interTextStyle(13),
-                        color = TextSecondary
+                        color = EcoMindTheme.colors.textSecondary
                     )
                 }
             }

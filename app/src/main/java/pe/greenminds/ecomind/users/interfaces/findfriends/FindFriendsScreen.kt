@@ -40,10 +40,6 @@ import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.BorderedTextField
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.ErrorText
-import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.FriendRelation
 import pe.greenminds.ecomind.users.domain.model.SocialRole
@@ -170,12 +166,12 @@ private fun UserRow(
                 Text(
                     text = result.name,
                     style = interTextStyle(14, FontWeight.Bold),
-                    color = TextPrimary
+                    color = EcoMindTheme.colors.textPrimary
                 )
                 Text(
                     text = stringResource(roleText(result.socialRole)),
                     style = interTextStyle(12),
-                    color = TextSecondary,
+                    color = EcoMindTheme.colors.textSecondary,
                     modifier = Modifier.padding(top = 7.dp)
                 )
             }
@@ -192,13 +188,13 @@ private fun UserRow(
             Text(
                 text = errorMessage,
                 style = interTextStyle(13),
-                color = ErrorText,
+                color = EcoMindTheme.colors.errorText,
                 modifier = Modifier
                     .padding(bottom = 12.dp)
                     .semantics { liveRegion = LiveRegionMode.Polite }
             )
         }
-        HorizontalDivider(thickness = 1.dp, color = RowDivider)
+        HorizontalDivider(thickness = 1.dp, color = EcoMindTheme.colors.rowDivider)
     }
 }
 
