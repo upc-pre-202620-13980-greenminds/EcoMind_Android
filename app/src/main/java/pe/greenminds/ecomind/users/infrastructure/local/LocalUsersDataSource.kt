@@ -2,7 +2,6 @@ package pe.greenminds.ecomind.users.infrastructure.local
 
 import pe.greenminds.ecomind.users.infrastructure.remote.FamilyDto
 import pe.greenminds.ecomind.users.infrastructure.remote.FamilyMemberDto
-import pe.greenminds.ecomind.users.infrastructure.remote.FriendDto
 import pe.greenminds.ecomind.users.infrastructure.remote.UserProfileDto
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,15 +26,6 @@ class LocalUsersDataSource @Inject constructor() {
         profile(5L, "Diego Ramos", "STUDENT"),
         profile(6L, "Valeria Chávez", "PARENT"),
         profile(7L, "Mateo Vargas", "PARENT")
-    )
-
-    val friends = listOf(
-        FriendDto(id = 1L, requesterId = 3L, receiverId = STUDENT_ID, status = "ACCEPTED"),
-        FriendDto(id = 2L, requesterId = STUDENT_ID, receiverId = 4L, status = "ACCEPTED"),
-        FriendDto(id = 3L, requesterId = 5L, receiverId = STUDENT_ID, status = "PENDING"),
-        FriendDto(id = 4L, requesterId = 6L, receiverId = PARENT_ID, status = "ACCEPTED"),
-        FriendDto(id = 5L, requesterId = PARENT_ID, receiverId = 7L, status = "ACCEPTED"),
-        FriendDto(id = 6L, requesterId = 5L, receiverId = PARENT_ID, status = "PENDING")
     )
 
     val families = listOf(

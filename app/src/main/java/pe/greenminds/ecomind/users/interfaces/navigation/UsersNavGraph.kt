@@ -11,6 +11,9 @@ import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.users.interfaces.commitment.CommitmentScreen
 import pe.greenminds.ecomind.users.interfaces.editprofile.EditProfileScreen
+import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsScreen
+import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsViewModel
+import pe.greenminds.ecomind.users.interfaces.friendrequests.FriendRequestsScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileViewModel
 import pe.greenminds.ecomind.users.interfaces.shareprofile.ShareProfileScreen
@@ -20,6 +23,9 @@ data object ProfileRoute
 
 // Set by the edit profile and commitment screens so that Profile loads again when it is shown
 private const val PROFILE_UPDATED_KEY = "profile_updated"
+
+// Set by the friend requests screen so that Find friends searches again when it is shown
+private const val FRIENDS_CHANGED_KEY = "friends_changed"
 
 // Hook routes: each one is a screen of the design that is not built yet.
 // To build one, replace PlaceholderScreen() in its composable below.
@@ -118,8 +124,40 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
 
     composable<MyMedalsRoute> { PlaceholderScreen() }
     composable<InviteFriendsRoute> { PlaceholderScreen() }
-    composable<FindFriendsRoute> { PlaceholderScreen() }
-    composable<FriendRequestsRoute> { PlaceholderScreen() }
+    composable<FindFriendsRoute> { backStackEntry ->
+        val viewModel: FindFriendsViewModel = hiltViewModel()
+        val requestsAnswered by backStackEntry.savedStateHandle
+            .getStateFlow(FRIENDS_CHANGED_KEY, false)
+            .collectAsStateWithLifecycle()
+
+        // A request answered after "Reply" changes the action of that row
+        LaunchedEffect(requestsAnswered) {
+            if (requestsAnswered) {
+                viewModel.search()
+                backStackEntry.savedStateHandle[FRIENDS_CHANGED_KEY] = false
+            }
+        }
+
+        FindFriendsScreen(
+            onBack = { navController.popBackStack() },
+            onReply = {
+                navController.navigate(FriendRequestsRoute) { launchSingleTop = true }
+            },
+            onFriendsChanged = { navController.markProfileForReload() },
+            viewModel = viewModel
+        )
+    }
+
+    composable<FriendRequestsRoute> {
+        FriendRequestsScreen(
+            onBack = { navController.popBackStack() },
+            onFriendsChanged = {
+                navController.markProfileForReload()
+                navController.previousBackStackEntry?.savedStateHandle?.set(FRIENDS_CHANGED_KEY, true)
+            }
+        )
+    }
+
     composable<FriendProfileRoute> { PlaceholderScreen() }
     composable<CreateFamilyRoute> { PlaceholderScreen() }
     composable<ManageFamilyRoute> { PlaceholderScreen() }
@@ -131,4 +169,10 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
 private fun NavController.returnToUpdatedProfile() {
     previousBackStackEntry?.savedStateHandle?.set(PROFILE_UPDATED_KEY, true)
     popBackStack()
+}
+
+// Profile loads again when it is shown, even if the change was made two screens away
+private fun NavController.markProfileForReload() {
+    val profileEntry = runCatching { getBackStackEntry<ProfileRoute>() }.getOrNull()
+    profileEntry?.savedStateHandle?.set(PROFILE_UPDATED_KEY, true)
 }

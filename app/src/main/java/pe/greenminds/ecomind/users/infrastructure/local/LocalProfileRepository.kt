@@ -38,6 +38,11 @@ class LocalProfileRepository @Inject constructor(
         return Result.success(dto.toDomain())
     }
 
+    override suspend fun getProfiles(): Result<List<UserProfile>> {
+        delay(SIMULATED_DELAY_MILLIS)
+        return Result.success(dataSource.profiles.map { it.toDomain() })
+    }
+
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) {
         dataSource.addProfile(userId, name, socialRole.name)
     }
