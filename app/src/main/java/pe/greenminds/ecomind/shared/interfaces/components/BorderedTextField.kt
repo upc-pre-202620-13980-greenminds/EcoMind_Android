@@ -23,10 +23,7 @@ import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
-import pe.greenminds.ecomind.shared.interfaces.theme.PlaceholderGray
-import pe.greenminds.ecomind.shared.interfaces.theme.RequiredRed
-import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
+import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // Green label and a white single line field with a thin border, used by the friend screens
@@ -51,7 +48,7 @@ fun BorderedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        textStyle = interTextStyle(14).copy(color = TextPrimary),
+        textStyle = interTextStyle(14).copy(color = EcoMindTheme.colors.textPrimary),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
@@ -71,7 +68,11 @@ fun BorderedTextField(
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .border(
                         width = 1.dp,
-                        color = if (errorMessage != null) RequiredRed else CardBorder,
+                        color = if (errorMessage != null) {
+                            EcoMindTheme.colors.requiredRed
+                        } else {
+                            EcoMindTheme.colors.cardBorder
+                        },
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(horizontal = 14.dp)
@@ -80,7 +81,7 @@ fun BorderedTextField(
                     Text(
                         text = placeholder,
                         style = interTextStyle(14),
-                        color = PlaceholderGray
+                        color = EcoMindTheme.colors.placeholder
                     )
                 }
                 innerTextField()
@@ -91,7 +92,7 @@ fun BorderedTextField(
         Text(
             text = errorMessage,
             style = interTextStyle(13),
-            color = RequiredRed,
+            color = EcoMindTheme.colors.requiredRed,
             modifier = Modifier.padding(top = 8.dp)
         )
     }

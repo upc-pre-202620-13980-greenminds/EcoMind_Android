@@ -35,12 +35,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.SurfaceTint
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.InvitationCode
 import pe.greenminds.ecomind.users.interfaces.editprofile.SubScreenHeader
@@ -98,7 +95,7 @@ private fun InvitationCodeContent(
             Text(
                 text = stringResource(R.string.invitation_code_subtitle),
                 style = interTextStyle(13),
-                color = TextSecondary,
+                color = EcoMindTheme.colors.textSecondary,
                 modifier = Modifier.padding(top = 10.dp)
             )
             Spacer(modifier = Modifier.height(51.dp))
@@ -152,15 +149,15 @@ private fun CodeBox(code: String) {
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 112.dp)
-            .background(SurfaceTint, shape)
-            .border(1.dp, CardBorder, shape)
+            .background(EcoMindTheme.colors.surfaceTint, shape)
+            .border(1.dp, EcoMindTheme.colors.cardBorder, shape)
             .padding(vertical = 16.dp)
             .clearAndSetSemantics { contentDescription = codeDescription }
     ) {
         Text(
             text = stringResource(R.string.invitation_code_label),
             style = interTextStyle(13),
-            color = TextSecondary
+            color = EcoMindTheme.colors.textSecondary
         )
         Text(
             text = shownCode,

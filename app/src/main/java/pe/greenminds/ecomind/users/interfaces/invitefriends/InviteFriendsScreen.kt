@@ -40,12 +40,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.components.BorderedTextField
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.interfaces.editprofile.SubScreenHeader
 
@@ -97,7 +94,7 @@ private fun InviteFriendsContent(
         Text(
             text = stringResource(R.string.invite_friends_subtitle),
             style = interTextStyle(13),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             modifier = Modifier.padding(top = 10.dp)
         )
 
@@ -118,7 +115,7 @@ private fun InviteFriendsContent(
         // It is kept apart from the two methods above with a divider and its own title.
         HorizontalDivider(
             thickness = 1.dp,
-            color = RowDivider,
+            color = EcoMindTheme.colors.rowDivider,
             modifier = Modifier.padding(top = 32.dp, bottom = 24.dp)
         )
         Text(
@@ -185,7 +182,7 @@ private fun MethodCard(
             .heightIn(min = 72.dp)
             .clip(shape)
             .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, CardBorder, shape)
+            .border(1.dp, EcoMindTheme.colors.cardBorder, shape)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
@@ -197,7 +194,7 @@ private fun MethodCard(
         Text(
             text = description,
             style = interTextStyle(12),
-            color = TextSecondary,
+            color = EcoMindTheme.colors.textSecondary,
             modifier = Modifier.padding(top = 8.dp)
         )
     }

@@ -165,6 +165,8 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute<FamilyQuestStartedRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
+        destination.hasRoute<NotificationPreferencesRoute>() ||
+        destination.hasRoute<LanguageRoute>() || destination.hasRoute<ThemeRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
     // Sub screens of Profile keep the bars with the Profile item active
     if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>() ||
