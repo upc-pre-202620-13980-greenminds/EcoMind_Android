@@ -65,6 +65,7 @@ fun MoreCommunitiesScreen(
     ) {
         CommunitySelector(
             selectedTab = CommunityDirectoryTab.MORE,
+            moreEnabled = state.canAccessMoreCommunities,
             onLocalTab = onLocalTab,
             onMoreTab = {}
         )

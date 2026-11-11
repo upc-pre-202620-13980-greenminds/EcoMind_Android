@@ -7,6 +7,5 @@ import pe.greenminds.ecomind.community.domain.repositories.CommunityDirectoryRep
 class GetLocalCommunitiesUseCase @Inject constructor(
     private val repository: CommunityDirectoryRepository
 ) {
-    suspend operator fun invoke(locality: String? = null): Result<List<Community>> =
-        repository.getLocalCommunities(locality?.trim()?.takeIf(String::isNotEmpty))
+    suspend operator fun invoke(locality: String? = null): Result<List<Community>> = repository.getLocalCommunities(locality?.trim()?.takeIf(String::isNotEmpty))
 }

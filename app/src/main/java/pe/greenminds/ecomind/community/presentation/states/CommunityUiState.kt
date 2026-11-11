@@ -24,9 +24,14 @@ data class CommunityUiState(
     val isShowingMoreCommunitiesList: Boolean = false,
     val selectedLocalCommunity: Community? = null,
     val topicCommunities: List<Community> = emptyList(),
-    val topicMembershipIds: Set<Long> = emptySet(),
+    val membershipCommunityIds: Set<Long> = emptySet(),
     val topicListMode: TopicCommunityListMode = TopicCommunityListMode.MEMBERS,
     val isLoadingTopicCommunities: Boolean = false,
+
+    val isLoadingLocalCommunities: Boolean = false,
+    val isResolvingLocality: Boolean = false,
+    val hasRequestedLocation: Boolean = false,
+    val localityErrorRes: Int? = null,
 ) {
     val filteredLocalCommunities: List<Community>
         get() {
@@ -41,7 +46,7 @@ data class CommunityUiState(
     val visibleTopicCommunities: List<Community>
         get() {
             val matchingCommunities = topicCommunities.filter { community ->
-                val isMember = community.id in topicMembershipIds
+                val isMember = community.id in membershipCommunityIds
 
                 when (topicListMode) {
                     TopicCommunityListMode.MEMBERS -> isMember
@@ -56,4 +61,7 @@ data class CommunityUiState(
                 community.name.contains(query, ignoreCase = true)
             }
         }
+
+    val canAccessMoreCommunities: Boolean
+        get() = membershipCommunityIds.isNotEmpty()
 }

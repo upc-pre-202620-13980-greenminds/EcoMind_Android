@@ -108,12 +108,17 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 state = state,
                 onLocalityInputChange = viewModel::updateLocalityInput,
                 onSearchQueryChange = viewModel::updateSearchQuery,
-                onSearch = viewModel::saveLocalityAndSearch,
+                onSaveLocality = viewModel::saveLocalityAndSearch,
+                onSearch = viewModel::searchCurrentLocality,
                 onEnter = viewModel::showCommunityDetails,
                 onJoin = viewModel::joinPendingCommunity,
                 onCancelDetails = viewModel::dismissCommunityDetails,
                 onRetry = viewModel::retry,
-                onMoreTab = viewModel::showMoreCommunities
+                onMoreTab = viewModel::showMoreCommunities,
+                onLocationRequested = viewModel::markLocationRequested,
+                onLocationPermissionDenied = viewModel::onLocationPermissionDenied,
+                onDetectLocality = viewModel::detectCurrentLocality,
+                onCancelLocation = viewModel::cancelLocalityDetection
             )
         }
 
@@ -153,7 +158,8 @@ private fun CommunityContent(
             CommunitySelector(
                 selectedTab = state.activeDirectoryTab,
                 onLocalTab = onLocalTab,
-                onMoreTab = onMoreTab
+                onMoreTab = onMoreTab,
+                moreEnabled = state.canAccessMoreCommunities,
             )
             if (community.type == CommunityType.TOPIC) {
                 IconButton(onClick = onBackToTopicCommunities) {
@@ -211,64 +217,70 @@ private fun CommunityContent(
 @Composable
 internal fun CommunitySelector(
     selectedTab: CommunityDirectoryTab,
+    moreEnabled: Boolean,
     onLocalTab: () -> Unit,
     onMoreTab: () -> Unit
 ) {
-    val containerShape = RoundedCornerShape(percent = 50)
-    val tabShape = RoundedCornerShape(percent = 50)
+    val shape = RoundedCornerShape(percent = 50)
     val localSelected = selectedTab == CommunityDirectoryTab.LOCAL
     val moreSelected = selectedTab == CommunityDirectoryTab.MORE
 
     Row(
-        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
-            .shadow(elevation = 3.dp, shape = containerShape)
-            .background(Color(0xFFE7E7E7), containerShape)
-            .padding(4.dp)
+            .shadow(5.dp, shape)
+            .background(White, shape)
+            .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 38.dp)
-                .clip(tabShape)
+                .heightIn(min = 40.dp)
+                .clip(shape)
                 .background(
                     if (localSelected) MaterialTheme.colorScheme.primary
-                    else Color.Transparent,
-                    tabShape
+                    else Color(0xFFB3B3B3)
                 )
                 .clickable(role = Role.Tab, onClick = onLocalTab)
-                .semantics { selected = localSelected }
+                .semantics { selected = localSelected },
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.community_local),
-                style = poppinsTextStyle(14, FontWeight.SemiBold),
-                color = if (localSelected) White else SageGreen,
+                style = interTextStyle(14, FontWeight.Bold),
+                color = White,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
         }
 
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 38.dp)
-                .clip(tabShape)
+                .heightIn(min = 40.dp)
+                .clip(shape)
                 .background(
-                    if (moreSelected) MaterialTheme.colorScheme.primary
-                    else Color.Transparent,
-                    tabShape
+                    if (moreSelected && moreEnabled) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        Color(0xFFB3B3B3)
+                    }
                 )
-                .clickable(role = Role.Tab, onClick = onMoreTab)
-                .semantics { selected = moreSelected }
+                .clickable(
+                    enabled = moreEnabled,
+                    role = Role.Tab,
+                    onClick = onMoreTab
+                )
+                .semantics { selected = moreSelected },
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.community_more),
-                style = poppinsTextStyle(14, FontWeight.SemiBold),
-                color = if (moreSelected) White else SageGreen,
+                style = interTextStyle(14, FontWeight.Bold),
+                color = White,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )

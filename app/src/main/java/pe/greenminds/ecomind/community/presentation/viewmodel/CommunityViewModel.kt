@@ -23,7 +23,12 @@ import pe.greenminds.ecomind.community.presentation.states.CommunityDirectoryTab
 import pe.greenminds.ecomind.community.presentation.states.CommunitySection
 import pe.greenminds.ecomind.community.presentation.states.CommunityUiState
 import pe.greenminds.ecomind.community.presentation.states.TopicCommunityListMode
-
+import java.io.IOException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import pe.greenminds.ecomind.community.application.usecase.GetCurrentLocalityUseCase
+import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
+import pe.greenminds.ecomind.community.domain.valueobjects.LocalityFailure
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val getEvents: GetCommunityEventsUseCase,
@@ -32,11 +37,15 @@ class CommunityViewModel @Inject constructor(
     private val getTopicCommunities: GetTopicCommunitiesUseCase,
     private val joinCommunity: JoinCommunityUseCase,
     private val getPreferredLocality: GetPreferredLocalityUseCase,
-    private val savePreferredLocality: SavePreferredLocalityUseCase
+    private val savePreferredLocality: SavePreferredLocalityUseCase,
+    private val getCurrentLocality: GetCurrentLocalityUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityUiState())
     val state: StateFlow<CommunityUiState> = _state.asStateFlow()
+    private var localityJob: Job? = null
+    private var localSearchJob: Job? = null
+    private var localityRequestId: Long = 0L
 
     init {
         loadEntry()
@@ -55,14 +64,24 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun showMoreCommunities() {
+        if (!_state.value.canAccessMoreCommunities) return
+
+        cancelLocalityDetection()
+        localSearchJob?.cancel()
+        localSearchJob = null
+
         _state.update {
             it.copy(
                 activeDirectoryTab = CommunityDirectoryTab.MORE,
                 isShowingMoreCommunitiesList = true,
                 topicListMode = TopicCommunityListMode.MEMBERS,
-                searchQuery = ""
+                searchQuery = "",
+                isLoadingLocalCommunities = false,
+                errorMessage = null,
+                errorMessageRes = null
             )
         }
+
         loadTopicCommunities()
     }
 
@@ -71,12 +90,20 @@ class CommunityViewModel @Inject constructor(
             it.copy(
                 activeDirectoryTab = CommunityDirectoryTab.LOCAL,
                 isShowingMoreCommunitiesList = false,
-                selectedCommunity = it.selectedLocalCommunity
+                selectedCommunity = it.selectedLocalCommunity,
+                searchQuery = "",
+                errorMessage = null,
+                errorMessageRes = null
             )
+        }
+
+        if (_state.value.selectedLocalCommunity == null) {
+            searchCurrentLocality()
         }
     }
 
     fun showTopicDiscovery() {
+        if (!_state.value.canAccessMoreCommunities) return
         _state.update {
             it.copy(
                 topicListMode = TopicCommunityListMode.DISCOVER,
@@ -94,6 +121,11 @@ class CommunityViewModel @Inject constructor(
         }
     }
     fun showCommunityDetails(community: Community) {
+        if (community.type == CommunityType.TOPIC &&
+            !_state.value.canAccessMoreCommunities
+        ) {
+            return
+        }
         _state.update {
             it.copy(pendingCommunityDetails = community, errorMessage = null, errorMessageRes = null)
         }
@@ -108,6 +140,7 @@ class CommunityViewModel @Inject constructor(
     }
 
     fun enterTopicCommunity(community: Community) {
+        if (community.id !in _state.value.membershipCommunityIds) return
         _state.update {
             it.copy(
                 selectedCommunity = community,
@@ -122,43 +155,68 @@ class CommunityViewModel @Inject constructor(
 
     fun saveLocalityAndSearch() {
         val locality = _state.value.localityInput.trim()
+
         if (locality.isBlank()) {
             _state.update {
-                it.copy(errorMessage = null, errorMessageRes = R.string.community_enter_location_error)
+                it.copy(localityErrorRes = R.string.community_enter_location_error)
             }
             return
         }
 
-        viewModelScope.launch {
-            savePreferredLocality(locality)
+        cancelLocalityDetection()
+        localSearchJob?.cancel()
+
+        localSearchJob = viewModelScope.launch {
             _state.update {
-                it.copy(preferredLocality = locality, errorMessage = null, errorMessageRes = null)
+                it.copy(
+                    hasRequestedLocation = true,
+                    isResolvingLocality = false,
+                    preferredLocality = locality,
+                    localityInput = locality,
+                    localCommunities = emptyList(),
+                    searchQuery = "",
+                    localityErrorRes = null,
+                    errorMessage = null,
+                    errorMessageRes = null
+                )
             }
+
+            try {
+                savePreferredLocality(locality)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: IOException) {
+                _state.update {
+                    it.copy(
+                        localityErrorRes = R.string.community_locality_save_error
+                    )
+                }
+            }
+
             loadLocalCommunities(locality)
         }
     }
 
     fun retry() {
         when {
-            _state.value.isShowingMoreCommunitiesList -> {
+            _state.value.isShowingMoreCommunitiesList ->
                 loadTopicCommunities()
-            }
 
-            _state.value.preferredLocality != null -> {
-                val locality = _state.value.preferredLocality.orEmpty()
+            _state.value.preferredLocality != null ->
+                searchCurrentLocality()
 
-                viewModelScope.launch {
-                    loadLocalCommunities(locality)
-                }
-            }
-
-            else -> {
+            else ->
                 loadEntry()
-            }
         }
     }
     fun joinPendingCommunity() {
+
         val community = _state.value.pendingCommunityDetails ?: return
+        if (community.type == CommunityType.TOPIC &&
+            !_state.value.canAccessMoreCommunities
+        ) {
+            return
+        }
         if (_state.value.joiningCommunityId != null) return
 
         viewModelScope.launch {
@@ -168,6 +226,12 @@ class CommunityViewModel @Inject constructor(
 
             joinCommunity(community.id)
                 .onSuccess { membership ->
+                    _state.update {
+                        it.copy(
+                            membershipCommunityIds =
+                                it.membershipCommunityIds + membership.communityId
+                        )
+                    }
                     if (community.type == CommunityType.LOCAL) {
                         _state.update {
                             it.copy(
@@ -186,8 +250,8 @@ class CommunityViewModel @Inject constructor(
                     } else {
                         _state.update { currentState ->
                             currentState.copy(
-                                topicMembershipIds =
-                                    currentState.topicMembershipIds + membership.communityId,
+                                membershipCommunityIds =
+                                    currentState.membershipCommunityIds + membership.communityId,
                                 activeDirectoryTab = CommunityDirectoryTab.MORE,
                                 isShowingMoreCommunitiesList = true,
                                 topicListMode = TopicCommunityListMode.MEMBERS,
@@ -229,7 +293,7 @@ class CommunityViewModel @Inject constructor(
                     _state.update { currentState ->
                         if (community.id in memberIds) {
                             currentState.copy(
-                                topicMembershipIds = memberIds,
+                                membershipCommunityIds = memberIds,
                                 activeDirectoryTab = CommunityDirectoryTab.MORE,
                                 isShowingMoreCommunitiesList = true,
                                 topicListMode = TopicCommunityListMode.MEMBERS,
@@ -240,7 +304,7 @@ class CommunityViewModel @Inject constructor(
                             )
                         } else {
                             currentState.copy(
-                                topicMembershipIds = memberIds,
+                                membershipCommunityIds = memberIds,
                                 joiningCommunityId = null,
                                 errorMessage = error.message,
                                 errorMessageRes = if (error.message == null) {
@@ -287,7 +351,7 @@ class CommunityViewModel @Inject constructor(
                 .onSuccess { memberships ->
                     _state.update {
                         it.copy(
-                            topicMembershipIds = memberships
+                            membershipCommunityIds = memberships
                                 .map { membership -> membership.communityId }
                                 .toSet()
                         )
@@ -317,55 +381,55 @@ class CommunityViewModel @Inject constructor(
                                 }
                                 selectCommunity(community)
                             } else {
-                                loadSelection(locals)
+                                loadSelection()
                             }
                         }
                 }
         }
     }
 
-    private suspend fun loadSelection(allLocals: List<Community>) {
-        val locality = getPreferredLocality()
-
-        if (locality.isNullOrBlank()) {
-            _state.update {
-                it.copy(
-                    isLoadingCommunity = false,
-                    localCommunities = emptyList(),
-                    preferredLocality = null,
-                    errorMessage = null,
-                    errorMessageRes = null
-                )
-            }
-            return
+    private suspend fun loadSelection() {
+        val locality = try {
+            getPreferredLocality()?.trim()?.takeIf(String::isNotEmpty)
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: IOException) {
+            null
         }
 
-        _state.update { it.copy(preferredLocality = locality) }
+        _state.update {
+            it.copy(
+                isLoadingCommunity = false,
+                selectedCommunity = null,
+                selectedLocalCommunity = null,
+                preferredLocality = locality,
+                localityInput = locality.orEmpty(),
+                localCommunities = emptyList(),
+                errorMessage = null,
+                errorMessageRes = null
+            )
+        }
 
-        if (allLocals.all { it.locality.equals(locality, ignoreCase = true) }) {
-            _state.update {
-                it.copy(
-                    isLoadingCommunity = false,
-                    localCommunities = allLocals,
-                    errorMessage = null,
-                    errorMessageRes = null
-                )
-            }
-        } else {
-            loadLocalCommunities(locality)
+        if (locality != null) {
+            searchLocalCommunities(locality)
         }
     }
 
     private suspend fun loadLocalCommunities(locality: String) {
         _state.update {
-            it.copy(isLoadingCommunity = true, errorMessage = null, errorMessageRes = null)
+            it.copy(
+                isLoadingLocalCommunities = true,
+                localCommunities = emptyList(),
+                errorMessage = null,
+                errorMessageRes = null
+            )
         }
 
         getLocalCommunities(locality)
             .onSuccess { communities ->
                 _state.update {
                     it.copy(
-                        isLoadingCommunity = false,
+                        isLoadingLocalCommunities = false,
                         preferredLocality = locality,
                         localCommunities = communities,
                         errorMessage = null,
@@ -376,10 +440,10 @@ class CommunityViewModel @Inject constructor(
             .onFailure { error ->
                 _state.update {
                     it.copy(
-                        isLoadingCommunity = false,
+                        isLoadingLocalCommunities = false,
                         errorMessage = error.message,
                         errorMessageRes = if (error.message == null) {
-                            R.string.community_location_error
+                            R.string.community_load_list_error
                         } else {
                             null
                         }
@@ -396,12 +460,26 @@ class CommunityViewModel @Inject constructor(
                 .onSuccess { memberships ->
                     _state.update {
                         it.copy(
-                            topicMembershipIds = memberships
+                            membershipCommunityIds = memberships
                                 .map { membership -> membership.communityId }
                                 .toSet()
                         )
                     }
-
+                    if (memberships.isEmpty()) {
+                        _state.update {
+                            it.copy(
+                                activeDirectoryTab = CommunityDirectoryTab.LOCAL,
+                                isShowingMoreCommunitiesList = false,
+                                selectedCommunity = null,
+                                selectedLocalCommunity = null,
+                                topicCommunities = emptyList(),
+                                isLoadingTopicCommunities = false,
+                                searchQuery = ""
+                            )
+                        }
+                        loadSelection()
+                        return@onSuccess
+                    }
                     getTopicCommunities()
                         .onSuccess { communities ->
                             _state.update {
@@ -483,6 +561,113 @@ class CommunityViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    fun markLocationRequested() {
+        _state.update {
+            it.copy(hasRequestedLocation = true)
+        }
+    }
+
+    fun onLocationPermissionDenied() {
+        _state.update {
+            it.copy(
+                hasRequestedLocation = true,
+                isResolvingLocality = false,
+                localityErrorRes = R.string.community_location_permission_denied
+            )
+        }
+    }
+
+    fun detectCurrentLocality() {
+        cancelLocalityDetection()
+        localSearchJob?.cancel()
+
+        val requestId = localityRequestId
+
+        localityJob = viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    hasRequestedLocation = true,
+                    isResolvingLocality = true,
+                    isLoadingLocalCommunities = false,
+                    localityErrorRes = null,
+                    errorMessage = null,
+                    errorMessageRes = null
+                )
+            }
+
+            try {
+                getCurrentLocality()
+                    .onSuccess { locality ->
+                        if (requestId != localityRequestId) return@onSuccess
+
+                        _state.update {
+                            it.copy(
+                                preferredLocality = locality,
+                                localityInput = locality,
+                                searchQuery = "",
+                                localCommunities = emptyList(),
+                                localityErrorRes = null
+                            )
+                        }
+
+                        searchLocalCommunities(locality)
+                    }
+                    .onFailure { error ->
+                        if (requestId != localityRequestId) return@onFailure
+
+                        val message = when ((error as? LocalityException)?.reason) {
+                            LocalityFailure.PERMISSION_DENIED ->
+                                R.string.community_location_permission_denied
+
+                            LocalityFailure.LOCATION_DISABLED ->
+                                R.string.community_location_disabled
+
+                            LocalityFailure.GEOCODING_UNAVAILABLE ->
+                                R.string.community_geocoding_unavailable
+
+                            else ->
+                                R.string.community_location_unavailable
+                        }
+
+                        _state.update {
+                            it.copy(localityErrorRes = message)
+                        }
+                    }
+            } finally {
+                if (requestId == localityRequestId) {
+                    _state.update {
+                        it.copy(isResolvingLocality = false)
+                    }
+                }
+            }
+        }
+    }
+
+    fun cancelLocalityDetection() {
+        localityRequestId++
+        localityJob?.cancel()
+        localityJob = null
+
+        _state.update {
+            it.copy(isResolvingLocality = false)
+        }
+    }
+
+    fun searchCurrentLocality() {
+        val locality = _state.value.preferredLocality
+            ?.takeIf(String::isNotBlank)
+            ?: return
+
+        searchLocalCommunities(locality)
+    }
+
+    private fun searchLocalCommunities(locality: String) {
+        localSearchJob?.cancel()
+        localSearchJob = viewModelScope.launch {
+            loadLocalCommunities(locality)
         }
     }
 }

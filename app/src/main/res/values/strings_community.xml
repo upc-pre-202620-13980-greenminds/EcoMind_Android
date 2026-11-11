@@ -63,4 +63,22 @@
     <string name="community_join_one">Join one!</string>
     <string name="community_no_topic_results">No communities are available.</string>
     <string name="community_back_to_topics">Back to my communities</string>
+
+    <string name="community_locality_value">Locality: %1$s</string>
+    <string name="community_locality_not_selected">Not selected</string>
+    <string name="community_change_locality">Change</string>
+    <string name="community_apply_locality">Apply</string>
+    <string name="community_use_my_location">Use my location</string>
+    <string name="community_detecting_locality">Detecting your locality…</string>
+    <string name="community_choose_locality">Use your location or select Change to enter a locality.</string>
+    <string name="community_location_explanation">Approximate location helps find your locality. You can also enter it manually.</string>
+    <string name="community_location_permission_denied">Location permission was not granted. Enter a locality manually or enable the permission in settings.</string>
+    <string name="community_location_disabled">Location services are off. Enable them or enter a locality manually.</string>
+    <string name="community_location_unavailable">Your location could not be obtained. Try again or enter a locality manually.</string>
+    <string name="community_geocoding_unavailable">Your locality could not be identified. Try again or enter it manually.</string>
+    <string name="community_location_settings">Location settings</string>
+    <string name="community_permission_settings">App permission settings</string>
+    <string name="community_locality_save_error">This locality will be used now, but could not be saved for your next visit.</string>
+    <string name="community_no_name_results">No communities match this name in the selected locality.</string>
+
 </resources>
