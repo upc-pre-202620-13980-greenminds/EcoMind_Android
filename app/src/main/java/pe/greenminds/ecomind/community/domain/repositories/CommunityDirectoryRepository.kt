@@ -8,4 +8,5 @@ interface CommunityDirectoryRepository {
     suspend fun getLocalCommunities(locality: String?): Result<List<Community>>
     suspend fun getTopicCommunities(): Result<List<Community>>
     suspend fun joinCommunity(communityId: Long): Result<CommunityMembership>
+    suspend fun leaveCommunity(communityId: Long): Result<Unit>
 }

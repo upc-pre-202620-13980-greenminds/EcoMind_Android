@@ -68,6 +68,13 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 import pe.greenminds.ecomind.community.presentation.states.TopicCommunityListMode
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+
 @Composable
 fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -129,7 +136,12 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 onSectionSelected = viewModel::selectSection,
                 onLocalTab = viewModel::showLocalCommunity,
                 onMoreTab = viewModel::showMoreCommunities,
-                onBackToTopicCommunities = viewModel::showMoreCommunities
+                onBackToTopicCommunities = viewModel::showMoreCommunities,
+                onCommunityOptions = viewModel::toggleCommunityOptions,
+                onDismissCommunityOptions = viewModel::dismissCommunityOptions,
+                onLeaveCommunity = viewModel::requestLeaveCommunity,
+                onConfirmLeave = viewModel::confirmLeaveCommunity,
+                onCancelLeave = viewModel::dismissLeaveConfirmation
             )
         }
     }
@@ -143,7 +155,12 @@ private fun CommunityContent(
     onLocalTab: () -> Unit,
     onMoreTab: () -> Unit,
     onBackToTopicCommunities: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCommunityOptions: () -> Unit,
+    onDismissCommunityOptions: () -> Unit,
+    onLeaveCommunity: () -> Unit,
+    onConfirmLeave: () -> Unit,
+    onCancelLeave: () -> Unit
 )  {
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
@@ -169,7 +186,38 @@ private fun CommunityContent(
                     )
                 }
             }
-            CommunityHeader(community)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    CommunityHeader(community)
+                }
+
+                Box {
+                    IconButton(
+                        onClick = onCommunityOptions,
+                        enabled = !state.isLeavingCommunity
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.community_options)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = state.showCommunityOptions,
+                        onDismissRequest = onDismissCommunityOptions
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.community_leave))
+                            },
+                            onClick = onLeaveCommunity
+                        )
+                    }
+                }
+            }
             GoalCard(onClick = openComingSoon)
         }
 
@@ -211,6 +259,49 @@ private fun CommunityContent(
 
     if (showComingSoon) {
         ComingSoonDialog(onDismiss = { showComingSoon = false })
+    }
+    if (showComingSoon) {
+        ComingSoonDialog(onDismiss = { showComingSoon = false })
+    }
+
+    if (state.showLeaveConfirmation) {
+        AlertDialog(
+            onDismissRequest = onCancelLeave,
+            title = {
+                Text(stringResource(R.string.community_leave_title))
+            },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.community_leave_confirmation,
+                        community.name
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirmLeave,
+                    enabled = !state.isLeavingCommunity
+                ) {
+                    if (state.isLeavingCommunity) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(stringResource(R.string.community_leave))
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onCancelLeave,
+                    enabled = !state.isLeavingCommunity
+                ) {
+                    Text(stringResource(R.string.community_cancel))
+                }
+            }
+        )
     }
 }
 
@@ -513,7 +604,12 @@ private fun CommunityContentPreview() {
             onSectionSelected = {},
             onLocalTab = {},
             onMoreTab = {},
-            onBackToTopicCommunities = {}
+            onBackToTopicCommunities = {},
+            onCommunityOptions = {},
+            onDismissCommunityOptions = {},
+            onLeaveCommunity = {},
+            onConfirmLeave = {},
+            onCancelLeave = {}
         )
     }
 }

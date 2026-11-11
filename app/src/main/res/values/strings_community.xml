@@ -81,4 +81,9 @@
     <string name="community_locality_save_error">This locality will be used now, but could not be saved for your next visit.</string>
     <string name="community_no_name_results">No communities match this name in the selected locality.</string>
 
+    <string name="community_options">Community options</string>
+    <string name="community_leave">Leave community</string>
+    <string name="community_leave_title">Leave community?</string>
+    <string name="community_leave_confirmation">Are you sure you want to leave %1$s?</string>
+    <string name="community_leave_error">Could not leave the community.</string>
 </resources>

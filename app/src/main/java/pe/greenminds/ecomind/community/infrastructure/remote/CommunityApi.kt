@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-
+import retrofit2.http.DELETE
 interface CommunityApi {
 
     @GET("Community/Memberships")
@@ -21,4 +21,9 @@ interface CommunityApi {
     suspend fun joinCommunity(
         @Path("communityId") communityId: Long
     ): Response<CommunityMembershipDto>
+
+    @DELETE("Community/Communities/{communityId}/Memberships")
+    suspend fun leaveCommunity(
+        @Path("communityId") communityId: Long
+    ): Response<Unit>
 }

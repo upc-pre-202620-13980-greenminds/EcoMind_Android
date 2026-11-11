@@ -27,6 +27,7 @@ import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import pe.greenminds.ecomind.community.application.usecase.GetCurrentLocalityUseCase
+import pe.greenminds.ecomind.community.application.usecase.LeaveCommunityUseCase
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityFailure
 @HiltViewModel
@@ -38,7 +39,8 @@ class CommunityViewModel @Inject constructor(
     private val joinCommunity: JoinCommunityUseCase,
     private val getPreferredLocality: GetPreferredLocalityUseCase,
     private val savePreferredLocality: SavePreferredLocalityUseCase,
-    private val getCurrentLocality: GetCurrentLocalityUseCase
+    private val getCurrentLocality: GetCurrentLocalityUseCase,
+    private val leaveCommunity: LeaveCommunityUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityUiState())
@@ -652,7 +654,10 @@ class CommunityViewModel @Inject constructor(
         localityJob = null
 
         _state.update {
-            it.copy(isResolvingLocality = false)
+            it.copy(
+                isResolvingLocality = false,
+                hasRequestedLocation = false
+            )
         }
     }
 
@@ -668,6 +673,95 @@ class CommunityViewModel @Inject constructor(
         localSearchJob?.cancel()
         localSearchJob = viewModelScope.launch {
             loadLocalCommunities(locality)
+        }
+    }
+
+    fun toggleCommunityOptions() {
+        _state.update {
+            it.copy(showCommunityOptions = !it.showCommunityOptions)
+        }
+    }
+
+    fun dismissCommunityOptions() {
+        _state.update {
+            it.copy(showCommunityOptions = false)
+        }
+    }
+
+    fun requestLeaveCommunity() {
+        _state.update {
+            it.copy(
+                showCommunityOptions = false,
+                showLeaveConfirmation = true,
+                errorMessage = null,
+                errorMessageRes = null
+            )
+        }
+    }
+
+    fun dismissLeaveConfirmation() {
+        if (_state.value.isLeavingCommunity) return
+
+        _state.update {
+            it.copy(showLeaveConfirmation = false)
+        }
+    }
+
+    fun confirmLeaveCommunity() {
+        val community = _state.value.selectedCommunity ?: return
+        if (_state.value.isLeavingCommunity) return
+
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLeavingCommunity = true,
+                    errorMessage = null,
+                    errorMessageRes = null
+                )
+            }
+
+            leaveCommunity(community.id)
+                .onSuccess {
+                    _state.update { current ->
+                        current.copy(
+                            membershipCommunityIds =
+                                current.membershipCommunityIds - community.id,
+                            selectedCommunity = null,
+                            selectedLocalCommunity = null,
+                            showLeaveConfirmation = false,
+                            isLeavingCommunity = false,
+                            isShowingMoreCommunitiesList =
+                                community.type == CommunityType.TOPIC,
+                            activeDirectoryTab =
+                                if (community.type == CommunityType.TOPIC) {
+                                    CommunityDirectoryTab.MORE
+                                } else {
+                                    CommunityDirectoryTab.LOCAL
+                                },
+                            errorMessage = null,
+                            errorMessageRes = null
+                        )
+                    }
+
+                    if (community.type == CommunityType.TOPIC) {
+                        loadTopicCommunities()
+                    } else {
+                        loadSelection()
+                    }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLeavingCommunity = false,
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_leave_error
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                }
         }
     }
 }

@@ -472,7 +472,7 @@ private fun LocalCommunityRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
         ) {
             Text(
-                text = stringResource(R.string.community_enter),
+                text = stringResource(R.string.community_join),
                 style = interTextStyle(13),
                 color = White
             )

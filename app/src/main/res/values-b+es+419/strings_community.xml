@@ -80,4 +80,10 @@
     <string name="community_permission_settings">Permisos de la aplicación</string>
     <string name="community_locality_save_error">Se usará esta localidad ahora, pero no se pudo guardar para tu próxima visita.</string>
     <string name="community_no_name_results">Ninguna comunidad coincide con este nombre en la localidad seleccionada.</string>
+
+    <string name="community_options">Opciones de comunidad</string>
+    <string name="community_leave">Abandonar comunidad</string>
+    <string name="community_leave_title">¿Abandonar comunidad?</string>
+    <string name="community_leave_confirmation">¿Seguro que deseas abandonar %1$s?</string>
+    <string name="community_leave_error">No se pudo abandonar la comunidad.</string>
 </resources>

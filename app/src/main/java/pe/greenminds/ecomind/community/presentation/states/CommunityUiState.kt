@@ -32,6 +32,10 @@ data class CommunityUiState(
     val isResolvingLocality: Boolean = false,
     val hasRequestedLocation: Boolean = false,
     val localityErrorRes: Int? = null,
+
+    val showCommunityOptions: Boolean = false,
+    val showLeaveConfirmation: Boolean = false,
+    val isLeavingCommunity: Boolean = false
 ) {
     val filteredLocalCommunities: List<Community>
         get() {

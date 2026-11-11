@@ -55,6 +55,29 @@ class RemoteCommunityDirectoryRepository @Inject constructor(
             transform = { it.toDomain() }
         )
 
+    override suspend fun leaveCommunity(
+        communityId: Long
+    ): Result<Unit> = try {
+        val response = api.leaveCommunity(communityId)
+
+        if (response.isSuccessful) {
+            Result.success(Unit)
+        } else {
+            val error = try {
+                response.errorBody()
+                    ?.use { Gson().fromJson(it.string(), ErrorDto::class.java) }
+            } catch (_: Exception) {
+                null
+            }
+
+            Result.failure(error?.toException() ?: HttpException(response))
+        }
+    } catch (exception: CancellationException) {
+        throw exception
+    } catch (exception: Exception) {
+        Result.failure(exception)
+    }
+
     private suspend fun <Dto : Any, Model> execute(
         request: suspend () -> Response<Dto>,
         transform: (Dto) -> Model
