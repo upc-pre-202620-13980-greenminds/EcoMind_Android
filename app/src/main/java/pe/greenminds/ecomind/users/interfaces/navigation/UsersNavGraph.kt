@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
+import pe.greenminds.ecomind.users.interfaces.commitment.CommitmentScreen
 import pe.greenminds.ecomind.users.interfaces.editprofile.EditProfileScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileViewModel
@@ -17,7 +18,7 @@ import pe.greenminds.ecomind.users.interfaces.shareprofile.ShareProfileScreen
 @Serializable
 data object ProfileRoute
 
-// Set by the edit profile screen so that Profile loads the new name when it is shown again
+// Set by the edit profile and commitment screens so that Profile loads again when it is shown
 private const val PROFILE_UPDATED_KEY = "profile_updated"
 
 // Hook routes: each one is a screen of the design that is not built yet.
@@ -90,10 +91,7 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     composable<EditProfileRoute> {
         EditProfileScreen(
             onBack = { navController.popBackStack() },
-            onSaved = {
-                navController.previousBackStackEntry?.savedStateHandle?.set(PROFILE_UPDATED_KEY, true)
-                navController.popBackStack()
-            }
+            onSaved = { navController.returnToUpdatedProfile() }
         )
     }
 
@@ -102,8 +100,22 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     }
 
     composable<FavoritesRoute> { PlaceholderScreen() }
-    composable<AddCommitmentRoute> { PlaceholderScreen() }
-    composable<EditCommitmentRoute> { PlaceholderScreen() }
+    composable<AddCommitmentRoute> {
+        CommitmentScreen(
+            isEditing = false,
+            onBack = { navController.popBackStack() },
+            onSaved = { navController.returnToUpdatedProfile() }
+        )
+    }
+
+    composable<EditCommitmentRoute> {
+        CommitmentScreen(
+            isEditing = true,
+            onBack = { navController.popBackStack() },
+            onSaved = { navController.returnToUpdatedProfile() }
+        )
+    }
+
     composable<MyMedalsRoute> { PlaceholderScreen() }
     composable<InviteFriendsRoute> { PlaceholderScreen() }
     composable<FindFriendsRoute> { PlaceholderScreen() }
@@ -113,4 +125,10 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     composable<ManageFamilyRoute> { PlaceholderScreen() }
     composable<FamilyWeeklyReportRoute> { PlaceholderScreen() }
     composable<FamilyActivityProgressRoute> { PlaceholderScreen() }
+}
+
+// Goes back to Profile and tells it to load the profile again
+private fun NavController.returnToUpdatedProfile() {
+    previousBackStackEntry?.savedStateHandle?.set(PROFILE_UPDATED_KEY, true)
+    popBackStack()
 }

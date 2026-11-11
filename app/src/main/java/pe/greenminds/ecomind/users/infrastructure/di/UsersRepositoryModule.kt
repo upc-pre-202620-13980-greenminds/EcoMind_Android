@@ -4,9 +4,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import pe.greenminds.ecomind.users.domain.repositories.CommitmentRepository
 import pe.greenminds.ecomind.users.domain.repositories.FamilyRepository
 import pe.greenminds.ecomind.users.domain.repositories.FriendRepository
 import pe.greenminds.ecomind.users.domain.repositories.ProfileRepository
+import pe.greenminds.ecomind.users.infrastructure.local.LocalCommitmentRepository
 import pe.greenminds.ecomind.users.infrastructure.local.LocalFamilyRepository
 import pe.greenminds.ecomind.users.infrastructure.local.LocalFriendRepository
 import pe.greenminds.ecomind.users.infrastructure.implementation.RemoteProfileRepository
@@ -25,4 +27,8 @@ interface UsersRepositoryModule {
 
     @Binds
     fun bindFamilyRepository(impl: LocalFamilyRepository): FamilyRepository
+
+    // There is no route for the personal commitment, so it stays on the device
+    @Binds
+    fun bindCommitmentRepository(impl: LocalCommitmentRepository): CommitmentRepository
 }

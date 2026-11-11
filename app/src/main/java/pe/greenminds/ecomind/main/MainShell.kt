@@ -1,5 +1,7 @@
 package pe.greenminds.ecomind.main
 
+import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -158,7 +160,8 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
     // Sub screens of Profile keep the bars with the Profile item active
-    if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>()) {
+    if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>() ||
+        destination.hasRoute<AddCommitmentRoute>() || destination.hasRoute<EditCommitmentRoute>()) {
         return NavigationItem.PROFILE
     }
 

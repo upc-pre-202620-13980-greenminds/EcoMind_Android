@@ -5,7 +5,6 @@ import pe.greenminds.ecomind.shared.infrastructure.remote.requireBody
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.users.domain.repositories.ProfileRepository
-import pe.greenminds.ecomind.users.infrastructure.local.ProvisionalProfileData
 import pe.greenminds.ecomind.users.infrastructure.remote.UpdateUserProfileRequest
 import pe.greenminds.ecomind.users.infrastructure.remote.UsersApi
 import pe.greenminds.ecomind.users.infrastructure.remote.toDomain
@@ -21,9 +20,7 @@ class RemoteProfileRepository @Inject constructor(
     }
 
     override suspend fun getProfile(userId: Long): Result<UserProfile> = apiResult {
-        val dto = api.getProfile(userId).requireBody()
-        // The commitment is not returned by the web services yet
-        dto.toDomain(ProvisionalProfileData.commitmentOf(userId))
+        api.getProfile(userId).requireBody().toDomain()
     }
 
     // The web services create the profile themselves when the account is verified
@@ -52,6 +49,6 @@ class RemoteProfileRepository @Inject constructor(
         )
         api.updateProfile(userId, request)
             .requireBody()
-            .toDomain(ProvisionalProfileData.commitmentOf(userId))
+            .toDomain()
     }
 }

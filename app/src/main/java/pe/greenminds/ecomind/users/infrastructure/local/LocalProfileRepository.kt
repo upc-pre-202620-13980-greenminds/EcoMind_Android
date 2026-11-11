@@ -35,7 +35,7 @@ class LocalProfileRepository @Inject constructor(
         }
 
         // Same mapper the remote implementation will use
-        return Result.success(dto.toDomain(ProvisionalProfileData.commitmentOf(userId)))
+        return Result.success(dto.toDomain())
     }
 
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) {
@@ -49,7 +49,7 @@ class LocalProfileRepository @Inject constructor(
         }
         val updated = dataSource.profiles[index].copy(name = name)
         dataSource.profiles[index] = updated
-        return Result.success(updated.toDomain(ProvisionalProfileData.commitmentOf(userId)))
+        return Result.success(updated.toDomain())
     }
 
     override suspend fun spendGems(userId: Long, amount: Int): Result<Int> {

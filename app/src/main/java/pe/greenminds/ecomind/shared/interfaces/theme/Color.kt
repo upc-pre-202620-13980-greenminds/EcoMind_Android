@@ -52,6 +52,12 @@ val TextPrimary = Color(0xFF262626)
 val TextSecondary = Color(0xFF73806A)
 // Error messages of the profile screens
 val ErrorRed = Color(0xFFB43E2C)
+// Commitment screen: field, required field and save failure box
+val FieldBorderGreen = Color(0xFFD9E5CF)
+val PlaceholderGray = Color(0xFF858B80)
+val RequiredRed = Color(0xFFCE4230)
+val ErrorSurface = Color(0xFFFFF2ED)
+val ErrorText = Color(0xFFA03524)
 val CardBorder = Color(0xFFE8ECE4)
 val RowDivider = Color(0xFFEDF0E9)
 val SurfaceSoft = Color(0xFFFAFBF9)

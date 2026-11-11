@@ -13,12 +13,6 @@ object ProvisionalProfileData {
         val activitiesTotal: Int
     )
 
-    // Personal commitment of a user: no field in GET /user/{id}
-    private val commitments = mapOf(
-        LocalUsersDataSource.STUDENT_ID to
-            "Build small sustainable habits at home, one day at a time."
-    )
-
     // Relationship and progress of each member: GET /family_user only returns PARENT or CHILD
     private val memberDetails = mapOf(
         LocalUsersDataSource.PARENT_ID to MemberDetails(FamilyRelationship.FATHER, 4, 5),
@@ -35,8 +29,6 @@ object ProvisionalProfileData {
             achievementsEarned = 1
         )
     )
-
-    fun commitmentOf(userId: Long): String? = commitments[userId]
 
     fun memberDetailsOf(userId: Long): MemberDetails? = memberDetails[userId]
 
