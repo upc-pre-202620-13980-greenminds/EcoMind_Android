@@ -23,7 +23,17 @@ class RemoteFriendRepository @Inject constructor(
 
     override suspend fun sendRequest(receiverId: Long): Result<Friendship> {
         return apiResult {
-            api.sendFriendRequest(SendFriendRequestRequest(receiverId)).requireBody().toDomain()
+            api.sendFriendRequest(SendFriendRequestRequest(receiverId = receiverId))
+                .requireBody()
+                .toDomain()
+        }.toFriendRequestResult()
+    }
+
+    override suspend fun sendRequestWithCode(invitationCode: String): Result<Friendship> {
+        return apiResult {
+            api.sendFriendRequest(SendFriendRequestRequest(invitationCode = invitationCode))
+                .requireBody()
+                .toDomain()
         }.toFriendRequestResult()
     }
 
@@ -41,7 +51,11 @@ class RemoteFriendRepository @Inject constructor(
         val error = when ((exception as? ApiException)?.code) {
             "FRIENDSHIP_CONFLICT" -> FriendRequestError.ALREADY_EXISTS
             "FRIEND_REQUEST_REJECTED_RECENTLY" -> FriendRequestError.REJECTED_RECENTLY
+            "FRIEND_REQUEST_UNANSWERED_RECENTLY" -> FriendRequestError.UNANSWERED_RECENTLY
+            "FRIEND_REQUEST_EXPIRED" -> FriendRequestError.EXPIRED
             "FRIEND_REQUEST_ALREADY_ANSWERED" -> FriendRequestError.ALREADY_ANSWERED
+            "FRIEND_REQUEST_TO_SELF" -> FriendRequestError.SELF_REQUEST
+            "INVITATION_CODE_NOT_FOUND" -> FriendRequestError.INVITATION_CODE_NOT_FOUND
             else -> FriendRequestError.UNKNOWN
         }
         return Result.failure(FriendRequestException(error))

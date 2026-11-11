@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.users.interfaces.commitment.CommitmentScreen
@@ -14,6 +15,10 @@ import pe.greenminds.ecomind.users.interfaces.editprofile.EditProfileScreen
 import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsScreen
 import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsViewModel
 import pe.greenminds.ecomind.users.interfaces.friendrequests.FriendRequestsScreen
+import pe.greenminds.ecomind.users.interfaces.invitefriends.ChooseContactsScreen
+import pe.greenminds.ecomind.users.interfaces.invitefriends.InvitationCodeScreen
+import pe.greenminds.ecomind.users.interfaces.invitefriends.InvitationStatusScreen
+import pe.greenminds.ecomind.users.interfaces.invitefriends.InviteFriendsScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileScreen
 import pe.greenminds.ecomind.users.interfaces.profile.ProfileViewModel
 import pe.greenminds.ecomind.users.interfaces.shareprofile.ShareProfileScreen
@@ -50,6 +55,15 @@ data object MyMedalsRoute
 
 @Serializable
 data object InviteFriendsRoute
+
+@Serializable
+data object ChooseContactsRoute
+
+@Serializable
+data object InvitationCodeRoute
+
+@Serializable
+data class InvitationStatusRoute(val friendshipId: Long)
 
 @Serializable
 data object FindFriendsRoute
@@ -105,6 +119,50 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
         ShareProfileScreen(onBack = { navController.popBackStack() })
     }
 
+    composable<InviteFriendsRoute> {
+        InviteFriendsScreen(
+            onBack = { navController.popBackStack() },
+            onChooseContacts = {
+                navController.navigate(ChooseContactsRoute) { launchSingleTop = true }
+            },
+            onShowCode = {
+                navController.navigate(InvitationCodeRoute) { launchSingleTop = true }
+            },
+            onRequestSent = { friendshipId ->
+                navController.markProfileForReload()
+                navController.navigate(InvitationStatusRoute(friendshipId))
+            }
+        )
+    }
+
+    // After sending, back goes to "Invite friends" instead of the list that was just sent
+    composable<ChooseContactsRoute> {
+        ChooseContactsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenStatus = { friendshipId ->
+                navController.navigate(InvitationStatusRoute(friendshipId)) {
+                    popUpTo<InviteFriendsRoute>()
+                }
+            },
+            onOpenRequests = {
+                navController.navigate(FriendRequestsRoute) { popUpTo<InviteFriendsRoute>() }
+            },
+            onFriendsChanged = { navController.markProfileForReload() }
+        )
+    }
+
+    composable<InvitationCodeRoute> {
+        InvitationCodeScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<InvitationStatusRoute> { backStackEntry ->
+        val route = backStackEntry.toRoute<InvitationStatusRoute>()
+        InvitationStatusScreen(
+            friendshipId = route.friendshipId,
+            onBack = { navController.popBackStack() }
+        )
+    }
+
     composable<FavoritesRoute> { PlaceholderScreen() }
     composable<AddCommitmentRoute> {
         CommitmentScreen(
@@ -123,7 +181,6 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     }
 
     composable<MyMedalsRoute> { PlaceholderScreen() }
-    composable<InviteFriendsRoute> { PlaceholderScreen() }
     composable<FindFriendsRoute> { backStackEntry ->
         val viewModel: FindFriendsViewModel = hiltViewModel()
         val requestsAnswered by backStackEntry.savedStateHandle
@@ -151,6 +208,9 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
     composable<FriendRequestsRoute> {
         FriendRequestsScreen(
             onBack = { navController.popBackStack() },
+            onOpenInvitation = { friendshipId ->
+                navController.navigate(InvitationStatusRoute(friendshipId))
+            },
             onFriendsChanged = {
                 navController.markProfileForReload()
                 navController.previousBackStackEntry?.savedStateHandle?.set(FRIENDS_CHANGED_KEY, true)

@@ -12,6 +12,11 @@ fun messageFor(exception: Throwable): Int {
         FriendRequestError.REJECTED_RECENTLY -> R.string.friend_requests_retry_notice
         FriendRequestError.ALREADY_EXISTS -> R.string.friend_request_already_exists
         FriendRequestError.ALREADY_ANSWERED -> R.string.friend_request_already_answered
+        FriendRequestError.UNANSWERED_RECENTLY -> R.string.friend_request_unanswered_recently
+        FriendRequestError.EXPIRED -> R.string.friend_request_expired
+        FriendRequestError.SELF_REQUEST -> R.string.invite_code_own
+        FriendRequestError.INVITATION_CODE_NOT_FOUND -> R.string.invite_code_not_found
+        FriendRequestError.INVALID_INVITATION_CODE -> R.string.invite_code_invalid
         else -> R.string.friend_request_failed
     }
 }

@@ -39,9 +39,13 @@ class GetFriendRequestsUseCase @Inject constructor(
             }
         }
 
+        // An expired request can no longer be answered, so it leaves the "Received" list
+        val now = System.currentTimeMillis()
         val received = requests
             .filter { (friendship, _) ->
-                friendship.receiverId == userId && friendship.status == FriendshipStatus.PENDING
+                friendship.receiverId == userId &&
+                    friendship.status == FriendshipStatus.PENDING &&
+                    !friendship.isExpired(now)
             }
             .map { it.second }
         val sent = requests

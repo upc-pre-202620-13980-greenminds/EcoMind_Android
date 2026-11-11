@@ -9,5 +9,7 @@ data class UserProfile(
     val ecopoints: Int,
     val gemBalance: Int,
     // Stored apart from the profile: the web services have no personal commitment
-    val commitment: String? = null
+    val commitment: String? = null,
+    // Only known for the profile of the current user
+    val invitationCode: String? = null
 )
