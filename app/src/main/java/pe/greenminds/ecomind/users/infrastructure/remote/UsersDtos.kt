@@ -31,6 +31,16 @@ data class FriendDto(
     val status: String
 )
 
+// POST /api/v1/friend
+data class SendFriendRequestRequest(
+    val receiverId: Long
+)
+
+// PUT /api/v1/friend/{id}: true accepts the request, false rejects it
+data class RespondFriendRequestRequest(
+    val accepted: Boolean
+)
+
 // GET /api/v1/family
 data class FamilyDto(
     val id: Long,

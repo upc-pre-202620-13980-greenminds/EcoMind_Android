@@ -7,6 +7,9 @@ interface ProfileRepository {
 
     suspend fun getProfile(userId: Long): Result<UserProfile>
 
+    // Every registered profile; the search of friends filters it by name
+    suspend fun getProfiles(): Result<List<UserProfile>>
+
     // The web services create the profile themselves when an account is verified
     suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole)
 

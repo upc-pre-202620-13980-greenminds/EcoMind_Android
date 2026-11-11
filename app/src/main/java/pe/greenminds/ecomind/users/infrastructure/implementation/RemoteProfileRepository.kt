@@ -23,6 +23,10 @@ class RemoteProfileRepository @Inject constructor(
         api.getProfile(userId).requireBody().toDomain()
     }
 
+    override suspend fun getProfiles(): Result<List<UserProfile>> = apiResult {
+        api.getProfiles().requireBody().map { it.toDomain() }
+    }
+
     // The web services create the profile themselves when the account is verified
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) = Unit
 
