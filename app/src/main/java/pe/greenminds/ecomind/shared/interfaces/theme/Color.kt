@@ -50,6 +50,8 @@ val GemBlue = Color(0xFF23BEE3)
 val EcoGreenDark = Color(0xFF2B824B)
 val TextPrimary = Color(0xFF262626)
 val TextSecondary = Color(0xFF73806A)
+// Error messages of the profile screens
+val ErrorRed = Color(0xFFB43E2C)
 val CardBorder = Color(0xFFE8ECE4)
 val RowDivider = Color(0xFFEDF0E9)
 val SurfaceSoft = Color(0xFFFAFBF9)

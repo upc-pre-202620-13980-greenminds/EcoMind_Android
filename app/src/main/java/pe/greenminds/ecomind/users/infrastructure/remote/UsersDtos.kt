@@ -14,6 +14,15 @@ data class UserProfileDto(
     val equippedCosmeticId: Long?
 )
 
+// PUT /api/v1/user/{id}: every field is required except lastStreakDate
+data class UpdateUserProfileRequest(
+    val name: String,
+    val streak: Int,
+    val lastStreakDate: String?,
+    val ecopoints: Int,
+    val gemBalance: Int
+)
+
 // GET /api/v1/friend?user_id={id}
 data class FriendDto(
     val id: Long,

@@ -1,5 +1,7 @@
 package pe.greenminds.ecomind.main
 
+import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -155,6 +157,10 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
+    // Sub screens of Profile keep the bars with the Profile item active
+    if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>()) {
+        return NavigationItem.PROFILE
+    }
 
     val section = NavigationItem.entries.firstOrNull { item ->
         destination.hasRoute(item.route::class)
