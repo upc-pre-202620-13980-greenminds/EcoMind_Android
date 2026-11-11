@@ -1,6 +1,10 @@
 package pe.greenminds.ecomind.main
 
 import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.ChooseContactsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InvitationCodeRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InvitationStatusRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InviteFriendsRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FindFriendsRoute
@@ -164,7 +168,9 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     // Sub screens of Profile keep the bars with the Profile item active
     if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>() ||
         destination.hasRoute<AddCommitmentRoute>() || destination.hasRoute<EditCommitmentRoute>() ||
-        destination.hasRoute<FindFriendsRoute>() || destination.hasRoute<FriendRequestsRoute>()) {
+        destination.hasRoute<FindFriendsRoute>() || destination.hasRoute<FriendRequestsRoute>() ||
+        destination.hasRoute<InviteFriendsRoute>() || destination.hasRoute<ChooseContactsRoute>() ||
+        destination.hasRoute<InvitationCodeRoute>() || destination.hasRoute<InvitationStatusRoute>()) {
         return NavigationItem.PROFILE
     }
 

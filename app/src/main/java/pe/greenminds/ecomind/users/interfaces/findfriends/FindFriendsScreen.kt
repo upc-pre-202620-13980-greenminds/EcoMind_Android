@@ -1,8 +1,6 @@
 package pe.greenminds.ecomind.users.interfaces.findfriends
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -42,11 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.shared.interfaces.components.BorderedTextField
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
-import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.ErrorText
-import pe.greenminds.ecomind.shared.interfaces.theme.PlaceholderGray
 import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
 import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
@@ -139,50 +133,19 @@ private fun SearchField(
     query: String,
     onQueryChange: (String) -> Unit
 ) {
-    val label = stringResource(R.string.find_friends_search_label)
     val focusManager = LocalFocusManager.current
 
-    Text(
-        text = label,
-        style = interTextStyle(13, FontWeight.Bold),
-        color = MaterialTheme.colorScheme.primary
-    )
-    Spacer(modifier = Modifier.height(11.dp))
-    BasicTextField(
+    BorderedTextField(
+        label = stringResource(R.string.find_friends_search_label),
         value = query,
         onValueChange = onQueryChange,
-        singleLine = true,
-        textStyle = interTextStyle(14).copy(color = TextPrimary),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        placeholder = stringResource(R.string.find_friends_search_placeholder),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,
             imeAction = ImeAction.Search
         ),
         // The list is already filtered while typing, so the key only hides the keyboard
-        keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = label },
-        decorationBox = { innerTextField ->
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                    .border(1.dp, CardBorder, RoundedCornerShape(12.dp))
-                    .padding(horizontal = 14.dp)
-            ) {
-                if (query.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.find_friends_search_placeholder),
-                        style = interTextStyle(14),
-                        color = PlaceholderGray
-                    )
-                }
-                innerTextField()
-            }
-        }
+        keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() })
     )
 }
 

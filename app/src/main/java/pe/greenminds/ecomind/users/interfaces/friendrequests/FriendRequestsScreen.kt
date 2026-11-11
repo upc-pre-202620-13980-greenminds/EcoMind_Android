@@ -1,6 +1,7 @@
 package pe.greenminds.ecomind.users.interfaces.friendrequests
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -53,6 +55,7 @@ import pe.greenminds.ecomind.users.interfaces.profile.TextLink
 @Composable
 fun FriendRequestsScreen(
     onBack: () -> Unit,
+    onOpenInvitation: (Long) -> Unit,
     onFriendsChanged: () -> Unit,
     viewModel: FriendRequestsViewModel = hiltViewModel()
 ) {
@@ -67,6 +70,7 @@ fun FriendRequestsScreen(
         onRetry = viewModel::loadRequests,
         onAccept = viewModel::accept,
         onDecline = viewModel::decline,
+        onOpenInvitation = onOpenInvitation,
         onBack = onBack
     )
 }
@@ -77,6 +81,7 @@ private fun FriendRequestsContent(
     onRetry: () -> Unit,
     onAccept: (Long) -> Unit,
     onDecline: (Long) -> Unit,
+    onOpenInvitation: (Long) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -122,7 +127,12 @@ private fun FriendRequestsContent(
                 if (requests.sent.isEmpty()) {
                     EmptySectionText(stringResource(R.string.friend_requests_sent_empty))
                 } else {
-                    requests.sent.forEach { request -> SentRequestRow(request = request) }
+                    requests.sent.forEach { request ->
+                        SentRequestRow(
+                            request = request,
+                            onOpen = { onOpenInvitation(request.friendshipId) }
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -157,13 +167,17 @@ private fun EmptySectionText(text: String) {
 private fun RequestPerson(
     request: FriendRequest,
     subtitle: String,
-    trailingLabel: String? = null
+    trailingLabel: String? = null,
+    onClick: (() -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 60.dp)
+            .then(
+                if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
+            )
     ) {
         InitialsAvatar(name = request.name)
         Spacer(modifier = Modifier.width(12.dp))
@@ -253,7 +267,10 @@ private fun ReceivedRequestRow(
 
 // Frame 34 shows a pending request and frame 35 a declined one
 @Composable
-private fun SentRequestRow(request: FriendRequest) {
+private fun SentRequestRow(
+    request: FriendRequest,
+    onOpen: () -> Unit
+) {
     val isDeclined = request.status == FriendshipStatus.REJECTED
 
     RequestPerson(
@@ -261,7 +278,9 @@ private fun SentRequestRow(request: FriendRequest) {
         subtitle = stringResource(
             if (isDeclined) R.string.friend_requests_status_declined else R.string.friend_requests_status_pending
         ),
-        trailingLabel = if (isDeclined) null else stringResource(R.string.find_friends_sent)
+        trailingLabel = if (isDeclined) null else stringResource(R.string.find_friends_sent),
+        // Opens the invitation status of frames 40 to 42
+        onClick = onOpen
     )
     if (isDeclined) {
         Column(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
@@ -306,6 +325,7 @@ private fun FriendRequestsReceivedPreview() {
             onRetry = {},
             onAccept = {},
             onDecline = {},
+            onOpenInvitation = {},
             onBack = {}
         )
     }
@@ -330,6 +350,7 @@ private fun FriendRequestsSentPreview() {
             onRetry = {},
             onAccept = {},
             onDecline = {},
+            onOpenInvitation = {},
             onBack = {}
         )
     }

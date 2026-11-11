@@ -23,8 +23,9 @@ class SearchUsersUseCase @Inject constructor(
         // The web services have no search route, so the profiles are filtered here
         val profiles = profileRepository.getProfiles().getOrElse { return Result.failure(it) }
         val friendships = friendRepository.getFriendships(userId).getOrElse { return Result.failure(it) }
+        val now = System.currentTimeMillis()
         val relations = friendships.associate { friendship ->
-            friendship.otherUserId(userId) to friendship.relationFor(userId)
+            friendship.otherUserId(userId) to friendship.relationFor(userId, now)
         }
 
         val text = query.trim()
