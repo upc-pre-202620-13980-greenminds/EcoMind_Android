@@ -17,6 +17,8 @@ fun messageFor(exception: Throwable): Int {
         FriendRequestError.SELF_REQUEST -> R.string.invite_code_own
         FriendRequestError.INVITATION_CODE_NOT_FOUND -> R.string.invite_code_not_found
         FriendRequestError.INVALID_INVITATION_CODE -> R.string.invite_code_invalid
+        FriendRequestError.NOT_PART_OF_FRIENDSHIP -> R.string.friend_profile_remove_forbidden
+        FriendRequestError.IN_WAITING_PERIOD -> R.string.friend_profile_remove_waiting
         else -> R.string.friend_request_failed
     }
 }

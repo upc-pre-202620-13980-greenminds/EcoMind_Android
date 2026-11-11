@@ -14,4 +14,6 @@ interface FriendRepository {
     suspend fun sendRequestWithCode(invitationCode: String): Result<Friendship>
 
     suspend fun respond(friendshipId: Long, accepted: Boolean): Result<Friendship>
+
+    suspend fun remove(friendshipId: Long): Result<Unit>
 }

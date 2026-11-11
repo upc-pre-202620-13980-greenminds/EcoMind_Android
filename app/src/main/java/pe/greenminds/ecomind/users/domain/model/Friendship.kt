@@ -122,7 +122,20 @@ enum class FriendRequestError {
     SELF_REQUEST,
     INVITATION_CODE_NOT_FOUND,
     INVALID_INVITATION_CODE,
+    NOT_PART_OF_FRIENDSHIP,
+    IN_WAITING_PERIOD,
     UNKNOWN
 }
+
+// Profile of another user as a friend sees it (frame 13): no gems and no edit options
+data class FriendProfile(
+    val userId: Long,
+    val name: String,
+    val socialRole: SocialRole,
+    val streak: Int,
+    val ecopoints: Int,
+    // Id of the accepted friendship, needed to remove it; null when they are not friends
+    val friendshipId: Long?
+)
 
 class FriendRequestException(val error: FriendRequestError) : Exception(error.name)

@@ -159,4 +159,12 @@
     <string name="invitation_status_joined_subtitle">Joined EcoMind</string>
     <string name="invitation_status_friend">Friend</string>
     <string name="invitation_status_joined">Your friend joined!</string>
+    <string name="friend_profile_you_are_friends">You are friends</string>
+    <string name="friend_profile_remove">Remove friend</string>
+    <string name="friend_profile_cancel">Cancel</string>
+    <string name="friend_profile_remove_title">Remove %1$s?</string>
+    <string name="friend_profile_remove_message">You will no longer appear in each other’s friends list.</string>
+    <string name="friend_profile_remove_failed">Couldn’t remove your friend. Try again.</string>
+    <string name="friend_profile_remove_forbidden">Only the two friends can remove this friendship.</string>
+    <string name="friend_profile_remove_waiting">This request cannot be removed until its 7-day waiting period ends.</string>
 </resources>

@@ -14,6 +14,7 @@ import pe.greenminds.ecomind.users.interfaces.commitment.CommitmentScreen
 import pe.greenminds.ecomind.users.interfaces.editprofile.EditProfileScreen
 import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsScreen
 import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsViewModel
+import pe.greenminds.ecomind.users.interfaces.friendprofile.FriendProfileScreen
 import pe.greenminds.ecomind.users.interfaces.friendrequests.FriendRequestsScreen
 import pe.greenminds.ecomind.users.interfaces.invitefriends.ChooseContactsScreen
 import pe.greenminds.ecomind.users.interfaces.invitefriends.InvitationCodeScreen
@@ -218,7 +219,18 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
         )
     }
 
-    composable<FriendProfileRoute> { PlaceholderScreen() }
+    composable<FriendProfileRoute> { backStackEntry ->
+        val route = backStackEntry.toRoute<FriendProfileRoute>()
+        FriendProfileScreen(
+            friendId = route.userId,
+            onBack = { navController.popBackStack() },
+            // Back to the Friends tab, which loads the list again without the removed friend
+            onRemoved = {
+                navController.markProfileForReload()
+                navController.popBackStack()
+            }
+        )
+    }
     composable<CreateFamilyRoute> { PlaceholderScreen() }
     composable<ManageFamilyRoute> { PlaceholderScreen() }
     composable<FamilyWeeklyReportRoute> { PlaceholderScreen() }
