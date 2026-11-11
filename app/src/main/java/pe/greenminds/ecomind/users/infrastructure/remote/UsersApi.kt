@@ -2,6 +2,7 @@ package pe.greenminds.ecomind.users.infrastructure.remote
 
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -38,4 +39,8 @@ interface UsersApi {
         @Path("id") friendshipId: Long,
         @Body request: RespondFriendRequestRequest
     ): Response<FriendDto>
+
+    // Answers 204 without a body; either of the two users can remove the friendship
+    @DELETE("friend/{id}")
+    suspend fun removeFriendship(@Path("id") friendshipId: Long): Response<Unit>
 }

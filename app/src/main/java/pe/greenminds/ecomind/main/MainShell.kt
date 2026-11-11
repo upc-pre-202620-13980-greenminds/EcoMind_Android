@@ -8,6 +8,7 @@ import pe.greenminds.ecomind.users.interfaces.navigation.InviteFriendsRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FindFriendsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FriendProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FriendRequestsRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -170,7 +171,8 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute<AddCommitmentRoute>() || destination.hasRoute<EditCommitmentRoute>() ||
         destination.hasRoute<FindFriendsRoute>() || destination.hasRoute<FriendRequestsRoute>() ||
         destination.hasRoute<InviteFriendsRoute>() || destination.hasRoute<ChooseContactsRoute>() ||
-        destination.hasRoute<InvitationCodeRoute>() || destination.hasRoute<InvitationStatusRoute>()) {
+        destination.hasRoute<InvitationCodeRoute>() || destination.hasRoute<InvitationStatusRoute>() ||
+        destination.hasRoute<FriendProfileRoute>()) {
         return NavigationItem.PROFILE
     }
 

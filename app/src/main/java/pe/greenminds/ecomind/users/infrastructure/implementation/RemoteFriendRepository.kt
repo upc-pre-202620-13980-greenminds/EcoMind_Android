@@ -11,6 +11,7 @@ import pe.greenminds.ecomind.users.infrastructure.remote.RespondFriendRequestReq
 import pe.greenminds.ecomind.users.infrastructure.remote.SendFriendRequestRequest
 import pe.greenminds.ecomind.users.infrastructure.remote.UsersApi
 import pe.greenminds.ecomind.users.infrastructure.remote.toDomain
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class RemoteFriendRepository @Inject constructor(
@@ -45,8 +46,16 @@ class RemoteFriendRepository @Inject constructor(
         }.toFriendRequestResult()
     }
 
+    override suspend fun remove(friendshipId: Long): Result<Unit> {
+        return apiResult {
+            // The answer has no body, so only the status code is checked
+            val response = api.removeFriendship(friendshipId)
+            if (!response.isSuccessful) throw HttpException(response)
+        }.toFriendRequestResult()
+    }
+
     // The codes of the web services stay here; the rest of the app only sees the domain error
-    private fun Result<Friendship>.toFriendRequestResult(): Result<Friendship> {
+    private fun <T> Result<T>.toFriendRequestResult(): Result<T> {
         val exception = exceptionOrNull() ?: return this
         val error = when ((exception as? ApiException)?.code) {
             "FRIENDSHIP_CONFLICT" -> FriendRequestError.ALREADY_EXISTS
@@ -56,6 +65,8 @@ class RemoteFriendRepository @Inject constructor(
             "FRIEND_REQUEST_ALREADY_ANSWERED" -> FriendRequestError.ALREADY_ANSWERED
             "FRIEND_REQUEST_TO_SELF" -> FriendRequestError.SELF_REQUEST
             "INVITATION_CODE_NOT_FOUND" -> FriendRequestError.INVITATION_CODE_NOT_FOUND
+            "FRIENDSHIP_ACCESS_FORBIDDEN" -> FriendRequestError.NOT_PART_OF_FRIENDSHIP
+            "FRIENDSHIP_IN_WAITING_PERIOD" -> FriendRequestError.IN_WAITING_PERIOD
             else -> FriendRequestError.UNKNOWN
         }
         return Result.failure(FriendRequestException(error))
