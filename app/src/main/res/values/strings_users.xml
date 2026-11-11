@@ -72,4 +72,18 @@
     <string name="share_profile_copied">Profile link copied</string>
     <string name="share_profile_chooser">Share your profile</string>
     <string name="share_profile_link" translatable="false">https://ecomind.app/profile/%1$d</string>
+    <string name="commitment_add_title">Add commitment</string>
+    <string name="commitment_edit_title">Edit commitment</string>
+    <string name="commitment_subtitle">What sustainable habit do you want to keep?</string>
+    <string name="commitment_label">My commitment</string>
+    <string name="commitment_placeholder">Write your commitment</string>
+    <string name="commitment_save">Save commitment</string>
+    <string name="commitment_retry">Retry</string>
+    <string name="commitment_cancel">Cancel</string>
+    <string name="commitment_required">Write a commitment before saving.</string>
+    <string name="commitment_length">Your commitment can have up to %1$d characters.</string>
+    <string name="commitment_counter" translatable="false">%1$d/%2$d</string>
+    <string name="commitment_counter_description">%1$d of %2$d characters</string>
+    <string name="commitment_save_failed">Couldn’t save your commitment.</string>
+    <string name="commitment_save_failed_hint">Your text is still here. Try again.</string>
 </resources>

@@ -9,16 +9,15 @@ import pe.greenminds.ecomind.users.domain.model.FriendshipStatus
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 
-// The commitment is not part of the response yet, so it arrives as a separate value
-fun UserProfileDto.toDomain(commitment: String? = null): UserProfile {
+// The commitment is not part of the response; GetCurrentProfileUseCase adds it
+fun UserProfileDto.toDomain(): UserProfile {
     return UserProfile(
         id = id,
         name = name,
         socialRole = SocialRole.valueOf(socialRole),
         streak = streak,
         ecopoints = ecopoints,
-        gemBalance = gemBalance,
-        commitment = commitment
+        gemBalance = gemBalance
     )
 }
 

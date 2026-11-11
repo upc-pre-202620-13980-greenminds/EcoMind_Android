@@ -71,4 +71,17 @@
     <string name="share_profile_send">Enviar a…</string>
     <string name="share_profile_copied">Enlace del perfil copiado</string>
     <string name="share_profile_chooser">Comparte tu perfil</string>
+    <string name="commitment_add_title">Añadir compromiso</string>
+    <string name="commitment_edit_title">Editar compromiso</string>
+    <string name="commitment_subtitle">¿Qué hábito sostenible quieres mantener?</string>
+    <string name="commitment_label">Mi compromiso</string>
+    <string name="commitment_placeholder">Escribe tu compromiso</string>
+    <string name="commitment_save">Guardar compromiso</string>
+    <string name="commitment_retry">Reintentar</string>
+    <string name="commitment_cancel">Cancelar</string>
+    <string name="commitment_required">Escribe un compromiso antes de guardar.</string>
+    <string name="commitment_length">Tu compromiso puede tener hasta %1$d caracteres.</string>
+    <string name="commitment_counter_description">%1$d de %2$d caracteres</string>
+    <string name="commitment_save_failed">No se pudo guardar tu compromiso.</string>
+    <string name="commitment_save_failed_hint">Tu texto sigue aquí. Inténtalo de nuevo.</string>
 </resources>
