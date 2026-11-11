@@ -113,6 +113,13 @@ private fun MainShellContent(
         }
     }
 
+    // The unread count is asked again on every screen with the top bar
+    LaunchedEffect(showTopBar, backStackEntry?.id) {
+        if (showTopBar) {
+            viewModel.loadUnreadNotifications()
+        }
+    }
+
     androidx.compose.foundation.layout.Box {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -127,7 +134,8 @@ private fun MainShellContent(
                     onSettingsClick = {
                         navController.navigate(SettingsRoute) { launchSingleTop = true }
                     },
-                    modifier = Modifier.statusBarsPadding()
+                    modifier = Modifier.statusBarsPadding(),
+                    unreadNotifications = state.unreadNotifications
                 )
             }
         },
@@ -165,6 +173,7 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute<FamilyQuestStartedRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
+        destination.hasRoute<NotificationsRoute>() ||
         destination.hasRoute<NotificationPreferencesRoute>() ||
         destination.hasRoute<LanguageRoute>() || destination.hasRoute<ThemeRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
