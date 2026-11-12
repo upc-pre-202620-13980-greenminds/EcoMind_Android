@@ -433,8 +433,7 @@ private fun CommunityContent(
                 )
 
                 CommunitySection.NEWS -> CommunityNewsContent(
-                    posts = state.posts,
-                    isLoading = state.isLoadingPosts
+                    communityId = community.id
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))

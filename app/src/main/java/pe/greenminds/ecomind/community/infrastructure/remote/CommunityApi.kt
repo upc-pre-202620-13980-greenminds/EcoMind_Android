@@ -115,4 +115,24 @@ interface CommunityApi {
     suspend fun createTopicCommunity(
         @Body request: CreateTopicCommunityRequest
     ): Response<CommunityDto>
+
+    @GET("user/{id}")
+    suspend fun getPostAuthor(
+        @Path("id") accountId: Long
+    ): Response<PostAuthorDto>
+
+    @GET("Community/Posts/{postId}/Reactions")
+    suspend fun getPostReactions(
+        @Path("postId") postId: Long
+    ): Response<List<PostReactionDto>>
+
+    @POST("Community/Post-Reactions")
+    suspend fun setPostReaction(
+        @Body request: SetPostReactionRequest
+    ): Response<PostReactionDto>
+
+    @DELETE("Community/Posts/{postId}/Reactions")
+    suspend fun removePostReaction(
+        @Path("postId") postId: Long
+    ): Response<Unit>
 }

@@ -186,4 +186,25 @@
     <string name="community_form_permission_error">Unable to verify permission to create communities.</string>
     <string name="community_form_validation">Enter a name, a topic and a member limit greater than zero.</string>
     <string name="community_form_error">Unable to create the community.</string>
+
+    <string name="news_system_author">EcoMind</string>
+    <string name="news_unknown_author">Community member</string>
+    <string name="news_date_unavailable">Date unavailable</string>
+    <string name="news_reactions_count">%1$d reactions</string>
+    <string name="news_reactions_title">Reactions</string>
+    <string name="news_choose_reaction">Choose your reaction</string>
+    <string name="news_your_reaction">Yours</string>
+    <string name="news_remove_reaction">Remove my reaction</string>
+    <string name="news_close">Close</string>
+    <string name="news_retry">Retry</string>
+    <string name="news_refresh">Refresh</string>
+    <string name="news_load_error">Could not load posts.</string>
+    <string name="news_reactions_error">Could not synchronize reactions. Reload to check their current state.</string>
+    <string name="news_session_required">Sign in again to manage reactions.</string>
+    <string name="news_reaction_like">Like</string>
+    <string name="news_reaction_love">Love</string>
+    <string name="news_reaction_funny">Haha</string>
+    <string name="news_reaction_surprise">Wow</string>
+    <string name="news_reaction_sad">Sad</string>
+    <string name="news_reaction_angry">Angry</string>
 </resources>
