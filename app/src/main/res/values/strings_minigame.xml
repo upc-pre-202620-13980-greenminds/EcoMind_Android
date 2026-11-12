@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="minigame_title">Collect waste</string>
+    <string name="minigame_play">Start Minigame</string>
+    <string name="minigame_replay">Play again</string>
+    <string name="minigame_instructions">Tap the waste as it appears. Target score: %1$d.</string>
+    <string name="minigame_unavailable">This minigame is currently unavailable.</string>
+    <string name="minigame_unsupported_android">This minigame is unavailable in this version of the Android app.</string>
+    <string name="minigame_time">%1$d s remaining</string>
+    <string name="minigame_score">Game score: %1$d</string>
+    <string name="minigame_bottle">Collect bottle</string>
+    <string name="minigame_can">Collect can</string>
+    <string name="minigame_paper">Collect newspaper</string>
+    <string name="minigame_result">Round result</string>
+    <string name="minigame_base_reward">Base reward: %1$d ecopoints</string>
+    <string name="minigame_confirmed_reward">+%1$d ecoPoints</string>
+    <string name="minigame_zero_reward">Try other minigames to keep earning ecopoints.</string>
+    <string name="minigame_unsuccessful">You missed the target score. No reward was awarded for this round.</string>
+    <string name="minigame_reward_pending">Your score was recorded. The ecopoints are awaiting confirmation.</string>
+    <string name="minigame_check_reward">Check reward again</string>
+    <string name="minigame_start_error">Couldn’t start the round.</string>
+    <string name="minigame_active_attempt">You already have an active round. Open that challenge to play or cancel it.</string>
+    <string name="minigame_finish_error">Couldn’t confirm the round result.</string>
+    <string name="minigame_cancel_error">Couldn’t cancel the round.</string>
+</resources>

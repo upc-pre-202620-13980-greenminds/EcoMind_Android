@@ -15,6 +15,7 @@ data class QuestExecution(val quest: Quest, val activities: List<Activity>, val 
 class QuestExecutionService @Inject constructor(private val quests: QuestRepository, private val repository: QuestExecutionRepository) {
     suspend fun load(id: Long): QuestExecution {
         val quest = quests.getQuest(id).getOrThrow()
+        if (quest.type == QuestType.MINIGAME) return QuestExecution(quest, emptyList(), null, emptyList())
         val activities = repository.activities(id)
         val assignment = repository.find(id)
         return QuestExecution(quest, activities, assignment, assignment?.let { repository.activityUsers(it.id) }.orEmpty())
