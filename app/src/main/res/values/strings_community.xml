@@ -93,4 +93,36 @@
     <string name="community_loading_goal">Loading community goal…</string>
     <string name="community_no_active_goal">No active community goal.</string>
     <string name="community_goal_progress">%1$s: %2$d/%3$d</string>
+
+    <string name="event_name">Event name</string>
+    <string name="event_limit">Limit</string>
+    <string name="event_description">Description</string>
+    <string name="event_date">Date</string>
+    <string name="event_time">Time</string>
+    <string name="event_address">Address</string>
+    <string name="event_icon">Icon</string>
+    <string name="event_latitude">Latitude</string>
+    <string name="event_longitude">Longitude</string>
+    <string name="event_create">Create event</string>
+    <string name="event_cancel">Cancel</string>
+    <string name="event_local_tab">Local Community</string>
+    <string name="event_more_tab">More Communities</string>
+    <string name="event_attach">Choose image</string>
+    <string name="event_remove_image">Remove image</string>
+    <string name="event_image_selected">Selected</string>
+    <string name="event_saving">Creating…</string>
+    <string name="event_failed">Could not create the event. Please try again.</string>
+    <string name="event_session_required">Sign in again to continue.</string>
+    <string name="event_parent_required">Only parents can create events.</string>
+    <string name="event_invalid_name">Enter a name of 1 to 255 characters.</string>
+    <string name="event_invalid_capacity">Enter a total limit of at least 1, including you.</string>
+    <string name="event_invalid_datetime">Choose the event date and time.</string>
+    <string name="event_invalid_coordinates">Choose a point or enter valid latitude and longitude.</string>
+    <string name="event_image_type">Choose a JPEG or PNG image.</string>
+    <string name="event_image_size">The image must not exceed 5 MB.</string>
+    <string name="event_image_read">Could not read the image. Please select it again.</string>
+    <string name="event_map_failed">Map unavailable. Check your connection and reopen the form.</string>
+    <string name="event_permission_failed">Could not check your permission to create events.</string>
+    <string name="event_retry">Retry</string>
+    <string name="event_available_places">Available places: %1$d</string>
 </resources>

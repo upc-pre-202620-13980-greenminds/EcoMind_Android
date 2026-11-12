@@ -6,6 +6,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.DELETE
+import okhttp3.MultipartBody
+import retrofit2.http.Body
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 interface CommunityApi {
 
     @GET("Community/Memberships")
@@ -46,4 +50,20 @@ interface CommunityApi {
     suspend fun getCommunityGoals(
         @Query("community_id") communityId: Long
     ): Response<List<CommunityGoalDto>>
+
+    @GET("user/{id}")
+    suspend fun getEventCreatorProfile(
+        @Path("id") accountId: Long
+    ): Response<EventCreatorProfileDto>
+
+    @POST("Community/Events")
+    suspend fun createEvent(
+        @Body request: CreateCommunityEventRequest
+    ): Response<CommunityEventDto>
+
+    @Multipart
+    @POST("Community/Events/Images")
+    suspend fun uploadEventImage(
+        @Part file: MultipartBody.Part
+    ): Response<EventImageDto>
 }
