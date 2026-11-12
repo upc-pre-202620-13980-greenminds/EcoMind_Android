@@ -13,7 +13,8 @@ data class UserProfileDto(
     val gemBalance: Int,
     val equippedCosmeticId: Long?,
     // Only filled in when the profile is the one of the user of the token
-    val invitationCode: String? = null
+    val invitationCode: String? = null,
+    val avatarImageReference: String? = null
 )
 
 // PUT /api/v1/user/{id}: every field is required except lastStreakDate

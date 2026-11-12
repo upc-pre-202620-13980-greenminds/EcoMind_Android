@@ -1,6 +1,7 @@
 package pe.greenminds.ecomind.quests.presentation.ui.invitations
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -17,9 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.quests.domain.entity.CollabQuestMember
 import pe.greenminds.ecomind.quests.presentation.states.QuestPartyUiState
+import pe.greenminds.ecomind.monetization.interfaces.store.cosmeticImageResource
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
@@ -49,10 +55,11 @@ internal fun QuestPartySections(
                 }
                 if (expanded) {
                     invitations.forEach { invitation ->
-                        val name = state.names[invitation.organizerUserId]
+                        val person = state.people[invitation.organizerUserId]
+                        val name = person?.name
                             ?: stringResource(R.string.quest_party_user, invitation.organizerUserId)
                         Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                            PartyAvatar(name)
+                            PartyAvatar(name, avatarImageReference = person?.avatarImageReference)
                             Spacer(Modifier.width(10.dp))
                             Text(name, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                             Button(
@@ -94,8 +101,9 @@ internal fun QuestPartySections(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     state.party?.members?.filter { it.status == "ACCEPTED" || it.status == "PENDING" }
                         ?.sortedBy { if (it.status == "ACCEPTED") 0 else 1 }?.forEach { member ->
-                        val name = state.names[member.userId] ?: stringResource(R.string.quest_party_user, member.userId)
-                        PartyAvatar(name, pending = member.status == "PENDING")
+                        val person = state.people[member.userId]
+                        val name = person?.name ?: stringResource(R.string.quest_party_user, member.userId)
+                        PartyAvatar(name, pending = member.status == "PENDING", avatarImageReference = person?.avatarImageReference)
                     }
                 }
             }
@@ -181,14 +189,31 @@ internal fun PartyButton(text: String, enabled: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-internal fun PartyAvatar(name: String, pending: Boolean = false, size: Dp = 40.dp) {
+internal fun PartyAvatar(name: String, pending: Boolean = false, size: Dp = 40.dp, avatarImageReference: String? = null) {
     val label = if (pending) stringResource(R.string.quest_party_awaiting_reply, name) else name
+    val avatarResource = cosmeticImageResource(avatarImageReference, fallback = 0)
+    val imageUrl = avatarImageReference?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
+    var imageLoaded by remember(imageUrl) { mutableStateOf(false) }
     Box(
         Modifier.size(size).alpha(if (pending) 0.45f else 1f)
-            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+            .clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center
     ) {
-        Text(name.take(1).uppercase(), fontWeight = FontWeight.Bold)
+        if (avatarResource != 0) {
+            Image(painterResource(avatarResource), contentDescription = null, modifier = Modifier.fillMaxSize())
+        } else {
+            if (!imageLoaded) Text(name.take(1).uppercase(), fontWeight = FontWeight.Bold)
+            if (imageUrl != null) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    onSuccess = { imageLoaded = true },
+                    onError = { imageLoaded = false }
+                )
+            }
+        }
     }
 }
