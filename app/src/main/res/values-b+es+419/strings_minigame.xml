@@ -12,7 +12,6 @@
     <string name="minigame_can">Recoger lata</string>
     <string name="minigame_paper">Recoger periódico</string>
     <string name="minigame_result">Resultado de la partida</string>
-    <string name="minigame_base_reward">Recompensa base: %1$d ecopuntos</string>
     <string name="minigame_confirmed_reward">+%1$d ecopuntos</string>
     <string name="minigame_zero_reward">Prueba otros minijuegos para seguir sumando ecopuntos.</string>
     <string name="minigame_unsuccessful">No alcanzaste el puntaje objetivo. Esta partida terminó sin recompensa.</string>

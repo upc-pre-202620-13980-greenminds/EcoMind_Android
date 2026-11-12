@@ -12,7 +12,6 @@
     <string name="minigame_can">Collect can</string>
     <string name="minigame_paper">Collect newspaper</string>
     <string name="minigame_result">Round result</string>
-    <string name="minigame_base_reward">Base reward: %1$d ecopoints</string>
     <string name="minigame_confirmed_reward">+%1$d ecoPoints</string>
     <string name="minigame_zero_reward">Try other minigames to keep earning ecopoints.</string>
     <string name="minigame_unsuccessful">You missed the target score. No reward was awarded for this round.</string>

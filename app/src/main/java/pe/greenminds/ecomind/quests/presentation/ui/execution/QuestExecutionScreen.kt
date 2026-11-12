@@ -3,7 +3,6 @@ package pe.greenminds.ecomind.quests.presentation.ui.execution
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -34,6 +33,7 @@ import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyMembersScre
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.InviteFriendsScreen
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyBackButton
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
+import pe.greenminds.ecomind.quests.presentation.ui.QuestMetadataChips
 
 @Composable
 fun QuestExecutionScreen(
@@ -132,20 +132,11 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             Text("QUEST", fontSize = 12.sp)
             Text(execution.quest.title, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                QuestTag(execution.quest.category.name.lowercase(), SunYellow)
-                if (isMinigame) {
-                    QuestTag(stringResource(R.string.quest_theme_minigame), SkyBlueDark)
-                    QuestTag(stringResource(R.string.minigame_base_reward, execution.quest.reward.ecopoints), EcoGreen)
-                } else {
-                    execution.quest.estimatedMinutes?.let { QuestTag("$it min", Color.Gray) }
-                    QuestTag("${execution.quest.reward.ecopoints} ecoPoints", EcoGreen)
-                }
-                if (execution.quest.type == pe.greenminds.ecomind.quests.domain.valueobject.QuestType.COLLABORATIVE ||
-                    execution.quest.theme == pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme.COLLABORATIVE) {
-                    QuestTag(androidx.compose.ui.res.stringResource(pe.greenminds.ecomind.R.string.quest_theme_collaborative), ChipPurple)
-                }
-            }
+            QuestMetadataChips(
+                quest = execution.quest,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+            )
             Spacer(Modifier.height(36.dp))
             if (state.stage == QuestStage.DETAIL) {
                 Text(execution.quest.description, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp)
@@ -246,10 +237,6 @@ internal fun ColumnScope.QuestCompletion(
     Spacer(Modifier.height(28.dp))
 }
 
-@Composable
-private fun QuestTag(text: String, color: Color) {
-    Text(text, color = Color.White, fontSize = 10.sp, modifier = Modifier.background(color, RoundedCornerShape(50)).padding(horizontal = 9.dp, vertical = 5.dp))
-}
 @Composable
 internal fun QuestButton(text: String, action: () -> Unit, enabled: Boolean, green: Boolean) {
     PillButton(text, action, if (!enabled) Color(0xFFA4A4A4) else if (green) LeafGreen else SkyBlue,

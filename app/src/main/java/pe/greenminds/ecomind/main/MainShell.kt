@@ -65,7 +65,7 @@ fun MainShell(
             passwordResetToken = passwordResetToken,
             onPasswordResetHandled = onPasswordResetHandled,
             onAccessReset = {
-                viewModel.clearBalances()
+                viewModel.clearHeader()
                 navigationVersion++
             }
         )
@@ -107,15 +107,9 @@ private fun MainShellContent(
     val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true &&
         backStackEntry?.destination?.hasRoute<FamilyQuestStartedRoute>() != true
 
-    LaunchedEffect(showTopBar) {
-        if (showTopBar) {
-            viewModel.loadBalances()
-        }
-    }
-
-    // The unread count is asked again on every screen with the top bar
     LaunchedEffect(showTopBar, backStackEntry?.id) {
         if (showTopBar) {
+            viewModel.loadHeaderCounters()
             viewModel.loadUnreadNotifications()
         }
     }
@@ -127,7 +121,7 @@ private fun MainShellContent(
             if (showTopBar) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
-                    ecopoints = state.ecopoints,
+                    streak = state.streak,
                     onNotificationsClick = {
                         navController.navigate(NotificationsRoute) { launchSingleTop = true }
                     },
