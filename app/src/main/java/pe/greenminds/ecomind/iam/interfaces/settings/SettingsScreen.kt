@@ -47,6 +47,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onOpenTerms: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenLanguage: () -> Unit,
     onOpenTheme: () -> Unit,
@@ -61,6 +62,7 @@ fun SettingsScreen(
         state = state,
         preferences = preferences,
         onBack = onBack,
+        onOpenTerms = onOpenTerms,
         onOpenNotifications = onOpenNotifications,
         onOpenLanguage = onOpenLanguage,
         onOpenTheme = onOpenTheme,
@@ -74,6 +76,7 @@ internal fun SettingsContent(
     state: SettingsUiState,
     preferences: PreferencesUiState,
     onBack: () -> Unit,
+    onOpenTerms: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenLanguage: () -> Unit,
     onOpenTheme: () -> Unit,
@@ -112,6 +115,11 @@ internal fun SettingsContent(
 
         PreferencesSectionTitle(stringResource(R.string.settings_help))
         PreferencesGroup {
+            NavigationRow(
+                title = stringResource(R.string.terms_title),
+                onClick = onOpenTerms
+            )
+            PreferencesDivider()
             NavigationRow(
                 title = stringResource(R.string.settings_help_support),
                 onClick = onOpenHelp
@@ -170,6 +178,7 @@ private fun SettingsPreview() {
             state = SettingsUiState(),
             preferences = PreferencesUiState(),
             onBack = {},
+            onOpenTerms = {},
             onOpenNotifications = {},
             onOpenLanguage = {},
             onOpenTheme = {},
@@ -187,6 +196,7 @@ private fun SettingsDarkPreview() {
             state = SettingsUiState(),
             preferences = PreferencesUiState(),
             onBack = {},
+            onOpenTerms = {},
             onOpenNotifications = {},
             onOpenLanguage = {},
             onOpenTheme = {},
