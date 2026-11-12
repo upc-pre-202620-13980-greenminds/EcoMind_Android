@@ -68,14 +68,14 @@ internal fun CommunityEventsContent(
 
             Column {
                 if (canCreate) {
-                    EventFlowButton(
+                    SmallActionPill(
                         text = stringResource(R.string.event_flow_create),
                         onClick = onCreate,
                         enabled = !state.busy
                     )
                 }
 
-                EventFlowButton(
+                SmallActionPill(
                     text = stringResource(
                         if (state.mine) R.string.event_flow_events
                         else R.string.event_flow_mine

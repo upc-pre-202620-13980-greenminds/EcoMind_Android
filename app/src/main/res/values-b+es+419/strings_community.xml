@@ -173,4 +173,17 @@
     <string name="event_flow_delete_question">Creaste este evento. Al salir, se eliminarán permanentemente el evento, todas las inscripciones y los mensajes del chat para todos.</string>
     <string name="event_flow_delete_confirm">Salir y eliminar</string>
     <string name="event_flow_delete_error">No se pudo eliminar el evento.</string>
+
+    <string name="community_form_title">Nueva comunidad</string>
+    <string name="community_form_name">Nombre de la comunidad</string>
+    <string name="community_form_description">Descripción</string>
+    <string name="community_form_topic">Tema</string>
+    <string name="community_form_limit">Límite</string>
+    <string name="community_form_icon">Icono</string>
+    <string name="community_form_choose_icon">Elegir icono de la comunidad</string>
+    <string name="community_form_remove_icon">Quitar icono</string>
+    <string name="community_form_image_hint">Opcional. JPG o PNG, hasta 5 MiB.</string>
+    <string name="community_form_permission_error">No se pudo verificar el permiso para crear comunidades.</string>
+    <string name="community_form_validation">Ingresa un nombre, un tema y un límite de miembros mayor que cero.</string>
+    <string name="community_form_error">No se pudo crear la comunidad.</string>
 </resources>
