@@ -29,7 +29,8 @@ class GetFamilyUseCase @Inject constructor(
                     relationship = membership.relationship,
                     activitiesCompleted = membership.activitiesCompleted,
                     activitiesTotal = membership.activitiesTotal,
-                    isCurrentUser = membership.userId == userId
+                    isCurrentUser = membership.userId == userId,
+                    avatarImageReference = profile.avatarImageReference
                 )
             }
         }

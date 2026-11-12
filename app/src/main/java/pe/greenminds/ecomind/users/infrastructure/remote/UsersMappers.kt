@@ -19,7 +19,8 @@ fun UserProfileDto.toDomain(): UserProfile {
         streak = streak,
         ecopoints = ecopoints,
         gemBalance = gemBalance,
-        invitationCode = invitationCode
+        invitationCode = invitationCode,
+        avatarImageReference = avatarImageReference
     )
 }
 

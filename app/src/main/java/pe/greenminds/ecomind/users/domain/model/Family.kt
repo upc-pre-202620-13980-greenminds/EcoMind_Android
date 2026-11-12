@@ -48,7 +48,8 @@ data class FamilyMember(
     val relationship: FamilyRelationship?,
     val activitiesCompleted: Int?,
     val activitiesTotal: Int?,
-    val isCurrentUser: Boolean
+    val isCurrentUser: Boolean,
+    val avatarImageReference: String? = null
 )
 
 data class FamilyOverview(

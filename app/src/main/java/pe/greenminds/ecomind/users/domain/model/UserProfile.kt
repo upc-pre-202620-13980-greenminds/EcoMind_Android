@@ -11,5 +11,7 @@ data class UserProfile(
     // Stored apart from the profile: the web services have no personal commitment
     val commitment: String? = null,
     // Only known for the profile of the current user
-    val invitationCode: String? = null
+    val invitationCode: String? = null,
+    // Image of the equipped avatar; null when the user has none or the route does not send it
+    val avatarImageReference: String? = null
 )

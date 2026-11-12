@@ -79,7 +79,8 @@ data class InvitationResult(
 data class Friend(
     val userId: Long,
     val name: String,
-    val socialRole: SocialRole
+    val socialRole: SocialRole,
+    val avatarImageReference: String? = null
 )
 
 data class FriendsOverview(
