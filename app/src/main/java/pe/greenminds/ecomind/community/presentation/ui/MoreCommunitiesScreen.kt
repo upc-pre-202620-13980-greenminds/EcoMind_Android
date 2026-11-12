@@ -48,6 +48,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 @Composable
 fun MoreCommunitiesScreen(
     state: CommunityUiState,
+    canCreateCommunity: Boolean,
     onLocalTab: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onToggleList: () -> Unit,
@@ -72,6 +73,7 @@ fun MoreCommunitiesScreen(
 
         MoreCommunitiesSearchRow(
             query = state.searchQuery,
+            canCreateCommunity = canCreateCommunity,
             onQueryChange = onSearchQueryChange,
             createLabel = stringResource(R.string.community_create),
             toggleLabel = stringResource(
@@ -81,7 +83,7 @@ fun MoreCommunitiesScreen(
                 }
             ),
             onCreate = onCreateCommunity,
-            onToggleList = onToggleList
+            onToggleList = onToggleList,
         )
 
         when {
@@ -192,6 +194,7 @@ fun MoreCommunitiesScreen(
 @Composable
 private fun MoreCommunitiesSearchRow(
     query: String,
+    canCreateCommunity: Boolean,
     onQueryChange: (String) -> Unit,
     createLabel: String,
     toggleLabel: String,
@@ -254,10 +257,12 @@ private fun MoreCommunitiesSearchRow(
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
-            SmallActionPill(
-                text = createLabel,
-                onClick = onCreate
-            )
+            if (canCreateCommunity) {
+                SmallActionPill(
+                    text = createLabel,
+                    onClick = onCreate
+                )
+            }
             SmallActionPill(
                 text = toggleLabel,
                 onClick = onToggleList

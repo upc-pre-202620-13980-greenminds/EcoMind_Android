@@ -12,6 +12,8 @@ import pe.greenminds.ecomind.shared.infrastructure.remote.ErrorDto
 import pe.greenminds.ecomind.shared.infrastructure.remote.toException
 import retrofit2.HttpException
 import retrofit2.Response
+import pe.greenminds.ecomind.community.domain.entity.NewTopicCommunity
+import pe.greenminds.ecomind.community.infrastructure.mapper.toRequest
 
 class RemoteCommunityDirectoryRepository @Inject constructor(
     private val api: CommunityApi
@@ -104,4 +106,12 @@ class RemoteCommunityDirectoryRepository @Inject constructor(
     } catch (exception: Exception) {
         Result.failure(exception)
     }
+
+    override suspend fun createTopicCommunity(
+        community: NewTopicCommunity
+    ): Result<Community> =
+        execute(
+            request = { api.createTopicCommunity(community.toRequest()) },
+            transform = { it.toDomain() }
+        )
 }

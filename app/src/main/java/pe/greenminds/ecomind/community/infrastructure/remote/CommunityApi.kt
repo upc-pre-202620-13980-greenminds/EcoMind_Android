@@ -110,4 +110,9 @@ interface CommunityApi {
     suspend fun deleteEvent(
         @Path("eventId") eventId: Long
     ): Response<Unit>
+
+    @POST("Community/Communities/Topics")
+    suspend fun createTopicCommunity(
+        @Body request: CreateTopicCommunityRequest
+    ): Response<CommunityDto>
 }

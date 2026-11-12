@@ -861,4 +861,25 @@ class CommunityViewModel @Inject constructor(
         val community = _state.value.selectedCommunity ?: return
         loadCommunityContent(community)
     }
+
+    fun onCommunityCreated(community: Community) {
+        _state.update {
+            it.copy(
+                membershipCommunityIds = it.membershipCommunityIds + community.id,
+                topicCommunities = it.topicCommunities
+                    .filterNot { existing -> existing.id == community.id } + community,
+                selectedCommunity = community,
+                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                isShowingMoreCommunitiesList = false,
+                topicListMode = TopicCommunityListMode.MEMBERS,
+                selectedSection = CommunitySection.EVENTS,
+                searchQuery = "",
+                pendingCommunityDetails = null,
+                errorMessage = null,
+                errorMessageRes = null
+            )
+        }
+
+        loadCommunityContent(community)
+    }
 }

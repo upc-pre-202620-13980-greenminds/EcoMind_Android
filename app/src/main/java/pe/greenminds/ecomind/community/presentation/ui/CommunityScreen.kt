@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -80,18 +79,21 @@ import androidx.compose.runtime.LaunchedEffect
 import pe.greenminds.ecomind.community.presentation.viewmodel.CreateEventViewModel
 import androidx.activity.compose.BackHandler
 import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityEventsViewModel
-
+import pe.greenminds.ecomind.community.presentation.viewmodel.CreateCommunityViewModel
 @Composable
 fun CommunityScreen(
     viewModel: CommunityViewModel = hiltViewModel(),
     createEventViewModel: CreateEventViewModel = hiltViewModel(),
-    eventsViewModel: CommunityEventsViewModel = hiltViewModel()
+    eventsViewModel: CommunityEventsViewModel = hiltViewModel(),
+    createCommunityViewModel: CreateCommunityViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
     val createState = createEventViewModel.state.collectAsStateWithLifecycle().value
 
     val eventsState by eventsViewModel.state.collectAsStateWithLifecycle()
+
+    val createCommunityState by createCommunityViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(state.selectedCommunity?.id) {
         eventsViewModel.bindCommunity(state.selectedCommunity?.id)
@@ -101,6 +103,7 @@ fun CommunityScreen(
         viewModel.refreshCommunityContent()
         createEventViewModel.refreshPermission()
         eventsViewModel.refresh()
+        createCommunityViewModel.refreshPermission()
     }
 
     LaunchedEffect(
@@ -116,6 +119,30 @@ fun CommunityScreen(
             viewModel.refreshCommunityContent()
             eventsViewModel.refresh()
         }
+    }
+
+    LaunchedEffect(createCommunityState.createdCommunity) {
+        val community = createCommunityState.createdCommunity
+            ?: return@LaunchedEffect
+
+        viewModel.onCommunityCreated(community)
+        createCommunityViewModel.close()
+    }
+
+    if (createCommunityState.isOpen) {
+        CreateCommunityScreen(
+            state = createCommunityState,
+            moreEnabled = state.canAccessMoreCommunities,
+            onChange = createCommunityViewModel::change,
+            onImageSelected = createCommunityViewModel::selectImage,
+            onSubmit = createCommunityViewModel::submit,
+            onCancel = createCommunityViewModel::close,
+            onLocalTab = {
+                createCommunityViewModel.close()
+                viewModel.showLocalCommunity()
+            }
+        )
+        return
     }
 
     if (eventsState.chat != null) {
@@ -202,6 +229,7 @@ fun CommunityScreen(
         state.isShowingMoreCommunitiesList -> {
             MoreCommunitiesScreen(
                 state = state,
+                canCreateCommunity = createCommunityState.canCreate && !createCommunityState.isCheckingPermission,
                 onLocalTab = viewModel::showLocalCommunity,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 onToggleList = {
@@ -213,7 +241,7 @@ fun CommunityScreen(
                             viewModel.showMyTopicCommunities()
                     }
                 },
-                onCreateCommunity = {},
+                onCreateCommunity = createCommunityViewModel::open,
                 onOpenDetails = viewModel::showCommunityDetails,
                 onConfirmJoin = viewModel::joinPendingCommunity,
                 onCancelDetails = viewModel::dismissCommunityDetails,

@@ -173,4 +173,17 @@
     <string name="event_flow_delete_question">You created this event. Leaving will permanently delete the event, all registrations and chat messages for everyone.</string>
     <string name="event_flow_delete_confirm">Leave and delete</string>
     <string name="event_flow_delete_error">Unable to delete the event.</string>
+
+    <string name="community_form_title">New Community</string>
+    <string name="community_form_name">Community name</string>
+    <string name="community_form_description">Description</string>
+    <string name="community_form_topic">Topic</string>
+    <string name="community_form_limit">Limit</string>
+    <string name="community_form_icon">Icon</string>
+    <string name="community_form_choose_icon">Choose community icon</string>
+    <string name="community_form_remove_icon">Remove icon</string>
+    <string name="community_form_image_hint">Optional. JPG or PNG, up to 5 MiB.</string>
+    <string name="community_form_permission_error">Unable to verify permission to create communities.</string>
+    <string name="community_form_validation">Enter a name, a topic and a member limit greater than zero.</string>
+    <string name="community_form_error">Unable to create the community.</string>
 </resources>
