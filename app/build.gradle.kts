@@ -51,8 +51,8 @@ android {
             optimization {
                 enable = false
             }
-            // Placeholder: replace with the real host once the backend is deployed
-            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend-yxp7.onrender.com/api/v1/\"")
+            // Public Azure API used by the release build.
+            buildConfigField("String", "API_BASE_URL", "\"https://ca-ecomind-api.icybush-bd135296.westus2.azurecontainerapps.io/api/v1/\"")
         }
     }
     compileOptions {
