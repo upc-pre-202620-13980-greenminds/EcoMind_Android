@@ -13,6 +13,10 @@
     <string name="quest_view">View Quest</string>
     <string name="quest_chip_minutes">%1$d min</string>
     <string name="quest_chip_ecopoints">%1$d ecoPoints</string>
+    <plurals name="quest_chip_gems">
+        <item quantity="one">%1$d gem</item>
+        <item quantity="other">%1$d gems</item>
+    </plurals>
     <string name="quest_theme_checkbox">checkbox</string>
     <string name="quest_theme_minigame">minigame</string>
     <string name="quest_theme_collaborative">collaborative</string>

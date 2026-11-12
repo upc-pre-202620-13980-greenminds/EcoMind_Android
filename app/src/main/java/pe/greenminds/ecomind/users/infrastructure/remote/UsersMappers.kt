@@ -8,9 +8,10 @@ import pe.greenminds.ecomind.users.domain.model.Friendship
 import pe.greenminds.ecomind.users.domain.model.FriendshipStatus
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
+import java.time.Instant
 
-// The commitment is not part of the response yet, so it arrives as a separate value
-fun UserProfileDto.toDomain(commitment: String? = null): UserProfile {
+// The commitment is not part of the response; GetCurrentProfileUseCase adds it
+fun UserProfileDto.toDomain(): UserProfile {
     return UserProfile(
         id = id,
         name = name,
@@ -18,7 +19,7 @@ fun UserProfileDto.toDomain(commitment: String? = null): UserProfile {
         streak = streak,
         ecopoints = ecopoints,
         gemBalance = gemBalance,
-        commitment = commitment
+        invitationCode = invitationCode
     )
 }
 
@@ -27,7 +28,8 @@ fun FriendDto.toDomain(): Friendship {
         id = id,
         requesterId = requesterId,
         receiverId = receiverId,
-        status = FriendshipStatus.valueOf(status)
+        status = FriendshipStatus.valueOf(status),
+        sentAtMillis = createdAt?.let { Instant.parse(it).toEpochMilli() }
     )
 }
 

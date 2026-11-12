@@ -8,6 +8,8 @@ data class UserProfile(
     val streak: Int,
     val ecopoints: Int,
     val gemBalance: Int,
-    // Provisional: the web services do not return a personal commitment yet
-    val commitment: String? = null
+    // Stored apart from the profile: the web services have no personal commitment
+    val commitment: String? = null,
+    // Only known for the profile of the current user
+    val invitationCode: String? = null
 )

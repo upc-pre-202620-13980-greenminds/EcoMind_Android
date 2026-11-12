@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.quests.interfaces.search.QuestSearchScreen
 import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressScreen
 import pe.greenminds.ecomind.quests.presentation.ui.progress.ProgressListScreen
+import pe.greenminds.ecomind.quests.presentation.minigames.collectwaste.CollectWasteScreen
 import pe.greenminds.ecomind.quests.application.ProgressSection
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.quests.presentation.ui.family.FamilyPlanBuilderScreen
@@ -41,6 +42,9 @@ data class QuestDetailRoute(
     val familyPlanId: Long? = null,
     val familyPlanItemId: Long? = null
 )
+
+@Serializable
+data class MinigameRoute(val questId: Long, val minigameId: Long)
 
 @Serializable
 data object QuestFiltersRoute
@@ -81,7 +85,15 @@ fun NavGraphBuilder.questsNavGraph(navController: NavController) {
     composable<QuestDetailRoute> { entry ->
         val route = entry.toRoute<QuestDetailRoute>()
         pe.greenminds.ecomind.quests.presentation.ui.execution.QuestExecutionScreen(
-            onBack = { navController.popBackStack() }, previewOnly = route.previewOnly)
+            onBack = { navController.popBackStack() },
+            previewOnly = route.previewOnly,
+            onPlayMinigame = { minigameId ->
+                navController.navigate(MinigameRoute(route.questId, minigameId)) { launchSingleTop = true }
+            }
+        )
+    }
+    composable<MinigameRoute> {
+        CollectWasteScreen(onBack = { navController.popBackStack() })
     }
     composable<QuestFiltersRoute> { PlaceholderScreen() }
 

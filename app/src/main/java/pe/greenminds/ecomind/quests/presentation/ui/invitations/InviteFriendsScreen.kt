@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.quests.domain.model.PartyFriend
+import pe.greenminds.ecomind.quests.domain.model.PartyPerson
 import pe.greenminds.ecomind.quests.presentation.viewmodel.QuestExecutionState
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
@@ -106,7 +106,7 @@ internal fun InviteFriendsScreen(
                     val member = party?.members?.firstOrNull { it.userId == friend.userId }
                     val unavailable = friend.userId in party?.unavailableUserIds.orEmpty()
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                        PartyAvatar(name, size = 36.dp)
+                        PartyAvatar(name, size = 36.dp, avatarImageReference = friend.avatarImageReference)
                         Text(
                             name, modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
                             style = interTextStyle(16), color = TextPrimary,
@@ -158,7 +158,7 @@ private fun FriendInviteButton(text: String, enabled: Boolean, onClick: () -> Un
 @Composable
 private fun InviteFriendsPreview() {
     val friends = listOf("CamiSky", "MateoRun", "AlexNova", "Solina", "ClauTerra", "RafaLuz", "MauricioP", "MiloZone", "KattyPhil", "AleAsto")
-        .mapIndexed { index, name -> PartyFriend(10L + index, name) }
+        .mapIndexed { index, name -> PartyPerson(10L + index, name) }
     EcoMindTheme {
         InviteFriendsScreen(
             state = QuestExecutionState(partyState = sampleParty("OWNER"), friends = friends),

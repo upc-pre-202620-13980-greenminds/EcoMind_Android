@@ -105,10 +105,11 @@ private fun PartyMemberList(
             Text(heading, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
             members.forEach { member ->
                 val isCurrent = member.userId == state.party?.currentMember?.userId
+                val person = state.people[member.userId]
                 val name = if (isCurrent) stringResource(R.string.quest_party_you)
-                    else state.names[member.userId] ?: stringResource(R.string.quest_party_user, member.userId)
+                    else person?.name ?: stringResource(R.string.quest_party_user, member.userId)
                 Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    PartyAvatar(name, pending = member.status == "PENDING")
+                    PartyAvatar(name, pending = member.status == "PENDING", avatarImageReference = person?.avatarImageReference)
                     Spacer(Modifier.width(12.dp))
                     Text(name, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                     if (member.role == "OWNER") {

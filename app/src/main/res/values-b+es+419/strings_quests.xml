@@ -13,6 +13,10 @@
     <string name="quest_view">Ver reto</string>
     <string name="quest_chip_minutes">%1$d min</string>
     <string name="quest_chip_ecopoints">%1$d ecoPoints</string>
+    <plurals name="quest_chip_gems">
+        <item quantity="one">%1$d gema</item>
+        <item quantity="other">%1$d gemas</item>
+    </plurals>
     <string name="quest_theme_checkbox">casillas</string>
     <string name="quest_theme_minigame">minijuego</string>
     <string name="quest_theme_collaborative">colaborativo</string>

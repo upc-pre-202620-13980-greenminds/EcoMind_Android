@@ -26,8 +26,11 @@ import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
-import pe.greenminds.ecomind.iam.interfaces.navigation.TermsRoute
 import pe.greenminds.ecomind.iam.interfaces.settings.SettingsScreen
+import pe.greenminds.ecomind.notifications.interfaces.NotificationsScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.LanguageScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.NotificationPreferencesScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.ThemeScreen
 import pe.greenminds.ecomind.iam.interfaces.settings.SettingsViewModel
 import pe.greenminds.ecomind.iam.interfaces.settings.HelpSupportScreen
 import pe.greenminds.ecomind.iam.interfaces.settings.FaqScreen
@@ -96,16 +99,32 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, settingsViewModel
     }
 
     composable<NotificationsRoute> {
-        PlaceholderScreen()
+        NotificationsScreen(onBack = { navController.popBackStack() })
     }
 
     composable<SettingsRoute> {
         SettingsScreen(
             onBack = { navController.popBackStack() },
-            onOpenTerms = { navController.navigate(TermsRoute) },
+            onOpenNotifications = {
+                navController.navigate(NotificationPreferencesRoute) { launchSingleTop = true }
+            },
+            onOpenLanguage = { navController.navigate(LanguageRoute) { launchSingleTop = true } },
+            onOpenTheme = { navController.navigate(ThemeRoute) { launchSingleTop = true } },
             onOpenHelp = { navController.navigate(HelpSupportRoute) },
             viewModel = settingsViewModel
         )
+    }
+
+    composable<NotificationPreferencesRoute> {
+        NotificationPreferencesScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<LanguageRoute> {
+        LanguageScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<ThemeRoute> {
+        ThemeScreen(onBack = { navController.popBackStack() })
     }
 
     composable<HelpSupportRoute> {
