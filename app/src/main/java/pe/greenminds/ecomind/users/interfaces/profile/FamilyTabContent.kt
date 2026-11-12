@@ -46,7 +46,13 @@ fun FamilyTabContent(
             onCreateFamily = { onNavigate(CreateFamilyRoute) }
         )
 
-        else -> FamilyContent(family = family, onNavigate = onNavigate)
+        else -> FamilyContent(
+            family = family,
+            // Read again each time the profile opens, so it is already up to date after
+            // equipping an avatar in Store, like the header
+            currentUserAvatar = state.equippedCosmetics.avatar?.imageReference,
+            onNavigate = onNavigate
+        )
     }
 }
 
@@ -86,6 +92,7 @@ private fun NoFamilyContent(
 @Composable
 private fun FamilyContent(
     family: FamilyOverview,
+    currentUserAvatar: String?,
     onNavigate: (Any) -> Unit
 ) {
     // "Manage" and "Weekly report" are only for the parents of the family
@@ -145,6 +152,11 @@ private fun FamilyContent(
                 stringResource(R.string.profile_row_you)
             } else {
                 null
+            },
+            avatarImageReference = if (member.isCurrentUser) {
+                currentUserAvatar
+            } else {
+                member.avatarImageReference
             },
             // The progress of a member (frame 22) is not built yet, so the rows do not open anything
             onClick = null
