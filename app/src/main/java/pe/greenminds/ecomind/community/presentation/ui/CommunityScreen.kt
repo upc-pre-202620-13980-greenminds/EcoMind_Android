@@ -62,7 +62,6 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.FadedGray
 import pe.greenminds.ecomind.shared.interfaces.theme.HintGray
 import pe.greenminds.ecomind.shared.interfaces.theme.MossGreen
-import pe.greenminds.ecomind.shared.interfaces.theme.SageGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
@@ -77,13 +76,55 @@ import androidx.compose.material3.TextButton
 import pe.greenminds.ecomind.community.domain.entity.CommunityGoal
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-
+import androidx.compose.runtime.LaunchedEffect
+import pe.greenminds.ecomind.community.presentation.viewmodel.CreateEventViewModel
 @Composable
-fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
+fun CommunityScreen(
+    viewModel: CommunityViewModel = hiltViewModel(),
+    createEventViewModel: CreateEventViewModel = hiltViewModel()
+) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+
+    val createState = createEventViewModel.state.collectAsStateWithLifecycle().value
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.refreshCommunityContent()
+        createEventViewModel.refreshPermission()
+    }
+
+    LaunchedEffect(
+        createState.createdEventId,
+        createState.isSubmitting
+    ) {
+        if (
+            createState.createdEventId != null &&
+            !createState.isSubmitting
+        ) {
+            createEventViewModel.close()
+            viewModel.selectSection(CommunitySection.EVENTS)
+            viewModel.refreshCommunityContent()
+        }
+    }
+
+    if (createState.community != null) {
+        CreateEventScreen(
+            state = createState,
+            moreEnabled = state.canAccessMoreCommunities,
+            onChange = createEventViewModel::change,
+            onImageSelected = createEventViewModel::selectImage,
+            onPointSelected = createEventViewModel::selectPoint,
+            onSubmit = createEventViewModel::submit,
+            onCancel = createEventViewModel::close,
+            onLocalTab = {
+                createEventViewModel.close()
+                viewModel.showLocalCommunity()
+            },
+            onMoreTab = {
+                createEventViewModel.close()
+                viewModel.showMoreCommunities()
+            }
+        )
+        return
     }
 
     when {
@@ -148,7 +189,15 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 onDismissCommunityOptions = viewModel::dismissCommunityOptions,
                 onLeaveCommunity = viewModel::requestLeaveCommunity,
                 onConfirmLeave = viewModel::confirmLeaveCommunity,
-                onCancelLeave = viewModel::dismissLeaveConfirmation
+                onCancelLeave = viewModel::dismissLeaveConfirmation,
+                canCreateEvents = createState.canCreate && !createState.isCheckingPermission,
+                eventPermissionFailed = createState.permissionError != null,
+                onRetryEventPermission = createEventViewModel::refreshPermission,
+                onCreateEvent = {
+                    state.selectedCommunity?.let {
+                        createEventViewModel.start(it)
+                    }
+                }
             )
         }
     }
@@ -167,7 +216,11 @@ private fun CommunityContent(
     onDismissCommunityOptions: () -> Unit,
     onLeaveCommunity: () -> Unit,
     onConfirmLeave: () -> Unit,
-    onCancelLeave: () -> Unit
+    onCancelLeave: () -> Unit,
+    canCreateEvents: Boolean = false,
+    eventPermissionFailed: Boolean = false,
+    onRetryEventPermission: () -> Unit = {},
+    onCreateEvent: () -> Unit = {}
 )  {
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
@@ -246,7 +299,24 @@ private fun CommunityContent(
         ) {
             when (state.selectedSection) {
                 CommunitySection.EVENTS -> {
-                    SearchRow(onAction = openComingSoon)
+                    SearchRow(
+                        canCreateEvents = canCreateEvents,
+                        onCreateEvent = onCreateEvent,
+                        onAction = openComingSoon
+                    )
+
+                    if (eventPermissionFailed) {
+                        Text(
+                            text = stringResource(
+                                R.string.event_permission_failed
+                            ),
+                            style = poppinsTextStyle(12)
+                        )
+
+                        TextButton(onClick = onRetryEventPermission) {
+                            Text(stringResource(R.string.event_retry))
+                        }
+                    }
 
                     if (state.isLoadingEvents) {
                         val loadingDescription = stringResource(R.string.loading)
@@ -536,7 +606,11 @@ private fun CommunityTab(
 }
 
 @Composable
-private fun SearchRow(onAction: () -> Unit) {
+private fun SearchRow(
+    canCreateEvents: Boolean,
+    onCreateEvent: () -> Unit,
+    onAction: () -> Unit
+) {
     val pillShape = RoundedCornerShape(percent = 50)
     val searchLabel = stringResource(R.string.community_search)
 
@@ -576,10 +650,12 @@ private fun SearchRow(onAction: () -> Unit) {
 
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            SmallActionPill(
-                text = stringResource(R.string.community_create_event),
-                onClick = onAction
-            )
+            if (canCreateEvents) {
+                SmallActionPill(
+                    text = stringResource(R.string.community_create_event),
+                    onClick = onCreateEvent
+                )
+            }
             SmallActionPill(
                 text = stringResource(R.string.community_my_events),
                 onClick = onAction
