@@ -119,7 +119,7 @@ private fun SearchBar(query: String, onQuery: (String) -> Unit, onFilters: () ->
 }
 
 @Composable
-private fun MaterialCard(material: EducationalMaterial, onOpen: () -> Unit, onFavorite: () -> Unit) {
+internal fun MaterialCard(material: EducationalMaterial, onOpen: () -> Unit, onFavorite: () -> Unit) {
     val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth().height(272.dp).clickable(onClick = onOpen),

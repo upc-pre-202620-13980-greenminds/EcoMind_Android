@@ -10,6 +10,7 @@ import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FindFriendsRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FriendProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FriendRequestsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FavoritesRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -173,6 +174,7 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
     // Sub screens of Profile keep the bars with the Profile item active
     if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>() ||
+        destination.hasRoute<FavoritesRoute>() ||
         destination.hasRoute<AddCommitmentRoute>() || destination.hasRoute<EditCommitmentRoute>() ||
         destination.hasRoute<FindFriendsRoute>() || destination.hasRoute<FriendRequestsRoute>() ||
         destination.hasRoute<InviteFriendsRoute>() || destination.hasRoute<ChooseContactsRoute>() ||
