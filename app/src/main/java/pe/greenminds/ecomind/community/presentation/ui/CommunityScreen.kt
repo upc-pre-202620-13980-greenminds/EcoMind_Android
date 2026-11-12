@@ -514,7 +514,7 @@ internal fun CommunitySelector(
                 .clip(shape)
                 .background(
                     if (localSelected) MaterialTheme.colorScheme.primary
-                    else Color(0xFFB3B3B3)
+                    else White
                 )
                 .clickable(role = Role.Tab, onClick = onLocalTab)
                 .semantics { selected = localSelected },
@@ -523,7 +523,7 @@ internal fun CommunitySelector(
             Text(
                 text = stringResource(R.string.community_local),
                 style = interTextStyle(14, FontWeight.Bold),
-                color = White,
+                color = if (localSelected) White else MossGreen,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -535,10 +535,10 @@ internal fun CommunitySelector(
                 .heightIn(min = 40.dp)
                 .clip(shape)
                 .background(
-                    if (moreSelected && moreEnabled) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        Color(0xFFB3B3B3)
+                    when {
+                        !moreEnabled -> Color(0xFFB3B3B3)
+                        moreSelected -> MaterialTheme.colorScheme.primary
+                        else -> White
                     }
                 )
                 .clickable(
@@ -552,7 +552,7 @@ internal fun CommunitySelector(
             Text(
                 text = stringResource(R.string.community_more),
                 style = interTextStyle(14, FontWeight.Bold),
-                color = White,
+                color = if (!moreEnabled || moreSelected) White else MossGreen,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -759,7 +759,11 @@ private fun SearchRow(
 }
 
 @Composable
-internal fun SmallActionPill(text: String, onClick: () -> Unit) {
+internal fun SmallActionPill(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
     val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
@@ -768,7 +772,7 @@ internal fun SmallActionPill(text: String, onClick: () -> Unit) {
             .width(96.dp)
             .heightIn(min = 32.dp)
             .clip(pillShape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
     ) {
         Text(
             text = text,
@@ -778,7 +782,10 @@ internal fun SmallActionPill(text: String, onClick: () -> Unit) {
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary, pillShape)
+                .background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else 0.38f),
+                    pillShape
+                )
                 .padding(vertical = 2.dp)
         )
     }
