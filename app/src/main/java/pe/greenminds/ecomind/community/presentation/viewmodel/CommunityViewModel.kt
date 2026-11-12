@@ -28,7 +28,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import pe.greenminds.ecomind.community.application.usecase.GetCommunityAchievementsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetCommunityGoalsUseCase
-import pe.greenminds.ecomind.community.application.usecase.GetCommunityPostsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetCurrentLocalityUseCase
 import pe.greenminds.ecomind.community.application.usecase.LeaveCommunityUseCase
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
@@ -44,7 +43,6 @@ class CommunityViewModel @Inject constructor(
     private val savePreferredLocality: SavePreferredLocalityUseCase,
     private val getCurrentLocality: GetCurrentLocalityUseCase,
     private val leaveCommunity: LeaveCommunityUseCase,
-    private val getPosts: GetCommunityPostsUseCase,
     private val getAchievements: GetCommunityAchievementsUseCase,
     private val getGoals: GetCommunityGoalsUseCase
 ) : ViewModel() {
@@ -573,32 +571,6 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    private fun loadPosts(id: Long) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoadingPosts = true) }
-
-            getPosts(id)
-                .onSuccess { posts ->
-                    _state.update {
-                        it.copy(posts = posts, isLoadingPosts = false)
-                    }
-                }
-                .onFailure { error ->
-                    _state.update {
-                        it.copy(
-                            isLoadingPosts = false,
-                            errorMessage = error.message,
-                            errorMessageRes = if (error.message == null) {
-                                R.string.community_load_list_error
-                            } else {
-                                null
-                            }
-                        )
-                    }
-                }
-        }
-    }
-
     private fun loadAchievements(id: Long) {
         viewModelScope.launch {
             _state.update { it.copy(isLoadingAchievements = true) }
@@ -852,13 +824,32 @@ class CommunityViewModel @Inject constructor(
 
     private fun loadCommunityContent(community: Community) {
         loadEvents(community.id)
-        loadPosts(community.id)
         loadAchievements(community.id)
         loadGoals(community.id)
     }
-
     fun refreshCommunityContent() {
         val community = _state.value.selectedCommunity ?: return
+        loadCommunityContent(community)
+    }
+
+    fun onCommunityCreated(community: Community) {
+        _state.update {
+            it.copy(
+                membershipCommunityIds = it.membershipCommunityIds + community.id,
+                topicCommunities = it.topicCommunities
+                    .filterNot { existing -> existing.id == community.id } + community,
+                selectedCommunity = community,
+                activeDirectoryTab = CommunityDirectoryTab.MORE,
+                isShowingMoreCommunitiesList = false,
+                topicListMode = TopicCommunityListMode.MEMBERS,
+                selectedSection = CommunitySection.EVENTS,
+                searchQuery = "",
+                pendingCommunityDetails = null,
+                errorMessage = null,
+                errorMessageRes = null
+            )
+        }
+
         loadCommunityContent(community)
     }
 }

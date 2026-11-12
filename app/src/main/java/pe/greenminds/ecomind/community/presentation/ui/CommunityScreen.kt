@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -62,7 +61,6 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.FadedGray
 import pe.greenminds.ecomind.shared.interfaces.theme.HintGray
 import pe.greenminds.ecomind.shared.interfaces.theme.MossGreen
-import pe.greenminds.ecomind.shared.interfaces.theme.SageGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
@@ -77,13 +75,146 @@ import androidx.compose.material3.TextButton
 import pe.greenminds.ecomind.community.domain.entity.CommunityGoal
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-
+import androidx.compose.runtime.LaunchedEffect
+import pe.greenminds.ecomind.community.presentation.viewmodel.CreateEventViewModel
+import androidx.activity.compose.BackHandler
+import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityEventsViewModel
+import pe.greenminds.ecomind.community.presentation.viewmodel.CreateCommunityViewModel
 @Composable
-fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
+fun CommunityScreen(
+    viewModel: CommunityViewModel = hiltViewModel(),
+    createEventViewModel: CreateEventViewModel = hiltViewModel(),
+    eventsViewModel: CommunityEventsViewModel = hiltViewModel(),
+    createCommunityViewModel: CreateCommunityViewModel = hiltViewModel()
+) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+
+    val createState = createEventViewModel.state.collectAsStateWithLifecycle().value
+
+    val eventsState by eventsViewModel.state.collectAsStateWithLifecycle()
+
+    val createCommunityState by createCommunityViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.selectedCommunity?.id) {
+        eventsViewModel.bindCommunity(state.selectedCommunity?.id)
+    }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.refreshCommunityContent()
+        createEventViewModel.refreshPermission()
+        eventsViewModel.refresh()
+        createCommunityViewModel.refreshPermission()
+    }
+
+    LaunchedEffect(
+        createState.createdEventId,
+        createState.isSubmitting
+    ) {
+        if (
+            createState.createdEventId != null &&
+            !createState.isSubmitting
+        ) {
+            createEventViewModel.close()
+            viewModel.selectSection(CommunitySection.EVENTS)
+            viewModel.refreshCommunityContent()
+            eventsViewModel.refresh()
+        }
+    }
+
+    LaunchedEffect(createCommunityState.createdCommunity) {
+        val community = createCommunityState.createdCommunity
+            ?: return@LaunchedEffect
+
+        viewModel.onCommunityCreated(community)
+        createCommunityViewModel.close()
+    }
+
+    if (createCommunityState.isOpen) {
+        CreateCommunityScreen(
+            state = createCommunityState,
+            moreEnabled = state.canAccessMoreCommunities,
+            onChange = createCommunityViewModel::change,
+            onImageSelected = createCommunityViewModel::selectImage,
+            onSubmit = createCommunityViewModel::submit,
+            onCancel = createCommunityViewModel::close,
+            onLocalTab = {
+                createCommunityViewModel.close()
+                viewModel.showLocalCommunity()
+            }
+        )
+        return
+    }
+
+    if (eventsState.chat != null) {
+        EventChatScreen(
+            state = eventsState,
+            viewModel = eventsViewModel,
+            selectedTab = state.activeDirectoryTab,
+            moreEnabled = state.canAccessMoreCommunities,
+            onBack = {
+                eventsViewModel.closeChat()
+                eventsViewModel.refresh()
+            },
+            onLocalTab = {
+                eventsViewModel.closeChat()
+                viewModel.showLocalCommunity()
+            },
+            onMoreTab = {
+                eventsViewModel.closeChat()
+                viewModel.showMoreCommunities()
+            }
+        )
+        return
+    }
+
+    if (createState.community != null) {
+        CreateEventScreen(
+            state = createState,
+            moreEnabled = state.canAccessMoreCommunities,
+            onChange = createEventViewModel::change,
+            onImageSelected = createEventViewModel::selectImage,
+            onPointSelected = createEventViewModel::selectPoint,
+            onSubmit = createEventViewModel::submit,
+            onCancel = createEventViewModel::close,
+            onLocalTab = {
+                createEventViewModel.close()
+                viewModel.showLocalCommunity()
+            },
+            onMoreTab = {
+                createEventViewModel.close()
+                viewModel.showMoreCommunities()
+            }
+        )
+        return
+    }
+
+    if (state.selectedCommunity == null && eventsState.mine) {
+        BackHandler {
+            eventsViewModel.showCommunityEvents()
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            TextButton(onClick = eventsViewModel::showCommunityEvents) {
+                Text(stringResource(R.string.event_flow_back))
+            }
+
+            Text(
+                text = stringResource(R.string.event_flow_mine),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            CommunityEventsContent(
+                viewModel = eventsViewModel,
+                canCreate = false,
+                onCreate = {}
+            )
+        }
+        return
     }
 
     when {
@@ -98,6 +229,7 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
         state.isShowingMoreCommunitiesList -> {
             MoreCommunitiesScreen(
                 state = state,
+                canCreateCommunity = createCommunityState.canCreate && !createCommunityState.isCheckingPermission,
                 onLocalTab = viewModel::showLocalCommunity,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 onToggleList = {
@@ -109,7 +241,7 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                             viewModel.showMyTopicCommunities()
                     }
                 },
-                onCreateCommunity = {},
+                onCreateCommunity = createCommunityViewModel::open,
                 onOpenDetails = viewModel::showCommunityDetails,
                 onConfirmJoin = viewModel::joinPendingCommunity,
                 onCancelDetails = viewModel::dismissCommunityDetails,
@@ -118,22 +250,33 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
             )
         }
         state.selectedCommunity == null -> {
-            LocalCommunitySelectionScreen(
-                state = state,
-                onLocalityInputChange = viewModel::updateLocalityInput,
-                onSearchQueryChange = viewModel::updateSearchQuery,
-                onSaveLocality = viewModel::saveLocalityAndSearch,
-                onSearch = viewModel::searchCurrentLocality,
-                onEnter = viewModel::showCommunityDetails,
-                onJoin = viewModel::joinPendingCommunity,
-                onCancelDetails = viewModel::dismissCommunityDetails,
-                onRetry = viewModel::retry,
-                onMoreTab = viewModel::showMoreCommunities,
-                onLocationRequested = viewModel::markLocationRequested,
-                onLocationPermissionDenied = viewModel::onLocationPermissionDenied,
-                onDetectLocality = viewModel::detectCurrentLocality,
-                onCancelLocation = viewModel::cancelLocalityDetection
-            )
+            Column(modifier = Modifier.fillMaxSize()) {
+                TextButton(
+                    onClick = eventsViewModel::showMine,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text(stringResource(R.string.event_flow_mine))
+                }
+
+                Box(modifier = Modifier.weight(1f)) {
+                    LocalCommunitySelectionScreen(
+                        state = state,
+                        onLocalityInputChange = viewModel::updateLocalityInput,
+                        onSearchQueryChange = viewModel::updateSearchQuery,
+                        onSaveLocality = viewModel::saveLocalityAndSearch,
+                        onSearch = viewModel::searchCurrentLocality,
+                        onEnter = viewModel::showCommunityDetails,
+                        onJoin = viewModel::joinPendingCommunity,
+                        onCancelDetails = viewModel::dismissCommunityDetails,
+                        onRetry = viewModel::retry,
+                        onMoreTab = viewModel::showMoreCommunities,
+                        onLocationRequested = viewModel::markLocationRequested,
+                        onLocationPermissionDenied = viewModel::onLocationPermissionDenied,
+                        onDetectLocality = viewModel::detectCurrentLocality,
+                        onCancelLocation = viewModel::cancelLocalityDetection
+                    )
+                }
+            }
         }
 
         else -> {
@@ -148,7 +291,26 @@ fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
                 onDismissCommunityOptions = viewModel::dismissCommunityOptions,
                 onLeaveCommunity = viewModel::requestLeaveCommunity,
                 onConfirmLeave = viewModel::confirmLeaveCommunity,
-                onCancelLeave = viewModel::dismissLeaveConfirmation
+                onCancelLeave = viewModel::dismissLeaveConfirmation,
+                canCreateEvents = createState.canCreate && !createState.isCheckingPermission,
+                eventPermissionFailed = createState.permissionError != null,
+                onRetryEventPermission = createEventViewModel::refreshPermission,
+                onCreateEvent = {
+                    state.selectedCommunity?.let {
+                        createEventViewModel.start(it)
+                    }
+                },
+                eventsContent = {
+                    CommunityEventsContent(
+                        viewModel = eventsViewModel,
+                        canCreate = createState.canCreate && !createState.isCheckingPermission,
+                        onCreate = {
+                            state.selectedCommunity?.let {
+                                createEventViewModel.start(it)
+                            }
+                        }
+                    )
+                }
             )
         }
     }
@@ -167,7 +329,12 @@ private fun CommunityContent(
     onDismissCommunityOptions: () -> Unit,
     onLeaveCommunity: () -> Unit,
     onConfirmLeave: () -> Unit,
-    onCancelLeave: () -> Unit
+    onCancelLeave: () -> Unit,
+    canCreateEvents: Boolean = false,
+    eventPermissionFailed: Boolean = false,
+    onRetryEventPermission: () -> Unit = {},
+    onCreateEvent: () -> Unit = {},
+    eventsContent: @Composable () -> Unit = {}
 )  {
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
@@ -246,21 +413,18 @@ private fun CommunityContent(
         ) {
             when (state.selectedSection) {
                 CommunitySection.EVENTS -> {
-                    SearchRow(onAction = openComingSoon)
-
-                    if (state.isLoadingEvents) {
-                        val loadingDescription = stringResource(R.string.loading)
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 24.dp)
-                                .semantics { contentDescription = loadingDescription }
+                    if (eventPermissionFailed) {
+                        Text(
+                            text = stringResource(R.string.event_permission_failed),
+                            style = poppinsTextStyle(12)
                         )
-                    } else {
-                        state.events.forEach { event ->
-                            CommunityEventCard(event = event, onAction = openComingSoon)
+
+                        TextButton(onClick = onRetryEventPermission) {
+                            Text(stringResource(R.string.event_retry))
                         }
                     }
+
+                    eventsContent()
                 }
 
                 CommunitySection.AWARDS -> CommunityAwardsContent(
@@ -269,8 +433,7 @@ private fun CommunityContent(
                 )
 
                 CommunitySection.NEWS -> CommunityNewsContent(
-                    posts = state.posts,
-                    isLoading = state.isLoadingPosts
+                    communityId = community.id
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -350,7 +513,7 @@ internal fun CommunitySelector(
                 .clip(shape)
                 .background(
                     if (localSelected) MaterialTheme.colorScheme.primary
-                    else Color(0xFFB3B3B3)
+                    else White
                 )
                 .clickable(role = Role.Tab, onClick = onLocalTab)
                 .semantics { selected = localSelected },
@@ -359,7 +522,7 @@ internal fun CommunitySelector(
             Text(
                 text = stringResource(R.string.community_local),
                 style = interTextStyle(14, FontWeight.Bold),
-                color = White,
+                color = if (localSelected) White else MossGreen,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -371,10 +534,10 @@ internal fun CommunitySelector(
                 .heightIn(min = 40.dp)
                 .clip(shape)
                 .background(
-                    if (moreSelected && moreEnabled) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        Color(0xFFB3B3B3)
+                    when {
+                        !moreEnabled -> Color(0xFFB3B3B3)
+                        moreSelected -> MaterialTheme.colorScheme.primary
+                        else -> White
                     }
                 )
                 .clickable(
@@ -388,7 +551,7 @@ internal fun CommunitySelector(
             Text(
                 text = stringResource(R.string.community_more),
                 style = interTextStyle(14, FontWeight.Bold),
-                color = White,
+                color = if (!moreEnabled || moreSelected) White else MossGreen,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -536,7 +699,11 @@ private fun CommunityTab(
 }
 
 @Composable
-private fun SearchRow(onAction: () -> Unit) {
+private fun SearchRow(
+    canCreateEvents: Boolean,
+    onCreateEvent: () -> Unit,
+    onAction: () -> Unit
+) {
     val pillShape = RoundedCornerShape(percent = 50)
     val searchLabel = stringResource(R.string.community_search)
 
@@ -576,10 +743,12 @@ private fun SearchRow(onAction: () -> Unit) {
 
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            SmallActionPill(
-                text = stringResource(R.string.community_create_event),
-                onClick = onAction
-            )
+            if (canCreateEvents) {
+                SmallActionPill(
+                    text = stringResource(R.string.community_create_event),
+                    onClick = onCreateEvent
+                )
+            }
             SmallActionPill(
                 text = stringResource(R.string.community_my_events),
                 onClick = onAction
@@ -589,7 +758,11 @@ private fun SearchRow(onAction: () -> Unit) {
 }
 
 @Composable
-internal fun SmallActionPill(text: String, onClick: () -> Unit) {
+internal fun SmallActionPill(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
     val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
@@ -598,7 +771,7 @@ internal fun SmallActionPill(text: String, onClick: () -> Unit) {
             .width(96.dp)
             .heightIn(min = 32.dp)
             .clip(pillShape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
     ) {
         Text(
             text = text,
@@ -608,7 +781,10 @@ internal fun SmallActionPill(text: String, onClick: () -> Unit) {
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary, pillShape)
+                .background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else 0.38f),
+                    pillShape
+                )
                 .padding(vertical = 2.dp)
         )
     }
