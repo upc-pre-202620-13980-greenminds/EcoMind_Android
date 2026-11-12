@@ -1,4 +1,4 @@
-package pe.greenminds.ecomind.community.interfaces.sections
+package pe.greenminds.ecomind.community.presentation.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,10 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.community.domain.entity.CommunityAchievement
 import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.SunYellow
@@ -29,35 +31,35 @@ import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 @Composable
-fun CommunityAwardsContent(modifier: Modifier = Modifier) {
+fun CommunityAwardsContent(
+    achievements: List<CommunityAchievement>,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier
+) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        AwardCard(
-            title = stringResource(R.string.community_award_achievement_title),
-            description = stringResource(R.string.community_award_achievement_description)
-        )
-        AwardCard(
-            title = stringResource(R.string.community_award_family_title),
-            description = stringResource(R.string.community_award_family_description)
-        )
-        AwardCard(
-            title = stringResource(R.string.community_award_member_title),
-            description = stringResource(R.string.community_award_member_description)
-        )
-        AwardCard(
-            title = stringResource(R.string.community_award_goal_title),
-            description = stringResource(R.string.community_award_goal_description)
-        )
+        when {
+            isLoading -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            achievements.isEmpty() ->
+                Text(stringResource(R.string.community_no_achievements))
+
+            else -> achievements.forEach { achievement ->
+                AwardCard(
+                    title = achievement.title,
+                    description = achievement.description.orEmpty()
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun AwardCard(
-    title: String,
-    description: String
-) {
+private fun AwardCard(title: String, description: String) {
     val shape = RoundedCornerShape(28.dp)
 
     Row(
@@ -87,12 +89,14 @@ private fun AwardCard(
                 style = interTextStyle(14, FontWeight.Medium),
                 color = TextPrimary
             )
-            Text(
-                text = description,
-                style = interTextStyle(12),
-                color = TextPrimary,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            if (description.isNotBlank()) {
+                Text(
+                    text = description,
+                    style = interTextStyle(12),
+                    color = TextPrimary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
     }
 }
@@ -101,6 +105,10 @@ private fun AwardCard(
 @Composable
 private fun CommunityAwardsContentPreview() {
     EcoMindTheme {
-        CommunityAwardsContent(modifier = Modifier.padding(16.dp))
+        CommunityAwardsContent(
+            achievements = emptyList(),
+            isLoading = false,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
