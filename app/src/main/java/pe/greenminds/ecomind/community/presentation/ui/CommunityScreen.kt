@@ -78,18 +78,29 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.LaunchedEffect
 import pe.greenminds.ecomind.community.presentation.viewmodel.CreateEventViewModel
+import androidx.activity.compose.BackHandler
+import pe.greenminds.ecomind.community.presentation.viewmodel.CommunityEventsViewModel
+
 @Composable
 fun CommunityScreen(
     viewModel: CommunityViewModel = hiltViewModel(),
-    createEventViewModel: CreateEventViewModel = hiltViewModel()
+    createEventViewModel: CreateEventViewModel = hiltViewModel(),
+    eventsViewModel: CommunityEventsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
     val createState = createEventViewModel.state.collectAsStateWithLifecycle().value
 
+    val eventsState by eventsViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.selectedCommunity?.id) {
+        eventsViewModel.bindCommunity(state.selectedCommunity?.id)
+    }
+
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.refreshCommunityContent()
         createEventViewModel.refreshPermission()
+        eventsViewModel.refresh()
     }
 
     LaunchedEffect(
@@ -103,7 +114,30 @@ fun CommunityScreen(
             createEventViewModel.close()
             viewModel.selectSection(CommunitySection.EVENTS)
             viewModel.refreshCommunityContent()
+            eventsViewModel.refresh()
         }
+    }
+
+    if (eventsState.chat != null) {
+        EventChatScreen(
+            state = eventsState,
+            viewModel = eventsViewModel,
+            selectedTab = state.activeDirectoryTab,
+            moreEnabled = state.canAccessMoreCommunities,
+            onBack = {
+                eventsViewModel.closeChat()
+                eventsViewModel.refresh()
+            },
+            onLocalTab = {
+                eventsViewModel.closeChat()
+                viewModel.showLocalCommunity()
+            },
+            onMoreTab = {
+                eventsViewModel.closeChat()
+                viewModel.showMoreCommunities()
+            }
+        )
+        return
     }
 
     if (createState.community != null) {
@@ -124,6 +158,35 @@ fun CommunityScreen(
                 viewModel.showMoreCommunities()
             }
         )
+        return
+    }
+
+    if (state.selectedCommunity == null && eventsState.mine) {
+        BackHandler {
+            eventsViewModel.showCommunityEvents()
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            TextButton(onClick = eventsViewModel::showCommunityEvents) {
+                Text(stringResource(R.string.event_flow_back))
+            }
+
+            Text(
+                text = stringResource(R.string.event_flow_mine),
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            CommunityEventsContent(
+                viewModel = eventsViewModel,
+                canCreate = false,
+                onCreate = {}
+            )
+        }
         return
     }
 
@@ -159,22 +222,33 @@ fun CommunityScreen(
             )
         }
         state.selectedCommunity == null -> {
-            LocalCommunitySelectionScreen(
-                state = state,
-                onLocalityInputChange = viewModel::updateLocalityInput,
-                onSearchQueryChange = viewModel::updateSearchQuery,
-                onSaveLocality = viewModel::saveLocalityAndSearch,
-                onSearch = viewModel::searchCurrentLocality,
-                onEnter = viewModel::showCommunityDetails,
-                onJoin = viewModel::joinPendingCommunity,
-                onCancelDetails = viewModel::dismissCommunityDetails,
-                onRetry = viewModel::retry,
-                onMoreTab = viewModel::showMoreCommunities,
-                onLocationRequested = viewModel::markLocationRequested,
-                onLocationPermissionDenied = viewModel::onLocationPermissionDenied,
-                onDetectLocality = viewModel::detectCurrentLocality,
-                onCancelLocation = viewModel::cancelLocalityDetection
-            )
+            Column(modifier = Modifier.fillMaxSize()) {
+                TextButton(
+                    onClick = eventsViewModel::showMine,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text(stringResource(R.string.event_flow_mine))
+                }
+
+                Box(modifier = Modifier.weight(1f)) {
+                    LocalCommunitySelectionScreen(
+                        state = state,
+                        onLocalityInputChange = viewModel::updateLocalityInput,
+                        onSearchQueryChange = viewModel::updateSearchQuery,
+                        onSaveLocality = viewModel::saveLocalityAndSearch,
+                        onSearch = viewModel::searchCurrentLocality,
+                        onEnter = viewModel::showCommunityDetails,
+                        onJoin = viewModel::joinPendingCommunity,
+                        onCancelDetails = viewModel::dismissCommunityDetails,
+                        onRetry = viewModel::retry,
+                        onMoreTab = viewModel::showMoreCommunities,
+                        onLocationRequested = viewModel::markLocationRequested,
+                        onLocationPermissionDenied = viewModel::onLocationPermissionDenied,
+                        onDetectLocality = viewModel::detectCurrentLocality,
+                        onCancelLocation = viewModel::cancelLocalityDetection
+                    )
+                }
+            }
         }
 
         else -> {
@@ -197,6 +271,17 @@ fun CommunityScreen(
                     state.selectedCommunity?.let {
                         createEventViewModel.start(it)
                     }
+                },
+                eventsContent = {
+                    CommunityEventsContent(
+                        viewModel = eventsViewModel,
+                        canCreate = createState.canCreate && !createState.isCheckingPermission,
+                        onCreate = {
+                            state.selectedCommunity?.let {
+                                createEventViewModel.start(it)
+                            }
+                        }
+                    )
                 }
             )
         }
@@ -220,7 +305,8 @@ private fun CommunityContent(
     canCreateEvents: Boolean = false,
     eventPermissionFailed: Boolean = false,
     onRetryEventPermission: () -> Unit = {},
-    onCreateEvent: () -> Unit = {}
+    onCreateEvent: () -> Unit = {},
+    eventsContent: @Composable () -> Unit = {}
 )  {
     var showComingSoon by rememberSaveable { mutableStateOf(false) }
     val openComingSoon = { showComingSoon = true }
@@ -299,17 +385,9 @@ private fun CommunityContent(
         ) {
             when (state.selectedSection) {
                 CommunitySection.EVENTS -> {
-                    SearchRow(
-                        canCreateEvents = canCreateEvents,
-                        onCreateEvent = onCreateEvent,
-                        onAction = openComingSoon
-                    )
-
                     if (eventPermissionFailed) {
                         Text(
-                            text = stringResource(
-                                R.string.event_permission_failed
-                            ),
+                            text = stringResource(R.string.event_permission_failed),
                             style = poppinsTextStyle(12)
                         )
 
@@ -318,19 +396,7 @@ private fun CommunityContent(
                         }
                     }
 
-                    if (state.isLoadingEvents) {
-                        val loadingDescription = stringResource(R.string.loading)
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 24.dp)
-                                .semantics { contentDescription = loadingDescription }
-                        )
-                    } else {
-                        state.events.forEach { event ->
-                            CommunityEventCard(event = event, onAction = openComingSoon)
-                        }
-                    }
+                    eventsContent()
                 }
 
                 CommunitySection.AWARDS -> CommunityAwardsContent(

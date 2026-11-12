@@ -24,6 +24,12 @@ import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 import pe.greenminds.ecomind.community.domain.entity.NewCommunityEvent
 import pe.greenminds.ecomind.iam.domain.repositories.SessionRepository
+import pe.greenminds.ecomind.community.domain.entity.EventChatMessage
+import pe.greenminds.ecomind.community.domain.entity.EventChatPage
+import pe.greenminds.ecomind.community.domain.valueobjects.EventChatUnavailableException
+import pe.greenminds.ecomind.community.infrastructure.remote.RegisterForEventRequest
+import pe.greenminds.ecomind.community.infrastructure.remote.SendEventChatMessageRequest
+import pe.greenminds.ecomind.shared.infrastructure.remote.ApiException
 
 class RemoteCommunityRepository @Inject constructor(
     private val api: CommunityApi,
@@ -128,6 +134,107 @@ class RemoteCommunityRepository @Inject constructor(
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+    override suspend fun getEventParticipation(communityId: Long?) =
+        execute(
+            request = {
+                if (communityId == null) api.getMyEvents()
+                else api.getEventParticipation(communityId)
+            },
+            transform = { list -> list.map { it.toDomain() } }
+        )
+
+    override suspend fun registerForEvent(
+        eventId: Long,
+        familyId: Long?
+    ): Result<Unit> = executeWithoutBody {
+        api.registerForEvent(
+            eventId,
+            RegisterForEventRequest(
+                registrationType = if (familyId == null) "INDIVIDUAL" else "FAMILY",
+                familyId = familyId
+            )
+        )
+    }
+
+    override suspend fun leaveEvent(eventId: Long): Result<Unit> =
+        executeWithoutBody { api.leaveEvent(eventId) }
+
+    override suspend fun deleteEvent(eventId: Long): Result<Unit> =
+        executeWithoutBody { api.deleteEvent(eventId) }
+
+    override suspend fun cancelEventGroup(
+        eventId: Long,
+        registrationId: Long
+    ): Result<Unit> = executeWithoutBody {
+        api.cancelEventGroup(eventId, registrationId)
+    }
+
+    override suspend fun getEventChatMessages(
+        eventId: Long,
+        afterId: Long
+    ): Result<EventChatPage> =
+        execute({ api.getEventChatMessages(eventId, afterId) }) {
+            it.toDomain()
+        }.mapChatFailure()
+
+    override suspend fun sendEventChatMessage(
+        eventId: Long,
+        text: String,
+        clientId: String
+    ): Result<EventChatMessage> =
+        execute({
+            api.sendEventChatMessage(
+                eventId,
+                SendEventChatMessageRequest(text, clientId)
+            )
+        }) {
+            it.toDomain()
+        }.mapChatFailure()
+
+    private fun <T> Result<T>.mapChatFailure(): Result<T> = fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { exception ->
+            val unavailable = when (exception) {
+                is ApiException -> exception.code in setOf(
+                    "EVENT_CHAT_FORBIDDEN",
+                    "EVENT_CHAT_EXPIRED",
+                    "EVENT_NOT_FOUND"
+                )
+                is HttpException -> exception.code() == 403 || exception.code() == 404
+                else -> false
+            }
+
+            Result.failure(
+                if (unavailable) EventChatUnavailableException(exception.message)
+                else exception
+            )
+        }
+    )
+
+    private suspend fun executeWithoutBody(
+        request: suspend () -> Response<Unit>
+    ): Result<Unit> = try {
+        val response = request()
+
+        if (response.isSuccessful) {
+            Result.success(Unit)
+        } else {
+            val error = try {
+                response.errorBody()?.use {
+                    Gson().fromJson(it.string(), ErrorDto::class.java)
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            Result.failure(error?.toException() ?: HttpException(response))
+        }
+    } catch (exception: CancellationException) {
+        throw exception
+    } catch (exception: Exception) {
+        Result.failure(exception)
     }
     private suspend fun <Dto : Any, Model> execute(
         request: suspend () -> Response<Dto>,

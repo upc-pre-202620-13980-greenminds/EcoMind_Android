@@ -125,4 +125,52 @@
     <string name="event_permission_failed">Could not check your permission to create events.</string>
     <string name="event_retry">Retry</string>
     <string name="event_available_places">Available places: %1$d</string>
+
+    <string name="event_flow_events">Events</string>
+    <string name="event_flow_mine">My Events</string>
+    <string name="event_flow_search">Search</string>
+    <string name="event_flow_create">+ Create</string>
+    <string name="event_flow_join">Join event</string>
+    <string name="event_flow_joined">Already joined</string>
+    <string name="event_flow_individual">Join individually</string>
+    <string name="event_flow_family">Join as family</string>
+    <string name="event_flow_success_individual">You joined the community event</string>
+    <string name="event_flow_success_family">Your family joined the community event</string>
+    <string name="event_flow_continue">Continue</string>
+    <string name="event_flow_cancel">Cancel</string>
+    <string name="event_flow_leave">Leave</string>
+    <string name="event_flow_leave_self">Leave individually</string>
+    <string name="event_flow_leave_group">Cancel family registration</string>
+    <string name="event_flow_leave_title">Leave event</string>
+    <string name="event_flow_leave_question">Choose whose participation you want to cancel.</string>
+    <string name="event_flow_creator_leave">If you leave, this event, all registrations and chat messages will be deleted.</string>
+    <string name="event_flow_chat">Chat</string>
+    <string name="event_flow_active">Active</string>
+    <string name="event_flow_inactive">Inactive</string>
+    <string name="event_flow_managing">Managing family</string>
+    <string name="event_flow_participants">Participants: %1$d of %2$d</string>
+    <string name="event_flow_limit">Limit: %1$d/%2$d participants</string>
+    <string name="event_flow_creator">Creator: %1$s</string>
+    <string name="event_flow_date">Date: %1$s</string>
+    <string name="event_flow_time">Time: %1$s</string>
+    <string name="event_flow_address">Address: %1$s</string>
+    <string name="event_flow_empty">No events to show.</string>
+    <string name="event_flow_retry">Retry</string>
+    <string name="event_flow_back">Back</string>
+    <string name="event_flow_message">Message…</string>
+    <string name="event_flow_send">Send</string>
+    <string name="event_flow_admin">%1$s (Admin)</string>
+    <string name="event_flow_no_messages">No messages yet.</string>
+    <string name="event_flow_unavailable">This chat is no longer available.</string>
+
+    <string name="event_flow_load_error">Unable to load events.</string>
+    <string name="event_flow_join_error">Unable to join the event.</string>
+    <string name="event_flow_leave_error">Unable to leave the event.</string>
+    <string name="event_flow_messages_error">Unable to load messages.</string>
+    <string name="event_flow_send_error">Unable to send the message.</string>
+
+    <string name="event_flow_delete_title">Leave and delete event</string>
+    <string name="event_flow_delete_question">You created this event. Leaving will permanently delete the event, all registrations and chat messages for everyone.</string>
+    <string name="event_flow_delete_confirm">Leave and delete</string>
+    <string name="event_flow_delete_error">Unable to delete the event.</string>
 </resources>
