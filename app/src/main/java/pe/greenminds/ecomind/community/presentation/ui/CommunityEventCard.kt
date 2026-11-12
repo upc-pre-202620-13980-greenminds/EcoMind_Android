@@ -62,7 +62,7 @@ fun CommunityEventCard(
 
         Row(modifier = Modifier.padding(top = 4.dp)) {
             Text(
-                text = event.description,
+                text = event.description.orEmpty(),
                 style = interTextStyle(12, FontWeight.Medium),
                 color = TextPrimary,
                 modifier = Modifier.weight(1f)
@@ -136,9 +136,14 @@ private fun CommunityEventCardPreview() {
         CommunityEventCard(
             event = CommunityEvent(
                 id = 1L,
-                title = stringResource(R.string.app_name),
-                description = stringResource(R.string.coming_soon_message),
-                date = ""
+                communityId = 1L,
+                title = "Community cleanup",
+                description = "Neighbors will clean the local park.",
+                date = "2026-11-20",
+                startTime = "09:00:00",
+                location = "Lima",
+                capacity = 30,
+                imageUrl = null
             ),
             onAction = {},
             modifier = Modifier.padding(16.dp)

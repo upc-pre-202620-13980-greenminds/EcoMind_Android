@@ -86,4 +86,11 @@
     <string name="community_leave_title">¿Abandonar comunidad?</string>
     <string name="community_leave_confirmation">¿Seguro que deseas abandonar %1$s?</string>
     <string name="community_leave_error">No se pudo abandonar la comunidad.</string>
+
+    <string name="community_no_posts">Aún no hay publicaciones en esta comunidad.</string>
+    <string name="community_no_achievements">Aún no hay logros en esta comunidad.</string>
+    <string name="community_likes_count">%1$d Me gusta</string>
+    <string name="community_loading_goal">Cargando meta comunitaria…</string>
+    <string name="community_no_active_goal">No hay una meta comunitaria activa.</string>
+    <string name="community_goal_progress">%1$s: %2$d/%3$d</string>
 </resources>

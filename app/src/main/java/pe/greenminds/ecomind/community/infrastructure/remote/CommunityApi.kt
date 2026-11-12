@@ -26,4 +26,24 @@ interface CommunityApi {
     suspend fun leaveCommunity(
         @Path("communityId") communityId: Long
     ): Response<Unit>
+
+    @GET("Community/Events")
+    suspend fun getEvents(
+        @Query("community_id") communityId: Long
+    ): Response<List<CommunityEventDto>>
+
+    @GET("Community/Posts")
+    suspend fun getPosts(
+        @Query("community_id") communityId: Long
+    ): Response<List<CommunityPostDto>>
+
+    @GET("Community/Achievements")
+    suspend fun getAchievements(
+        @Query("community_id") communityId: Long
+    ): Response<List<CommunityAchievementDto>>
+
+    @GET("Community/Community-goals")
+    suspend fun getCommunityGoals(
+        @Query("community_id") communityId: Long
+    ): Response<List<CommunityGoalDto>>
 }

@@ -26,6 +26,9 @@ import pe.greenminds.ecomind.community.presentation.states.TopicCommunityListMod
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import pe.greenminds.ecomind.community.application.usecase.GetCommunityAchievementsUseCase
+import pe.greenminds.ecomind.community.application.usecase.GetCommunityGoalsUseCase
+import pe.greenminds.ecomind.community.application.usecase.GetCommunityPostsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetCurrentLocalityUseCase
 import pe.greenminds.ecomind.community.application.usecase.LeaveCommunityUseCase
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
@@ -40,7 +43,10 @@ class CommunityViewModel @Inject constructor(
     private val getPreferredLocality: GetPreferredLocalityUseCase,
     private val savePreferredLocality: SavePreferredLocalityUseCase,
     private val getCurrentLocality: GetCurrentLocalityUseCase,
-    private val leaveCommunity: LeaveCommunityUseCase
+    private val leaveCommunity: LeaveCommunityUseCase,
+    private val getPosts: GetCommunityPostsUseCase,
+    private val getAchievements: GetCommunityAchievementsUseCase,
+    private val getGoals: GetCommunityGoalsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityUiState())
@@ -152,7 +158,7 @@ class CommunityViewModel @Inject constructor(
                 errorMessageRes = null
             )
         }
-        loadEvents()
+        loadCommunityContent(community)
     }
 
     fun saveLocalityAndSearch() {
@@ -204,6 +210,9 @@ class CommunityViewModel @Inject constructor(
             _state.value.isShowingMoreCommunitiesList ->
                 loadTopicCommunities()
 
+            _state.value.selectedCommunity != null ->
+                loadCommunityContent(checkNotNull(_state.value.selectedCommunity))
+
             _state.value.preferredLocality != null ->
                 searchCurrentLocality()
 
@@ -248,7 +257,7 @@ class CommunityViewModel @Inject constructor(
                                 errorMessageRes = null
                             )
                         }
-                        loadEvents()
+                        loadCommunityContent(community)
                     } else {
                         _state.update { currentState ->
                             currentState.copy(
@@ -538,16 +547,16 @@ class CommunityViewModel @Inject constructor(
                 errorMessageRes = null
             )
         }
-        loadEvents()
+        loadCommunityContent(community)
     }
-    private fun loadEvents() {
+    private fun loadEvents(communityId: Long) {
         viewModelScope.launch {
             _state.update { it.copy(isLoadingEvents = true) }
 
-            getEvents()
+            getEvents(communityId)
                 .onSuccess { events ->
                     _state.update {
-                        it.copy(isLoadingEvents = false, events = events)
+                        it.copy(events = events, isLoadingEvents = false)
                     }
                 }
                 .onFailure { error ->
@@ -557,6 +566,82 @@ class CommunityViewModel @Inject constructor(
                             errorMessage = error.message,
                             errorMessageRes = if (error.message == null) {
                                 R.string.community_events_error
+                            } else null
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadPosts(id: Long) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingPosts = true) }
+
+            getPosts(id)
+                .onSuccess { posts ->
+                    _state.update {
+                        it.copy(posts = posts, isLoadingPosts = false)
+                    }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoadingPosts = false,
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_load_list_error
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadAchievements(id: Long) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingAchievements = true) }
+
+            getAchievements(id)
+                .onSuccess { achievements ->
+                    _state.update {
+                        it.copy(achievements = achievements, isLoadingAchievements = false)
+                    }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoadingAchievements = false,
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_load_list_error
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadGoals(id: Long) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingGoals = true) }
+
+            getGoals(id)
+                .onSuccess { goals ->
+                    _state.update {
+                        it.copy(goals = goals, isLoadingGoals = false)
+                    }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoadingGoals = false,
+                            errorMessage = error.message,
+                            errorMessageRes = if (error.message == null) {
+                                R.string.community_load_list_error
                             } else {
                                 null
                             }
@@ -763,5 +848,17 @@ class CommunityViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    private fun loadCommunityContent(community: Community) {
+        loadEvents(community.id)
+        loadPosts(community.id)
+        loadAchievements(community.id)
+        loadGoals(community.id)
+    }
+
+    fun refreshCommunityContent() {
+        val community = _state.value.selectedCommunity ?: return
+        loadCommunityContent(community)
     }
 }

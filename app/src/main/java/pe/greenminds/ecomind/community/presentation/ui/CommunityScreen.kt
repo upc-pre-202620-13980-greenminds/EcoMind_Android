@@ -74,10 +74,17 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import pe.greenminds.ecomind.community.domain.entity.CommunityGoal
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 
 @Composable
 fun CommunityScreen(viewModel: CommunityViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshCommunityContent()
+    }
 
     when {
         state.isLoadingCommunity -> {
@@ -218,7 +225,13 @@ private fun CommunityContent(
                     }
                 }
             }
-            GoalCard(onClick = openComingSoon)
+            GoalCard(
+                goal = state.goals.firstOrNull {
+                    it.status.equals("active", ignoreCase = true)
+                },
+                isLoading = state.isLoadingGoals,
+                onClick = openComingSoon
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -250,16 +263,20 @@ private fun CommunityContent(
                     }
                 }
 
-                CommunitySection.AWARDS -> CommunityAwardsContent()
-                CommunitySection.NEWS -> CommunityNewsContent()
+                CommunitySection.AWARDS -> CommunityAwardsContent(
+                    achievements = state.achievements,
+                    isLoading = state.isLoadingAchievements
+                )
+
+                CommunitySection.NEWS -> CommunityNewsContent(
+                    posts = state.posts,
+                    isLoading = state.isLoadingPosts
+                )
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
-    if (showComingSoon) {
-        ComingSoonDialog(onDismiss = { showComingSoon = false })
-    }
     if (showComingSoon) {
         ComingSoonDialog(onDismiss = { showComingSoon = false })
     }
@@ -399,7 +416,11 @@ private fun CommunityHeader(community: Community) {
 }
 
 @Composable
-private fun GoalCard(onClick: () -> Unit) {
+private fun GoalCard(
+    goal: CommunityGoal?,
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
     val shape = RoundedCornerShape(8.dp)
 
     Box(
@@ -418,7 +439,16 @@ private fun GoalCard(onClick: () -> Unit) {
                 .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
         ) {
             Text(
-                text = stringResource(R.string.community_sample_goal),
+                text = when {
+                    isLoading -> stringResource(R.string.community_loading_goal)
+                    goal == null -> stringResource(R.string.community_no_active_goal)
+                    else -> stringResource(
+                        R.string.community_goal_progress,
+                        goal.title,
+                        goal.progress,
+                        goal.target
+                    )
+                },
                 style = interTextStyle(16, FontWeight.Bold),
                 color = EcoGreenDark,
                 modifier = Modifier.weight(1f)
@@ -594,7 +624,7 @@ private fun CommunityContentPreview() {
                 id = 1L,
                 name = "Lima Community",
                 description = "Local community",
-                type = pe.greenminds.ecomind.community.domain.valueobjects.CommunityType.LOCAL,
+                type = CommunityType.LOCAL,
                 topic = null,
                 locality = "Lima",
                 memberLimit = 100,

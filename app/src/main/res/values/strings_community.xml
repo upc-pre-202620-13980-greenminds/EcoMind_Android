@@ -86,4 +86,11 @@
     <string name="community_leave_title">Leave community?</string>
     <string name="community_leave_confirmation">Are you sure you want to leave %1$s?</string>
     <string name="community_leave_error">Could not leave the community.</string>
+
+    <string name="community_no_posts">No posts in this community yet.</string>
+    <string name="community_no_achievements">No achievements in this community yet.</string>
+    <string name="community_likes_count">%1$d likes</string>
+    <string name="community_loading_goal">Loading community goal…</string>
+    <string name="community_no_active_goal">No active community goal.</string>
+    <string name="community_goal_progress">%1$s: %2$d/%3$d</string>
 </resources>
