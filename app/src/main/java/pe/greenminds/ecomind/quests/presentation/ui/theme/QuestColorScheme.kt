@@ -2,6 +2,8 @@ package pe.greenminds.ecomind.quests.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme
+import pe.greenminds.ecomind.shared.interfaces.theme.CoralRed
+import pe.greenminds.ecomind.shared.interfaces.theme.CoralRedDark
 
 data class QuestTileColors(
     val face: Color,
@@ -12,13 +14,15 @@ data class QuestTileColors(
 data class QuestColorScheme(
     val checkbox: QuestTileColors,
     val minigame: QuestTileColors,
-    val collaborative: QuestTileColors
+    val collaborative: QuestTileColors,
+    val write: QuestTileColors
 ) {
     fun colorsFor(theme: QuestTheme): QuestTileColors {
         return when (theme) {
             QuestTheme.CHECKBOX -> checkbox
             QuestTheme.MINIGAME -> minigame
             QuestTheme.COLLABORATIVE -> collaborative
+            QuestTheme.WRITE -> write
         }
     }
 }
@@ -38,5 +42,10 @@ val LightQuestColorScheme = QuestColorScheme(
         face = Color(0xFFFFC943),
         base = Color(0xFFFF9E42),
         top = Color(0xFFFFE079)
+    ),
+    write = QuestTileColors(
+        face = CoralRed,
+        base = CoralRedDark,
+        top = Color(0xFFFF9077)
     )
 )

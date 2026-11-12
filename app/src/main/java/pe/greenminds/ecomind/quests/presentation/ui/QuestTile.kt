@@ -20,13 +20,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 
 
@@ -116,20 +117,22 @@ private fun QuestTileFace(
                 .background(colors.face)
         )
 
+        val icon = when (theme) {
+            QuestTheme.CHECKBOX -> R.drawable.ic_quest_checkbox
+            QuestTheme.MINIGAME -> R.drawable.ic_quest_minigame
+            QuestTheme.COLLABORATIVE -> R.drawable.ic_quest_collaborative
+            QuestTheme.WRITE -> R.drawable.ic_quest_write
+        }
         androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(when (theme) {
-                QuestTheme.CHECKBOX -> pe.greenminds.ecomind.R.drawable.ic_quest_checkbox
-                QuestTheme.MINIGAME -> pe.greenminds.ecomind.R.drawable.ic_quest_minigame
-                QuestTheme.COLLABORATIVE -> pe.greenminds.ecomind.R.drawable.ic_quest_collaborative
-            }),
+            painter = androidx.compose.ui.res.painterResource(icon),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(.50f)
+            modifier = Modifier.fillMaxSize(if (theme == QuestTheme.WRITE) .65f else .50f)
         )
     }
 }
 
 @Preview(
-    name = "Quest tile shape",
+    name = "Write quest tile",
     showBackground = true,
     widthDp = 220,
     heightDp = 220
@@ -142,8 +145,8 @@ private fun QuestTilePreview() {
             modifier = Modifier.fillMaxSize()
         ) {
             QuestTile(
-                theme = QuestTheme.CHECKBOX,
-                contentDescription = QuestTheme.CHECKBOX.name,
+                theme = QuestTheme.WRITE,
+                contentDescription = stringResource(R.string.quest_filter_write),
                 onClick = {},
                 modifier = Modifier.size(
                     width = 160.dp,

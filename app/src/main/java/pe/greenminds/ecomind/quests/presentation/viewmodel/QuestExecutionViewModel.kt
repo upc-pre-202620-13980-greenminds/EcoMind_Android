@@ -188,6 +188,20 @@ class QuestExecutionViewModel @Inject constructor(
             withFamily(familyPlans.checkActivity(route.familyPlanId, requireNotNull(route.familyPlanItemId), id, checked).getOrThrow())
         } else copy(execution = service.check(requireNotNull(execution), id, checked))
     }
+    fun submitWrittenResponse(id: Long, text: String) = perform {
+        copy(execution = service.submitWrittenResponse(requireNotNull(execution), id, text))
+    }
+
+    fun viewSavedResponses() {
+        if (route.previewOnly || mutable.value.busy) return
+        mutable.update { state ->
+            val execution = state.execution
+            if (execution?.assignment?.status == QuestStatus.COMPLETED && execution.hasWrittenActivities) {
+                state.copy(stage = QuestStage.ACTIVITIES)
+            } else state
+        }
+    }
+
     fun finish() = perform {
         check(route.familyPlanId == null)
         copy(execution = service.finish(requireNotNull(execution)), stage = QuestStage.FINISHED)
