@@ -1,9 +1,7 @@
 package pe.greenminds.ecomind.quests.presentation.ui.invitations
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,13 +9,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +22,7 @@ import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.quests.domain.entity.CollabQuestMember
 import pe.greenminds.ecomind.quests.presentation.states.QuestPartyUiState
 import pe.greenminds.ecomind.monetization.interfaces.store.cosmeticImageResource
+import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
@@ -196,19 +193,18 @@ internal fun PartyAvatar(name: String, pending: Boolean = false, size: Dp = 40.d
     var imageLoaded by remember(imageUrl) { mutableStateOf(false) }
     Box(
         Modifier.size(size).alpha(if (pending) 0.45f else 1f)
-            .clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center
     ) {
         if (avatarResource != 0) {
             Image(painterResource(avatarResource), contentDescription = null, modifier = Modifier.fillMaxSize())
         } else {
-            if (!imageLoaded) Text(name.take(1).uppercase(), fontWeight = FontWeight.Bold)
+            if (!imageLoaded) InitialsAvatar(name = name, size = size)
             if (imageUrl != null) {
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                     onSuccess = { imageLoaded = true },
                     onError = { imageLoaded = false }
