@@ -9,5 +9,6 @@ interface QuestExecutionRepository {
     suspend fun activities(questId: Long): List<Activity>
     suspend fun activityUsers(questUserId: Long): List<ActivityUser>
     suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser
+    suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser
     suspend fun finish(questUserId: Long): QuestUser
 }

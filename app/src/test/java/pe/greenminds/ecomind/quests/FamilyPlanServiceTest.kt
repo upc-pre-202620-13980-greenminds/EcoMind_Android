@@ -61,6 +61,7 @@ class FamilyPlanServiceTest {
             override suspend fun getActivityUsers(questUserId: Long) = Result.success(listOf(check))
         }
         private val execution = object : QuestExecutionRepository {
+            override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser = error("unused")
             override suspend fun find(questId: Long) = assignments.last()
             override suspend fun start(questId: Long): QuestUser { starts++; error("Family plans must not start a solo attempt") }
             override suspend fun finish(questUserId: Long): QuestUser { finishes++; error("Completion belongs to the plan") }

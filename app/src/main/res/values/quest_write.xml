@@ -1,0 +1,6 @@
+<resources>
+    <string name="quest_write_minimum">%1$d characters · Minimum %2$d</string>
+    <string name="quest_write_saved">Answer saved</string>
+    <string name="quest_write_view_saved">View saved answers</string>
+    <string name="quest_activities_unsupported">These activities aren’t available for this quest yet.</string>
+</resources>

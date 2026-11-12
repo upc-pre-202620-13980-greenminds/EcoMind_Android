@@ -126,7 +126,7 @@ private fun QuestTileFace(
         androidx.compose.foundation.Image(
             painter = androidx.compose.ui.res.painterResource(icon),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(.50f)
+            modifier = Modifier.fillMaxSize(if (theme == QuestTheme.WRITE) .65f else .50f)
         )
     }
 }

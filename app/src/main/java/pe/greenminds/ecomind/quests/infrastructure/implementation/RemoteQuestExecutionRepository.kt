@@ -15,6 +15,10 @@ class RemoteQuestExecutionRepository @Inject constructor(private val api: QuestE
     override suspend fun get(id: Long) = api.get(id).toDomain()
     override suspend fun activities(questId: Long) = api.activities(questId).map { it.toDomain() }.sortedBy { it.order }
     override suspend fun activityUsers(questUserId: Long) = api.activityUsers(questUserId).map { it.toDomain() }
-    override suspend fun check(activityUserId: Long, checked: Boolean) = api.check(activityUserId, CheckboxRequest(mapOf("checked" to checked))).toDomain()
+    override suspend fun check(activityUserId: Long, checked: Boolean) =
+        api.submit(activityUserId, ActivitySubmissionRequest(mapOf("checked" to checked))).toDomain()
+
+    override suspend fun submitWrittenResponse(activityUserId: Long, text: String) =
+        api.submit(activityUserId, ActivitySubmissionRequest(mapOf("text" to text))).toDomain()
     override suspend fun finish(questUserId: Long) = api.finish(questUserId).toDomain()
 }
