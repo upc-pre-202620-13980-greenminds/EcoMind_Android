@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
+import pe.greenminds.ecomind.learning.interfaces.FavoriteMaterialsScreen
+import pe.greenminds.ecomind.learning.interfaces.navigation.LearningDetailRoute
 import pe.greenminds.ecomind.users.interfaces.commitment.CommitmentScreen
 import pe.greenminds.ecomind.users.interfaces.editprofile.EditProfileScreen
 import pe.greenminds.ecomind.users.interfaces.findfriends.FindFriendsScreen
@@ -164,7 +166,14 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
         )
     }
 
-    composable<FavoritesRoute> { PlaceholderScreen() }
+    composable<FavoritesRoute> {
+        FavoriteMaterialsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenMaterial = { materialId ->
+                navController.navigate(LearningDetailRoute(materialId))
+            }
+        )
+    }
     composable<AddCommitmentRoute> {
         CommitmentScreen(
             isEditing = false,
