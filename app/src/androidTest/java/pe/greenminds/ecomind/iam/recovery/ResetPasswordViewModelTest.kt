@@ -47,6 +47,26 @@ class ResetPasswordViewModelTest {
         override suspend fun logout(): Result<Unit> = error("Not used")
     }
 
+    @Test
+    fun mismatchedPasswordsAreRejectedBeforeCallingTheRepository() = runBlocking {
+        val auth = FakeAuthRepository()
+        val sessions = FakeSessionRepository()
+        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), sessions) }
+        try {
+            onMain {
+                viewModel.setToken("fixture-token")
+                viewModel.onPasswordChange("FirstPassword2026")
+                viewModel.onConfirmPasswordChange("DifferentPassword2026")
+                viewModel.resetPassword()
+                assertEquals(R.string.error_password_mismatch, viewModel.state.value.confirmPasswordError)
+                assertFalse(viewModel.state.value.isLoading)
+                assertEquals(0, auth.confirmationCalls)
+            }
+        } finally {
+            onMain { viewModel.viewModelScope.cancel() }
+        }
+    }
+
     private class FakeSessionRepository : SessionRepository {
         var session: Session? = Session(1L, "user@example.com", "previous-session", Long.MAX_VALUE)
         var failClear = false

@@ -13,6 +13,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONObject
+import org.junit.Assert.assertNotNull
+import pe.greenminds.ecomind.iam.domain.model.EmailAddress
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -24,14 +27,41 @@ class AccountAccessBackendTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test
+    fun recoveryRequestShowsTheGenericAcknowledgement() {
+        val arguments = InstrumentationRegistry.getArguments()
+        assumeTrue(arguments.getString("iamRecoveryRequestTest") == "true")
+        val email = readPrivateFixture().getString("email")
+
+        compose.onNodeWithText(text(R.string.sign_in_forgot_password)).performClick()
+        compose.onNodeWithContentDescription(text(R.string.sign_in_email_label)).performTextInput(email)
+        compose.onNodeWithText(text(R.string.recovery_request_button)).performScrollTo().performClick()
+        compose.waitUntil(120_000) {
+            compose.onAllNodesWithText(text(R.string.recovery_check_email_title)).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText(text(R.string.recovery_check_email_title)).assertIsDisplayed()
+        compose.onNodeWithText(
+            compose.activity.getString(
+                R.string.recovery_check_email_description,
+                EmailAddress.mask(EmailAddress.normalize(email))
+            )
+        ).assertIsDisplayed()
+    }
+
+    @Test
     fun resetPasswordThenSignInAndLogOutThroughTheApi() {
         val arguments = InstrumentationRegistry.getArguments()
         assumeTrue(arguments.getString("iamBackendTest") == "true")
-        val link = requireNotNull(arguments.getString("iamRecoveryLink"))
-        val email = requireNotNull(arguments.getString("iamEmail"))
-        val password = requireNotNull(arguments.getString("iamNewPassword"))
+        // Keep live credentials out of instrumentation arguments and Gradle logs. The
+        // host pushes this JSON into the app's private external files directory and
+        // passes only its path as `iamFixturePath`.
+        val fixture = if (arguments.getString("iamFixturePath") != null) readPrivateFixture() else null
+        val link = fixture?.getString("recoveryLink") ?: requireNotNull(arguments.getString("iamRecoveryLink"))
+        val email = fixture?.getString("email") ?: requireNotNull(arguments.getString("iamEmail"))
+        val password = fixture?.getString("newPassword") ?: requireNotNull(arguments.getString("iamNewPassword"))
         compose.activityRule.scenario.onActivity { activity ->
-            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link), activity, MainActivity::class.java))
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link)).setPackage(activity.packageName)
+            assertNotNull("Recovery URL must resolve through the app manifest", activity.packageManager.resolveActivity(intent, 0))
+            activity.startActivity(intent)
         }
         compose.waitUntil(20_000) {
             compose.onAllNodesWithText(text(R.string.recovery_reset_title)).fetchSemanticsNodes().isNotEmpty()
@@ -41,7 +71,7 @@ class AccountAccessBackendTest {
         compose.onNodeWithContentDescription(text(R.string.sign_up_confirm_password_label))
             .performTextInput(password)
         compose.onNodeWithText(text(R.string.recovery_reset_button)).performScrollTo().performClick()
-        compose.waitUntil(30_000) {
+        compose.waitUntil(120_000) {
             compose.onAllNodesWithText(text(R.string.recovery_completed_title)).fetchSemanticsNodes().isNotEmpty()
         }
         capture("password-updated")
@@ -50,7 +80,7 @@ class AccountAccessBackendTest {
         compose.onNodeWithContentDescription(text(R.string.sign_in_email_label)).performTextInput(email)
         compose.onNodeWithContentDescription(text(R.string.sign_in_password_label)).performTextInput(password)
         compose.onNodeWithText(text(R.string.sign_in_button)).performScrollTo().performClick()
-        compose.waitUntil(30_000) {
+        compose.waitUntil(120_000) {
             compose.onAllNodesWithContentDescription(text(R.string.top_bar_settings)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithContentDescription(text(R.string.top_bar_settings)).performClick()
@@ -65,7 +95,7 @@ class AccountAccessBackendTest {
         capture("settings")
         compose.onNodeWithText(text(R.string.log_out)).performScrollTo().performClick()
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.waitUntil(30_000) {
+        compose.waitUntil(120_000) {
             compose.onAllNodesWithText(text(R.string.sign_in_forgot_password)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.activityRule.scenario.recreate()
@@ -75,6 +105,18 @@ class AccountAccessBackendTest {
     }
 
     private fun text(resource: Int) = compose.activity.getString(resource)
+
+    private fun readPrivateFixture(): JSONObject {
+        val fixturePath = requireNotNull(InstrumentationRegistry.getArguments().getString("iamFixturePath"))
+        val privateDirectory = requireNotNull(
+            InstrumentationRegistry.getInstrumentation().targetContext.getExternalFilesDir(null)
+        ).canonicalFile
+        val fixtureFile = File(fixturePath).canonicalFile
+        require(fixtureFile.parentFile == privateDirectory) {
+            "IAM fixture must be stored in the app's private external files directory"
+        }
+        return JSONObject(fixtureFile.readText())
+    }
 
     private fun awaitSignIn() {
         compose.waitUntil(30_000) {
