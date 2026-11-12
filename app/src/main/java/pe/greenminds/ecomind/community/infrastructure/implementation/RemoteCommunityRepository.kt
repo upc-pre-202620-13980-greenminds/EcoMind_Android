@@ -161,6 +161,9 @@ class RemoteCommunityRepository @Inject constructor(
     override suspend fun leaveEvent(eventId: Long): Result<Unit> =
         executeWithoutBody { api.leaveEvent(eventId) }
 
+    override suspend fun deleteEvent(eventId: Long): Result<Unit> =
+        executeWithoutBody { api.deleteEvent(eventId) }
+
     override suspend fun cancelEventGroup(
         eventId: Long,
         registrationId: Long

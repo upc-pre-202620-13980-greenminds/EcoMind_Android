@@ -105,4 +105,9 @@ interface CommunityApi {
         @Path("eventId") eventId: Long,
         @Body request: SendEventChatMessageRequest
     ): Response<EventChatMessageDto>
+
+    @DELETE("Community/Events/{eventId}")
+    suspend fun deleteEvent(
+        @Path("eventId") eventId: Long
+    ): Response<Unit>
 }

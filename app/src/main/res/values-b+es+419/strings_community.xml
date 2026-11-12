@@ -143,7 +143,7 @@
     <string name="event_flow_leave_group">Cancelar inscripción familiar</string>
     <string name="event_flow_leave_title">Salir del evento</string>
     <string name="event_flow_leave_question">Elige qué participación deseas cancelar.</string>
-    <string name="event_flow_creator_leave">El creador debe eliminar el evento para salir.</string>
+    <string name="event_flow_creator_leave">Si sales, se eliminarán este evento, todas las inscripciones y los mensajes del chat.</string>
     <string name="event_flow_chat">Chat</string>
     <string name="event_flow_active">Activo</string>
     <string name="event_flow_inactive">Inactivo</string>
@@ -168,4 +168,9 @@
     <string name="event_flow_leave_error">No se pudo salir del evento.</string>
     <string name="event_flow_messages_error">No se pudieron cargar los mensajes.</string>
     <string name="event_flow_send_error">No se pudo enviar el mensaje.</string>
+
+    <string name="event_flow_delete_title">Salir y eliminar evento</string>
+    <string name="event_flow_delete_question">Creaste este evento. Al salir, se eliminarán permanentemente el evento, todas las inscripciones y los mensajes del chat para todos.</string>
+    <string name="event_flow_delete_confirm">Salir y eliminar</string>
+    <string name="event_flow_delete_error">No se pudo eliminar el evento.</string>
 </resources>

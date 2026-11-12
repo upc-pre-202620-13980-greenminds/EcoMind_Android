@@ -31,4 +31,6 @@ interface CommunityRepository {
     suspend fun getEventChatMessages(eventId: Long, afterId: Long): Result<EventChatPage>
 
     suspend fun sendEventChatMessage(eventId: Long, text: String, clientId: String): Result<EventChatMessage>
+
+    suspend fun deleteEvent(eventId: Long): Result<Unit>
 }

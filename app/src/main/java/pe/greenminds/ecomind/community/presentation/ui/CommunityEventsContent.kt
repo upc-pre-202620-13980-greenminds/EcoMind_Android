@@ -242,33 +242,66 @@ internal fun CommunityEventsContent(
     state.leaveTarget?.let { item ->
         AlertDialog(
             onDismissRequest = viewModel::dismissLeave,
-            title = { Text(stringResource(R.string.event_flow_leave_title)) },
+            title = {
+                Text(
+                    stringResource(
+                        if (item.creator) R.string.event_flow_delete_title
+                        else R.string.event_flow_leave_title
+                    )
+                )
+            },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(item.event.title)
-                    Text(stringResource(R.string.event_flow_leave_question))
+
+                    Text(
+                        stringResource(
+                            if (item.creator) R.string.event_flow_delete_question
+                            else R.string.event_flow_leave_question
+                        )
+                    )
+
                     errorText?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
-                    if (state.busy) CircularProgressIndicator()
+
+                    if (state.busy) {
+                        CircularProgressIndicator()
+                    }
                 }
             },
             confirmButton = {
                 Column {
-                    if (item.joined) {
+                    if (item.creator) {
                         TextButton(
                             onClick = { viewModel.leave(false) },
                             enabled = !state.busy
                         ) {
-                            Text(stringResource(R.string.event_flow_leave_self))
+                            Text(
+                                text = stringResource(R.string.event_flow_delete_confirm),
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
-                    }
-                    if (item.canCancelGroup) {
-                        TextButton(
-                            onClick = { viewModel.leave(true) },
-                            enabled = !state.busy
-                        ) {
-                            Text(stringResource(R.string.event_flow_leave_group))
+                    } else {
+                        if (item.joined) {
+                            TextButton(
+                                onClick = { viewModel.leave(false) },
+                                enabled = !state.busy
+                            ) {
+                                Text(stringResource(R.string.event_flow_leave_self))
+                            }
+                        }
+
+                        if (item.canCancelGroup) {
+                            TextButton(
+                                onClick = { viewModel.leave(true) },
+                                enabled = !state.busy
+                            ) {
+                                Text(stringResource(R.string.event_flow_leave_group))
+                            }
                         }
                     }
                 }
@@ -295,6 +328,8 @@ private fun EventParticipationCard(
     onLeave: () -> Unit
 ) {
     val active = rememberEventActive(item.chatExpiresAt)
+    val canLeave = enabled &&
+            (item.creator || item.joined || item.canCancelGroup)
 
     Column(
         modifier = Modifier
@@ -362,8 +397,7 @@ private fun EventParticipationCard(
                     EventFlowButton(
                         text = stringResource(R.string.event_flow_leave),
                         onClick = onLeave,
-                        enabled = enabled && !item.creator &&
-                                (item.joined || item.canCancelGroup),
+                        enabled = canLeave,
                         color = EventRed
                     )
                 }
@@ -391,26 +425,17 @@ private fun EventParticipationCard(
 
                 IconButton(
                     onClick = onLeave,
-                    enabled = enabled && !item.creator &&
-                            (item.joined || item.canCancelGroup)
+                    enabled = canLeave
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_close),
                         contentDescription = stringResource(R.string.event_flow_leave),
-                        tint = if (enabled && !item.creator &&
-                            (item.joined || item.canCancelGroup)
-                        ) EventRed else Color.Gray
+                        tint = if (canLeave) EventRed else Color.Gray
                     )
                 }
             }
         }
 
-        if (mine && item.creator) {
-            Text(
-                stringResource(R.string.event_flow_creator_leave),
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
     }
 }
 

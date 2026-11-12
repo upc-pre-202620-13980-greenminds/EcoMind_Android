@@ -22,12 +22,13 @@ import pe.greenminds.ecomind.community.domain.entity.EventParticipation
 import pe.greenminds.ecomind.community.domain.valueobjects.EventChatUnavailableException
 import pe.greenminds.ecomind.community.presentation.states.CommunityEventsUiState
 import pe.greenminds.ecomind.R
-
+import pe.greenminds.ecomind.community.application.usecase.DeleteCommunityEventUseCase
 @HiltViewModel
 class CommunityEventsViewModel @Inject constructor(
     private val getParticipation: GetEventParticipationUseCase,
     private val registerForEvent: RegisterForEventUseCase,
     private val leaveEvent: LeaveEventUseCase,
+    private val deleteEvent: DeleteCommunityEventUseCase,
     private val cancelGroup: CancelEventGroupUseCase,
     private val getMessages: GetEventChatMessagesUseCase,
     private val sendMessage: SendEventChatMessageUseCase
@@ -165,8 +166,16 @@ class CommunityEventsViewModel @Inject constructor(
     }
 
     fun requestLeave(item: EventParticipation) {
-        if (_state.value.busy || item.creator) return
-        _state.update { it.copy(leaveTarget = item, error = null, errorRes = null) }
+        if (_state.value.busy) return
+        if (!item.creator && !item.joined && !item.canCancelGroup) return
+
+        _state.update {
+            it.copy(
+                leaveTarget = item,
+                error = null,
+                errorRes = null
+            )
+        }
     }
 
     fun dismissLeave() {
@@ -177,30 +186,63 @@ class CommunityEventsViewModel @Inject constructor(
 
     fun leave(wholeGroup: Boolean) {
         val item = _state.value.leaveTarget ?: return
-        if (_state.value.busy || item.creator) return
-        if (wholeGroup && (!item.canCancelGroup || item.registrationId == null)) return
-        if (!wholeGroup && !item.joined) return
+        if (_state.value.busy) return
+
+        if (!item.creator) {
+            if (wholeGroup && (!item.canCancelGroup || item.registrationId == null)) return
+            if (!wholeGroup && !item.joined) return
+        }
+
+        loadJob?.cancel()
+        _state.update {
+            it.copy(
+                busy = true,
+                loading = false,
+                error = null,
+                errorRes = null
+            )
+        }
 
         viewModelScope.launch {
-            _state.update { it.copy(busy = true, error = null, errorRes = null) }
-
-            val result = if (wholeGroup) {
-                cancelGroup(item.event.id, checkNotNull(item.registrationId))
-            } else {
-                leaveEvent(item.event.id)
+            val result = when {
+                item.creator -> deleteEvent(item.event.id)
+                wholeGroup -> cancelGroup(
+                    item.event.id,
+                    checkNotNull(item.registrationId)
+                )
+                else -> leaveEvent(item.event.id)
             }
 
             result.fold(
                 onSuccess = {
-                    _state.update { it.copy(busy = false, leaveTarget = null) }
+                    if (_state.value.chat?.event?.id == item.event.id) {
+                        closeChat()
+                    }
+
+                    _state.update {
+                        it.copy(
+                            busy = false,
+                            leaveTarget = null,
+                            items = it.items.filterNot { participation ->
+                                participation.event.id == item.event.id
+                            }
+                        )
+                    }
+
                     refresh()
                 },
                 onFailure = { exception ->
                     _state.update {
                         it.copy(
                             busy = false,
-                            error = exception.message?.takeIf { message -> message.isNotBlank() },
-                            errorRes = R.string.event_flow_leave_error
+                            error = exception.message?.takeIf { message ->
+                                message.isNotBlank()
+                            },
+                            errorRes = if (item.creator) {
+                                R.string.event_flow_delete_error
+                            } else {
+                                R.string.event_flow_leave_error
+                            }
                         )
                     }
                 }

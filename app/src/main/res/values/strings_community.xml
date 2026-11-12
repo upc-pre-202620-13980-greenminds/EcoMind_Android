@@ -143,7 +143,7 @@
     <string name="event_flow_leave_group">Cancel family registration</string>
     <string name="event_flow_leave_title">Leave event</string>
     <string name="event_flow_leave_question">Choose whose participation you want to cancel.</string>
-    <string name="event_flow_creator_leave">The creator must delete the event to leave.</string>
+    <string name="event_flow_creator_leave">If you leave, this event, all registrations and chat messages will be deleted.</string>
     <string name="event_flow_chat">Chat</string>
     <string name="event_flow_active">Active</string>
     <string name="event_flow_inactive">Inactive</string>
@@ -168,4 +168,9 @@
     <string name="event_flow_leave_error">Unable to leave the event.</string>
     <string name="event_flow_messages_error">Unable to load messages.</string>
     <string name="event_flow_send_error">Unable to send the message.</string>
+
+    <string name="event_flow_delete_title">Leave and delete event</string>
+    <string name="event_flow_delete_question">You created this event. Leaving will permanently delete the event, all registrations and chat messages for everyone.</string>
+    <string name="event_flow_delete_confirm">Leave and delete</string>
+    <string name="event_flow_delete_error">Unable to delete the event.</string>
 </resources>
