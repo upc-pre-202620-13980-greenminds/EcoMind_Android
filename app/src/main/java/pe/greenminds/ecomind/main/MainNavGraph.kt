@@ -27,6 +27,7 @@ import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.iam.interfaces.settings.SettingsScreen
+import pe.greenminds.ecomind.iam.interfaces.navigation.TermsRoute
 import pe.greenminds.ecomind.notifications.interfaces.NotificationsScreen
 import pe.greenminds.ecomind.shared.interfaces.preferences.LanguageScreen
 import pe.greenminds.ecomind.shared.interfaces.preferences.NotificationPreferencesScreen
@@ -105,6 +106,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, settingsViewModel
     composable<SettingsRoute> {
         SettingsScreen(
             onBack = { navController.popBackStack() },
+            onOpenTerms = { navController.navigate(TermsRoute) { launchSingleTop = true } },
             onOpenNotifications = {
                 navController.navigate(NotificationPreferencesRoute) { launchSingleTop = true }
             },

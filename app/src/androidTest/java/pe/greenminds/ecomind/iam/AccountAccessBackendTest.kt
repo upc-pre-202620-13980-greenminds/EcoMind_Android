@@ -54,8 +54,16 @@ class AccountAccessBackendTest {
             compose.onAllNodesWithContentDescription(text(R.string.top_bar_settings)).fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithContentDescription(text(R.string.top_bar_settings)).performClick()
+        compose.onNodeWithText(text(R.string.terms_title)).performScrollTo().performClick()
+        compose.waitUntil(20_000) {
+            compose.onAllNodesWithText(text(R.string.terms_body)).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription(text(R.string.back)).performClick()
+        compose.waitUntil(20_000) {
+            compose.onAllNodesWithText(text(R.string.settings_language)).fetchSemanticsNodes().isNotEmpty()
+        }
         capture("settings")
-        compose.onNodeWithText(text(R.string.log_out)).performClick()
+        compose.onNodeWithText(text(R.string.log_out)).performScrollTo().performClick()
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         compose.waitUntil(30_000) {
             compose.onAllNodesWithText(text(R.string.sign_in_forgot_password)).fetchSemanticsNodes().isNotEmpty()
