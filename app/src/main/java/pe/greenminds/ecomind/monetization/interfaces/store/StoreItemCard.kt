@@ -149,7 +149,7 @@ fun StoreItemCard(
 }
 
 @DrawableRes
-internal fun cosmeticImageResource(reference: String?): Int = when (reference) {
+internal fun cosmeticImageResource(reference: String?, @DrawableRes fallback: Int = R.drawable.cosmetic_hat): Int = when (reference) {
     "avatar_alex" -> R.drawable.avatar_alex
     "avatar_leaf", "avatar_leafwings" -> R.drawable.avatar_leafwings
     "avatar_lunalunette" -> R.drawable.avatar_lunalunette
@@ -160,7 +160,7 @@ internal fun cosmeticImageResource(reference: String?): Int = when (reference) {
     "avatar_sonic" -> R.drawable.avatar_sonic
     "cosmetic_bun" -> R.drawable.cosmetic_bun
     "cosmetic_observatorio" -> R.drawable.cosmetic_observatorio
-    else -> R.drawable.cosmetic_hat
+    else -> fallback
 }
 
 @Composable

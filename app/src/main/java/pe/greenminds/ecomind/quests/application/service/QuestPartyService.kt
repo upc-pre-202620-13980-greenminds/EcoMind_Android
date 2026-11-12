@@ -30,5 +30,5 @@ class QuestPartyService @Inject constructor(
     suspend fun leave(memberId: Long) = repository.leave(memberId).getOrThrow()
     suspend fun remove(memberId: Long) = repository.remove(memberId).getOrThrow()
     suspend fun friends() = people.getFriends()
-    suspend fun names(ids: Set<Long>) = people.getNames(ids)
+    suspend fun profiles(ids: Set<Long>) = people.getPeople(ids)
 }

@@ -2,11 +2,12 @@ package pe.greenminds.ecomind.quests.presentation.states
 
 import pe.greenminds.ecomind.quests.domain.entity.CollabQuestInvitation
 import pe.greenminds.ecomind.quests.domain.model.CollabQuestState
+import pe.greenminds.ecomind.quests.domain.model.PartyPerson
 
 data class QuestPartyUiState(
     val party: CollabQuestState? = null,
     val invitations: List<CollabQuestInvitation> = emptyList(),
-    val names: Map<Long, String> = emptyMap(),
+    val people: Map<Long, PartyPerson> = emptyMap(),
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val hasActiveAssignment: Boolean = false,

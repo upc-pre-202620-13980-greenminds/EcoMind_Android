@@ -25,7 +25,7 @@ class MainShellViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MainShellUiState())
     val state: StateFlow<MainShellUiState> = _state.asStateFlow()
-    private var balanceRequest: Job? = null
+    private var profileRequest: Job? = null
     private var unreadRequest: Job? = null
 
     init {
@@ -44,16 +44,15 @@ class MainShellViewModel @Inject constructor(
         }
     }
 
-    // Called when the bars appear, because before signing in there is no profile to read
-    fun loadBalances() {
-        balanceRequest?.cancel()
-        balanceRequest = viewModelScope.launch {
+    fun loadHeaderCounters() {
+        profileRequest?.cancel()
+        profileRequest = viewModelScope.launch {
             getCurrentProfile().onSuccess { profile ->
                 gemBalanceStore.update(profile.gemBalance)
                 _state.update { currentState ->
                     currentState.copy(
                         gemBalance = profile.gemBalance,
-                        ecopoints = profile.ecopoints
+                        streak = profile.streak
                     )
                 }
             }
@@ -66,8 +65,8 @@ class MainShellViewModel @Inject constructor(
         unreadRequest = viewModelScope.launch { refreshUnreadCount() }
     }
 
-    fun clearBalances() {
-        balanceRequest?.cancel()
+    fun clearHeader() {
+        profileRequest?.cancel()
         unreadRequest?.cancel()
         gemBalanceStore.clear()
         unreadNotificationsStore.clear()

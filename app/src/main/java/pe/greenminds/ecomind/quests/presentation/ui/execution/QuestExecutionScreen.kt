@@ -3,7 +3,6 @@ package pe.greenminds.ecomind.quests.presentation.ui.execution
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -27,15 +26,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.saveable.rememberSaveable
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestPublicationStatus
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestPartySections
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestPartyActions
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyMembersScreen
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.InviteFriendsScreen
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.PartyBackButton
 import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
+import pe.greenminds.ecomind.quests.presentation.ui.QuestMetadataChips
 
 @Composable
-fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel = hiltViewModel(), previewOnly: Boolean = false) {
+fun QuestExecutionScreen(
+    onBack: () -> Unit,
+    viewModel: QuestExecutionViewModel = hiltViewModel(),
+    previewOnly: Boolean = false,
+    onPlayMinigame: (Long) -> Unit = {}
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showParticipants by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state.partyState.isEnrolled) {
@@ -65,7 +71,7 @@ fun QuestExecutionScreen(onBack: () -> Unit, viewModel: QuestExecutionViewModel 
         onOpenParticipants = { showParticipants = true },
         onAcceptInvitation = viewModel::acceptInvitation, onDeclineInvitation = viewModel::declineInvitation,
         onPartyStart = viewModel::startPartyOrSolo, onInviteFriends = viewModel::openFriends, onLeaveParty = viewModel::leaveParty,
-        onRefresh = viewModel::refreshScreen, readOnly = previewOnly)
+        onRefresh = viewModel::refreshScreen, readOnly = previewOnly, onPlayMinigame = onPlayMinigame)
 }
 
 @Composable
@@ -78,7 +84,8 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
     onInviteFriends: (() -> Unit)? = null,
     onLeaveParty: (() -> Unit)? = null,
     onRefresh: () -> Unit = onRetry,
-    readOnly: Boolean = false) {
+    readOnly: Boolean = false,
+    onPlayMinigame: (Long) -> Unit = {}) {
     QuestRefreshContainer(
         isRefreshing = state.refreshing,
         onRefresh = onRefresh,
@@ -97,19 +104,26 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
         if (execution == null) {
             return@Column
         }
-        if (state.stage == QuestStage.STARTING || state.stage == QuestStage.FINISHED) {
-            val finished = state.stage == QuestStage.FINISHED
+        val isMinigame = execution.quest.type == QuestType.MINIGAME
+        val minigameId = execution.quest.minigameId
+        val canPlay = family == null && minigameId != null &&
+            execution.quest.publicationStatus == QuestPublicationStatus.PUBLISHED
+        if (state.stage == QuestStage.FINISHED) {
+            QuestCompletion(
+                rewardText = "+${execution.quest.reward.ecopoints} ecoPoints",
+                gems = execution.quest.reward.gems,
+                actionLabel = "Nice!",
+                onAction = onBack
+            )
+            return@Column
+        }
+        if (state.stage == QuestStage.STARTING) {
             Spacer(Modifier.weight(1f))
-            Text(if (finished) "Quest completed!\nGood job!" else "Ready... set...\nQuest started!",
+            Text("Ready... set...\nQuest started!",
                 fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(24.dp))
-            EcoMascot(finished, Modifier.align(Alignment.CenterHorizontally).size(240.dp))
-            if (finished) {
-                Text("+${execution.quest.reward.ecopoints} ecoPoints", color = EcoGreen, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
-                if (execution.quest.reward.gems > 0) Text("+${execution.quest.reward.gems} gems", modifier = Modifier.align(Alignment.CenterHorizontally))
-            }
+            EcoMascot(false, Modifier.align(Alignment.CenterHorizontally).size(240.dp))
             Spacer(Modifier.weight(1f))
-            if (finished) QuestButton("Nice!", onBack, true, true)
             Spacer(Modifier.height(28.dp))
             return@Column
         }
@@ -118,19 +132,19 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
             Text("QUEST", fontSize = 12.sp)
             Text(execution.quest.title, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                QuestTag(execution.quest.category.name.lowercase(), SunYellow)
-                execution.quest.estimatedMinutes?.let { QuestTag("$it min", Color.Gray) }
-                QuestTag("${execution.quest.reward.ecopoints} ecoPoints", EcoGreen)
-                if (execution.quest.type == pe.greenminds.ecomind.quests.domain.valueobject.QuestType.COLLABORATIVE ||
-                    execution.quest.theme == pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme.COLLABORATIVE) {
-                    QuestTag(androidx.compose.ui.res.stringResource(pe.greenminds.ecomind.R.string.quest_theme_collaborative), ChipPurple)
-                }
-            }
+            QuestMetadataChips(
+                quest = execution.quest,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+            )
             Spacer(Modifier.height(36.dp))
             if (state.stage == QuestStage.DETAIL) {
                 Text(execution.quest.description, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp)
-                if (!readOnly && !execution.supported && execution.quest.type != QuestType.COLLABORATIVE) Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
+                if (!readOnly && isMinigame && !canPlay) {
+                    Text(stringResource(R.string.minigame_unavailable), modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
+                } else if (!readOnly && !isMinigame && !execution.supported && execution.quest.type != QuestType.COLLABORATIVE) {
+                    Text("This quest doesn't use individual checkboxes yet.", modifier = Modifier.padding(top = 16.dp))
+                }
             } else {
                 execution.activities.forEach { activity ->
                     val check = execution.checks.firstOrNull { it.activityId == activity.id }
@@ -148,10 +162,11 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(16.dp), color = EcoGreen, trackColor = Color(0xFFE5E5E5))
                 Text("${currentProgress.toInt()}% completed", fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
             }
-            Spacer(Modifier.height(32.dp))
             if (!execution.quest.imageUrl.isNullOrBlank()) {
+                Spacer(Modifier.height(32.dp))
                 AsyncImage(model = execution.quest.imageUrl, contentDescription = execution.quest.title, modifier = Modifier.fillMaxWidth().height(200.dp))
-            } else {
+            } else if (!isMinigame) {
+                Spacer(Modifier.height(32.dp))
                 EnergyIllustration(Modifier.size(190.dp))
             }
             Spacer(Modifier.height(24.dp))
@@ -170,7 +185,10 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
         if (readOnly) {
             Spacer(Modifier.height(12.dp))
         } else if (state.stage == QuestStage.DETAIL) {
-            if (family != null) {
+            if (isMinigame) {
+                QuestButton(stringResource(R.string.minigame_play), { minigameId?.let(onPlayMinigame) },
+                    canPlay && !state.busy, false)
+            } else if (family != null) {
                 QuestButton(if (completed) stringResource(R.string.family_plan_open_activities) else "Resume Quest", onStart,
                     execution.supported && !state.busy && (family.canCheck || completed), false)
             } else if (execution.quest.type == QuestType.COLLABORATIVE) {
@@ -196,11 +214,31 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
 }
 
 @Composable
-private fun QuestTag(text: String, color: Color) {
-    Text(text, color = Color.White, fontSize = 10.sp, modifier = Modifier.background(color, RoundedCornerShape(50)).padding(horizontal = 9.dp, vertical = 5.dp))
+internal fun ColumnScope.QuestCompletion(
+    rewardText: String?,
+    gems: Int,
+    actionLabel: String,
+    onAction: () -> Unit,
+    details: @Composable ColumnScope.() -> Unit = {}
+) {
+    Spacer(Modifier.weight(1f))
+    Text("Quest completed!\nGood job!", fontSize = 24.sp, fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Spacer(Modifier.height(24.dp))
+    EcoMascot(true, Modifier.align(Alignment.CenterHorizontally).size(240.dp))
+    if (rewardText != null) {
+        Text(rewardText, color = EcoGreen, fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center, modifier = Modifier.align(Alignment.CenterHorizontally))
+    }
+    if (gems > 0) Text("+$gems gems", modifier = Modifier.align(Alignment.CenterHorizontally))
+    details()
+    Spacer(Modifier.weight(1f))
+    QuestButton(actionLabel, onAction, true, true)
+    Spacer(Modifier.height(28.dp))
 }
+
 @Composable
-private fun QuestButton(text: String, action: () -> Unit, enabled: Boolean, green: Boolean) {
+internal fun QuestButton(text: String, action: () -> Unit, enabled: Boolean, green: Boolean) {
     PillButton(text, action, if (!enabled) Color(0xFFA4A4A4) else if (green) LeafGreen else SkyBlue,
         if (!enabled) Color.Gray else if (green) LeafGreenDark else SkyBlueDark, height = 58.dp, enabled = enabled)
 }

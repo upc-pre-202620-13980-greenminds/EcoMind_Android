@@ -7,7 +7,10 @@
     <string name="loading">Cargando</string>
     <string name="back">Atrás</string>
     <string name="top_bar_gems">%1$d gemas</string>
-    <string name="top_bar_ecopoints">%1$d ecopoints</string>
+    <plurals name="top_bar_streak">
+        <item quantity="one">%1$d día de racha</item>
+        <item quantity="other">%1$d días de racha</item>
+    </plurals>
     <string name="top_bar_notifications">Notificaciones</string>
     <string name="top_bar_settings">Ajustes</string>
     <string name="error_unknown">Ocurrió un problema. Inténtalo de nuevo.</string>

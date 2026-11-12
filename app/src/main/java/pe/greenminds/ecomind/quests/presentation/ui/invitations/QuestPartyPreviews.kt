@@ -41,7 +41,13 @@ internal fun sampleParty(role: String): QuestPartyUiState {
             CollabQuestInvitation(20L, 30L, 18L, "Time to save up energy!", 4L, if (owner) 1L else 2L),
             CollabQuestInvitation(21L, 31L, 18L, "Time to save up energy!", 5L, if (owner) 1L else 2L)
         ),
-        names = mapOf(1L to "AleAsto", 2L to "CamiSky", 3L to "RafaLuz", 4L to "MateoRun", 5L to "Solina")
+        people = listOf(
+            PartyPerson(1L, "AleAsto", "avatar_alex"),
+            PartyPerson(2L, "CamiSky", "avatar_lunalunette"),
+            PartyPerson(3L, "RafaLuz"),
+            PartyPerson(4L, "MateoRun", "avatar_sonic"),
+            PartyPerson(5L, "Solina")
+        ).associateBy { it.userId }
     )
 }
 

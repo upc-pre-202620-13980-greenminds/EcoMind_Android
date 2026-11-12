@@ -40,11 +40,11 @@ import pe.greenminds.ecomind.shared.interfaces.theme.GemBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
-// Header of the main screens: logo, balances and shortcuts
+// Header of the main screens: logo, counters and shortcuts
 @Composable
 fun EcoMindTopBar(
     gemBalance: Int,
-    ecopoints: Int,
+    streak: Int,
     onNotificationsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,7 +62,7 @@ fun EcoMindTopBar(
             EcoMindLogo(modifier = Modifier.size(width = 100.dp, height = 36.dp))
             Spacer(modifier = Modifier.weight(1f))
 
-            BalanceCounter(
+            HeaderCounter(
                 iconRes = R.drawable.ic_gem,
                 iconWidth = 22.dp,
                 iconHeight = 22.dp,
@@ -71,13 +71,13 @@ fun EcoMindTopBar(
                 description = stringResource(R.string.top_bar_gems, gemBalance)
             )
             Spacer(modifier = Modifier.width(6.dp))
-            BalanceCounter(
+            HeaderCounter(
                 iconRes = R.drawable.ic_ecopoints,
                 iconWidth = 30.dp,
                 iconHeight = 26.dp,
-                value = ecopoints,
+                value = streak,
                 color = MaterialTheme.colorScheme.primary,
-                description = stringResource(R.string.top_bar_ecopoints, ecopoints)
+                description = pluralStringResource(R.plurals.top_bar_streak, streak, streak)
             )
 
             IconButton(onClick = onNotificationsClick) {
@@ -143,7 +143,7 @@ private fun NotificationsBell(unreadCount: Int) {
 private const val MAX_BADGE_COUNT = 99
 
 @Composable
-private fun BalanceCounter(
+private fun HeaderCounter(
     @DrawableRes iconRes: Int,
     iconWidth: Dp,
     iconHeight: Dp,
@@ -177,7 +177,7 @@ private fun EcoMindTopBarPreview() {
     EcoMindTheme {
         EcoMindTopBar(
             gemBalance = 360,
-            ecopoints = 16,
+            streak = 16,
             onNotificationsClick = {},
             onSettingsClick = {},
             unreadNotifications = 3
