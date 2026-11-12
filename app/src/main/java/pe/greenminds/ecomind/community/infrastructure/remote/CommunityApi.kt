@@ -10,6 +10,8 @@ import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.Multipart
 import retrofit2.http.Part
+import retrofit2.http.PATCH
+
 interface CommunityApi {
 
     @GET("Community/Memberships")
@@ -66,4 +68,41 @@ interface CommunityApi {
     suspend fun uploadEventImage(
         @Part file: MultipartBody.Part
     ): Response<EventImageDto>
+
+    @GET("Community/Events/Participation")
+    suspend fun getEventParticipation(
+        @Query("community_id") communityId: Long
+    ): Response<List<EventParticipationDto>>
+
+    @GET("Community/Events/Mine")
+    suspend fun getMyEvents(): Response<List<EventParticipationDto>>
+
+    @POST("Community/Events/{eventId}/Registrations")
+    suspend fun registerForEvent(
+        @Path("eventId") eventId: Long,
+        @Body request: RegisterForEventRequest
+    ): Response<Unit>
+
+    @DELETE("Community/Events/{eventId}/Registrations/me")
+    suspend fun leaveEvent(
+        @Path("eventId") eventId: Long
+    ): Response<Unit>
+
+    @PATCH("Community/Events/{eventId}/Registrations/{registrationId}/cancel")
+    suspend fun cancelEventGroup(
+        @Path("eventId") eventId: Long,
+        @Path("registrationId") registrationId: Long
+    ): Response<Unit>
+
+    @GET("Community/Events/{eventId}/Chat/Messages")
+    suspend fun getEventChatMessages(
+        @Path("eventId") eventId: Long,
+        @Query("after_id") afterId: Long
+    ): Response<EventChatPageDto>
+
+    @POST("Community/Events/{eventId}/Chat/Messages")
+    suspend fun sendEventChatMessage(
+        @Path("eventId") eventId: Long,
+        @Body request: SendEventChatMessageRequest
+    ): Response<EventChatMessageDto>
 }
