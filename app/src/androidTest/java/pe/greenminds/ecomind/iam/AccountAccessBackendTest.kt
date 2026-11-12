@@ -32,6 +32,13 @@ class AccountAccessBackendTest {
         assumeTrue(arguments.getString("iamRecoveryRequestTest") == "true")
         val email = readPrivateFixture().getString("email")
 
+        try {
+            awaitSignIn(timeoutMillis = 60_000)
+        } catch (failure: Throwable) {
+            capture("recovery-request-sign-in-timeout")
+            throw failure
+        }
+
         compose.onNodeWithText(text(R.string.sign_in_forgot_password)).performClick()
         compose.onNodeWithContentDescription(text(R.string.sign_in_email_label)).performTextInput(email)
         compose.onNodeWithText(text(R.string.recovery_request_button)).performScrollTo().performClick()
@@ -118,8 +125,8 @@ class AccountAccessBackendTest {
         return JSONObject(fixtureFile.readText())
     }
 
-    private fun awaitSignIn() {
-        compose.waitUntil(30_000) {
+    private fun awaitSignIn(timeoutMillis: Long = 30_000) {
+        compose.waitUntil(timeoutMillis) {
             runCatching {
                 compose.onNodeWithText(text(R.string.sign_in_forgot_password)).assertIsDisplayed()
                 true
