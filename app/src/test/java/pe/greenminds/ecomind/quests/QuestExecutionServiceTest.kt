@@ -65,6 +65,38 @@ class QuestExecutionServiceTest {
         assertEquals(1, repository.finishes)
     }
 
+    @Test fun dailyQuestCanStartAndCompleteItsCheckboxActivity() = runBlocking {
+        val daily = snapshot.copy(quest = quest.copy(type = QuestType.DAILY_QUEST), assignment = null, checks = emptyList())
+        var check = snapshot.checks.single()
+        var currentAssignment = assignment
+        val repository = object : QuestExecutionRepository {
+            override suspend fun find(questId: Long): QuestUser? = null
+            override suspend fun start(questId: Long) = currentAssignment
+            override suspend fun get(id: Long) = currentAssignment
+            override suspend fun activities(questId: Long) = daily.activities
+            override suspend fun activityUsers(questUserId: Long) = listOf(check)
+            override suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser {
+                assertEquals(check.id, activityUserId)
+                assertTrue(checked)
+                check = check.copy(progress = 100.0)
+                currentAssignment = currentAssignment.copy(status = QuestStatus.READY_TO_COMPLETE, progress = 100.0)
+                return check
+            }
+            override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser = error("unused")
+            override suspend fun finish(questUserId: Long) = currentAssignment.copy(status = QuestStatus.COMPLETED)
+        }
+        val service = QuestExecutionService(catalog, repository)
+
+        assertTrue(daily.supported)
+        assertFalse(daily.copy(activities = emptyList()).supported)
+        val started = service.start(daily)
+        assertEquals(QuestStatus.IN_PROGRESS, started.assignment?.status)
+        assertFalse(started.canFinish)
+        val ready = service.check(started, started.checks.single().id, true)
+        assertTrue(ready.canFinish)
+        assertEquals(QuestStatus.COMPLETED, service.finish(ready).assignment?.status)
+    }
+
     @Test fun mixedQuestRequiresBothCheckboxesAndAValidWrittenAnswer() = runBlocking {
         val secondCheckbox = activity.copy(id = 2, order = 2)
         val write = activity.copy(id = 3, order = 3, type = ActivityType.WRITE)

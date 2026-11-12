@@ -8,13 +8,14 @@ import pe.greenminds.ecomind.quests.domain.valueobject.*
 data class QuestExecution(val quest: Quest, val activities: List<Activity>, val assignment: QuestUser?, val checks: List<ActivityUser>,
     val familyPlanId: Long? = null) {
     val supported get() = activities.isNotEmpty() && when (quest.type) {
-        QuestType.ACTIVITIES -> true
+        QuestType.ACTIVITIES, QuestType.DAILY_QUEST -> true
         QuestType.COLLABORATIVE -> activities.all { it.type == ActivityType.CHECKBOX }
         QuestType.FAMILY -> familyPlanId != null && activities.all { it.type == ActivityType.CHECKBOX }
         else -> false
     }
     val hasWrittenActivities get() = activities.any { it.type == ActivityType.WRITE }
-    val canWrite get() = quest.type == QuestType.ACTIVITIES && assignment?.collaborativeSessionId == null &&
+    val canWrite get() = (quest.type == QuestType.ACTIVITIES || quest.type == QuestType.DAILY_QUEST) &&
+        assignment?.collaborativeSessionId == null &&
         assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)
     val canFinish get() = quest.type != QuestType.FAMILY && supported && assignment?.status == QuestStatus.READY_TO_COMPLETE && assignment.progress >= 100 && activities.all { a -> checks.any { it.activityId == a.id && it.progress >= 100 } }
 }
