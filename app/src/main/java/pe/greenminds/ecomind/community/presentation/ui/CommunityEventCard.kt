@@ -37,6 +37,9 @@ import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
 import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 
 @Composable
 fun CommunityEventCard(
@@ -71,10 +74,31 @@ fun CommunityEventCard(
             Box(
                 modifier = Modifier
                     .size(width = 97.dp, height = 65.dp)
+                    .clip(RoundedCornerShape(18.dp))
                     .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        RoundedCornerShape(18.dp)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                     )
+            ) {
+                if (!event.imageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = event.imageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+
+        event.capacity?.let { availablePlaces ->
+            Text(
+                text = stringResource(
+                    R.string.event_available_places,
+                    availablePlaces
+                ),
+                style = poppinsTextStyle(12),
+                color = TextPrimary,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
 
