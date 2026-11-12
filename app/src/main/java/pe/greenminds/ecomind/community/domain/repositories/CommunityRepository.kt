@@ -8,6 +8,8 @@ import pe.greenminds.ecomind.community.domain.entity.NewCommunityEvent
 import pe.greenminds.ecomind.community.domain.entity.EventParticipation
 import pe.greenminds.ecomind.community.domain.entity.EventChatMessage
 import pe.greenminds.ecomind.community.domain.entity.EventChatPage
+import pe.greenminds.ecomind.community.domain.entity.PostReactions
+import pe.greenminds.ecomind.community.domain.valueobjects.PostReactionType
 
 interface CommunityRepository {
     suspend fun getEvents(communityId: Long): Result<List<CommunityEvent>>
@@ -33,4 +35,10 @@ interface CommunityRepository {
     suspend fun sendEventChatMessage(eventId: Long, text: String, clientId: String): Result<EventChatMessage>
 
     suspend fun deleteEvent(eventId: Long): Result<Unit>
+
+    suspend fun getPostReactions(postId: Long): Result<PostReactions>
+
+    suspend fun setPostReaction(postId: Long, type: PostReactionType): Result<Unit>
+
+    suspend fun removePostReaction(postId: Long): Result<Unit>
 }

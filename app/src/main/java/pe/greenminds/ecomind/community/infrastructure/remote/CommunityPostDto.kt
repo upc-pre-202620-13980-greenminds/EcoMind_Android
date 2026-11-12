@@ -10,5 +10,6 @@ data class CommunityPostDto(
     @SerializedName("post_type") val postType: String?,
     @SerializedName("image_url") val imageUrl: String?,
     @SerializedName("related_event_id") val relatedEventId: Long?,
-    val likes: Long
+    val likes: Long,
+    @SerializedName("created_at") val createdAt: String? = null
 )

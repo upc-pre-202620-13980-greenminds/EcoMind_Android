@@ -4,7 +4,6 @@ import pe.greenminds.ecomind.community.domain.entity.Community
 import pe.greenminds.ecomind.community.domain.entity.CommunityAchievement
 import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
 import pe.greenminds.ecomind.community.domain.entity.CommunityGoal
-import pe.greenminds.ecomind.community.domain.entity.CommunityPost
 
 data class CommunityUiState(
     val isLoadingEvents: Boolean = false,
@@ -40,11 +39,9 @@ data class CommunityUiState(
     val showLeaveConfirmation: Boolean = false,
     val isLeavingCommunity: Boolean = false,
 
-    val posts: List<CommunityPost> = emptyList(),
     val achievements: List<CommunityAchievement> = emptyList(),
     val goals: List<CommunityGoal> = emptyList(),
 
-    val isLoadingPosts: Boolean = false,
     val isLoadingAchievements: Boolean = false,
     val isLoadingGoals: Boolean = false
 ) {

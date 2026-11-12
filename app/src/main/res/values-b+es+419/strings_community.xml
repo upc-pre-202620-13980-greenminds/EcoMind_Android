@@ -186,4 +186,25 @@
     <string name="community_form_permission_error">No se pudo verificar el permiso para crear comunidades.</string>
     <string name="community_form_validation">Ingresa un nombre, un tema y un límite de miembros mayor que cero.</string>
     <string name="community_form_error">No se pudo crear la comunidad.</string>
+
+    <string name="news_system_author">EcoMind</string>
+    <string name="news_unknown_author">Miembro de la comunidad</string>
+    <string name="news_date_unavailable">Fecha no disponible</string>
+    <string name="news_reactions_count">%1$d reacciones</string>
+    <string name="news_reactions_title">Reacciones</string>
+    <string name="news_choose_reaction">Elige tu reacción</string>
+    <string name="news_your_reaction">Tu reacción</string>
+    <string name="news_remove_reaction">Quitar mi reacción</string>
+    <string name="news_close">Cerrar</string>
+    <string name="news_retry">Reintentar</string>
+    <string name="news_refresh">Actualizar</string>
+    <string name="news_load_error">No se pudieron cargar las publicaciones.</string>
+    <string name="news_reactions_error">No se pudieron sincronizar las reacciones. Recarga para comprobar su estado actual.</string>
+    <string name="news_session_required">Inicia sesión nuevamente para gestionar reacciones.</string>
+    <string name="news_reaction_like">Me gusta</string>
+    <string name="news_reaction_love">Me encanta</string>
+    <string name="news_reaction_funny">Me divierte</string>
+    <string name="news_reaction_surprise">Me sorprende</string>
+    <string name="news_reaction_sad">Me entristece</string>
+    <string name="news_reaction_angry">Me enoja</string>
 </resources>

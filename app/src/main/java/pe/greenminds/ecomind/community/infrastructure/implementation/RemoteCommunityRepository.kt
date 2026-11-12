@@ -30,6 +30,11 @@ import pe.greenminds.ecomind.community.domain.valueobjects.EventChatUnavailableE
 import pe.greenminds.ecomind.community.infrastructure.remote.RegisterForEventRequest
 import pe.greenminds.ecomind.community.infrastructure.remote.SendEventChatMessageRequest
 import pe.greenminds.ecomind.shared.infrastructure.remote.ApiException
+import pe.greenminds.ecomind.community.domain.entity.CommunityPost
+import pe.greenminds.ecomind.community.domain.entity.PostReactions
+import pe.greenminds.ecomind.community.domain.valueobjects.PostReactionType
+import pe.greenminds.ecomind.community.infrastructure.remote.PostAuthorDto
+import pe.greenminds.ecomind.community.infrastructure.remote.SetPostReactionRequest
 
 class RemoteCommunityRepository @Inject constructor(
     private val api: CommunityApi,
@@ -40,9 +45,34 @@ class RemoteCommunityRepository @Inject constructor(
     override suspend fun getEvents(communityId: Long) =
         execute({ api.getEvents(communityId) }) { list -> list.map { it.toDomain() } }
 
-    override suspend fun getPosts(communityId: Long) =
-        execute({ api.getPosts(communityId) }) { list -> list.map { it.toDomain() } }
+    override suspend fun getPosts(communityId: Long): Result<List<CommunityPost>> {
+        val posts = execute({ api.getPosts(communityId) }) { list ->
+            list.map { it.toDomain() }
+        }.getOrElse {
+            return Result.failure(it)
+        }
 
+        val authors = mutableMapOf<Long, PostAuthorDto?>()
+
+        posts.mapNotNull { it.authorId }.distinct().forEach { authorId ->
+            authors[authorId] = execute({ api.getPostAuthor(authorId) }) {
+                it
+            }.getOrNull()
+        }
+
+        return Result.success(
+            posts.map { post ->
+                val author = authors[post.authorId]
+                post.copy(
+                    authorName = author?.name,
+                    authorAvatar = author?.avatarImageReference
+                )
+            }.sortedWith(
+                compareByDescending<CommunityPost> { it.createdAt }
+                    .thenByDescending { it.id }
+            )
+        )
+    }
     override suspend fun getAchievements(communityId: Long) =
         execute({ api.getAchievements(communityId) }) { list -> list.map { it.toDomain() } }
 
@@ -192,6 +222,68 @@ class RemoteCommunityRepository @Inject constructor(
         }) {
             it.toDomain()
         }.mapChatFailure()
+
+    override suspend fun getPostReactions(
+        postId: Long
+    ): Result<PostReactions> {
+        var accountId: Long? = null
+
+        return execute(
+            request = {
+                val session = sessions.getSession().first()
+                    ?: throw IllegalStateException(
+                        context.getString(R.string.news_session_required)
+                    )
+
+                if (session.isExpired(System.currentTimeMillis())) {
+                    throw IllegalStateException(
+                        context.getString(R.string.news_session_required)
+                    )
+                }
+
+                accountId = session.accountId
+                api.getPostReactions(postId)
+            },
+            transform = { reactions ->
+                val counts = reactions
+                    .groupingBy {
+                        PostReactionType.fromValue(it.reactionType)
+                    }
+                    .eachCount()
+
+                val ownReaction = reactions
+                    .firstOrNull { it.userId == accountId }
+                    ?.let { PostReactionType.fromValue(it.reactionType) }
+
+                PostReactions(
+                    counts = counts,
+                    ownReaction = ownReaction
+                )
+            }
+        )
+    }
+
+    override suspend fun setPostReaction(
+        postId: Long,
+        type: PostReactionType
+    ): Result<Unit> =
+        execute({
+            api.setPostReaction(
+                SetPostReactionRequest(
+                    postId = postId,
+                    reactionType = type.value
+                )
+            )
+        }) {
+            Unit
+        }
+
+    override suspend fun removePostReaction(
+        postId: Long
+    ): Result<Unit> =
+        executeWithoutBody {
+            api.removePostReaction(postId)
+        }
 
     private fun <T> Result<T>.mapChatFailure(): Result<T> = fold(
         onSuccess = { Result.success(it) },
