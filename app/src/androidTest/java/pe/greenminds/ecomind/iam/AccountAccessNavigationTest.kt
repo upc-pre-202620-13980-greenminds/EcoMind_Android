@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import pe.greenminds.ecomind.MainActivity
@@ -48,12 +49,9 @@ class AccountAccessNavigationTest {
     @Test
     fun aRecoveryLinkWithoutATokenShowsTheInvalidLinkState() {
         compose.activityRule.scenario.onActivity { activity ->
-            activity.startActivity(Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(PasswordResetLink.BASE_URI),
-                activity,
-                MainActivity::class.java
-            ))
+            val intent = resetLinkIntent(PasswordResetLink.BASE_URI)
+            assertNotNull("Reset URL must resolve through the app manifest", activity.packageManager.resolveActivity(intent, 0))
+            activity.startActivity(intent)
         }
         awaitText(R.string.recovery_invalid_link_title)
         compose.onNodeWithText(text(R.string.recovery_invalid_link_title)).assertIsDisplayed()
@@ -62,12 +60,9 @@ class AccountAccessNavigationTest {
     @Test
     fun anIncomingLinkOpensResetWhileTheApplicationIsRunning() {
         compose.activityRule.scenario.onActivity { activity ->
-            activity.startActivity(Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("${PasswordResetLink.BASE_URI}?token=navigation-test-token"),
-                activity,
-                MainActivity::class.java
-            ))
+            val intent = resetLinkIntent("${PasswordResetLink.BASE_URI}?token=navigation-test-token")
+            assertNotNull("Reset URL must resolve through the app manifest", activity.packageManager.resolveActivity(intent, 0))
+            activity.startActivity(intent)
         }
         awaitText(R.string.recovery_reset_title)
         compose.onNodeWithText(text(R.string.recovery_reset_title)).assertIsDisplayed()
@@ -85,6 +80,9 @@ class AccountAccessNavigationTest {
     }
 
     private fun text(resource: Int) = compose.activity.getString(resource)
+
+    private fun resetLinkIntent(url: String) = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        .setPackage(compose.activity.packageName)
 
     private fun awaitText(resource: Int) {
         compose.waitUntil(20_000) {

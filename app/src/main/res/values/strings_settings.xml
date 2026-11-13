@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_language_english" translatable="false">English</string>
+    <string name="settings_language_spanish" translatable="false">Español (Perú)</string>
+    <string name="settings_back_symbol" translatable="false">‹</string>
+    <string name="settings_row_arrow" translatable="false">›</string>
+    <string name="settings_preferences">Preferences</string>
+    <string name="settings_notification_preferences">Notification preferences</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_help">Help</string>
+    <string name="settings_help_support">Help &amp; support</string>
+    <string name="settings_language_description">Choose the language of the app.</string>
+    <string name="settings_theme_description">Choose how EcoMind looks.</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_notifications_description">Choose which notifications you want to receive.</string>
+    <string name="notifications_quests">New and daily quests</string>
+    <string name="notifications_quests_description">New quests available and daily quests</string>
+    <string name="notifications_learning">Learning reminders</string>
+    <string name="notifications_learning_description">Pending materials you haven’t reviewed</string>
+    <string name="notifications_achievements">Achievements and badges</string>
+    <string name="notifications_achievements_description">Medals and badges you unlock</string>
+    <string name="notifications_weekly">Weekly progress summary</string>
+    <string name="notifications_weekly_description">Your progress of the week</string>
+    <string name="notifications_events">Community events</string>
+    <string name="notifications_events_description">Events published in your community</string>
+    <string name="notifications_activity">Community activity</string>
+    <string name="notifications_activity_description">Reactions, shared achievements and community goals</string>
+    <string name="preferences_save_failed">Couldn’t save your preference. Try again.</string>
+</resources>

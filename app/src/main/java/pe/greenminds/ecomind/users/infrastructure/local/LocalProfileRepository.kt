@@ -35,11 +35,26 @@ class LocalProfileRepository @Inject constructor(
         }
 
         // Same mapper the remote implementation will use
-        return Result.success(dto.toDomain(ProvisionalProfileData.commitmentOf(userId)))
+        return Result.success(dto.toDomain())
+    }
+
+    override suspend fun getProfiles(): Result<List<UserProfile>> {
+        delay(SIMULATED_DELAY_MILLIS)
+        return Result.success(dataSource.profiles.map { it.toDomain() })
     }
 
     override suspend fun createProfile(userId: Long, name: String, socialRole: SocialRole) {
         dataSource.addProfile(userId, name, socialRole.name)
+    }
+
+    override suspend fun updateName(userId: Long, name: String): Result<UserProfile> {
+        val index = dataSource.profiles.indexOfFirst { it.id == userId }
+        if (index == -1) {
+            return Result.failure(IllegalArgumentException("The user profile was not found"))
+        }
+        val updated = dataSource.profiles[index].copy(name = name)
+        dataSource.profiles[index] = updated
+        return Result.success(updated.toDomain())
     }
 
     override suspend fun spendGems(userId: Long, amount: Int): Result<Int> {

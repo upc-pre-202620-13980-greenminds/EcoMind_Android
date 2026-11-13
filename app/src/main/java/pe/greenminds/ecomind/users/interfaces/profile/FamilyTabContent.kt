@@ -24,7 +24,6 @@ import pe.greenminds.ecomind.users.domain.model.FamilyRole
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.users.interfaces.navigation.CreateFamilyRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.FamilyActivityProgressRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ManageFamilyRoute
 
@@ -47,7 +46,13 @@ fun FamilyTabContent(
             onCreateFamily = { onNavigate(CreateFamilyRoute) }
         )
 
-        else -> FamilyContent(family = family, onNavigate = onNavigate)
+        else -> FamilyContent(
+            family = family,
+            // Read again each time the profile opens, so it is already up to date after
+            // equipping an avatar in Store, like the header
+            currentUserAvatar = state.equippedCosmetics.avatar?.imageReference,
+            onNavigate = onNavigate
+        )
     }
 }
 
@@ -87,6 +92,7 @@ private fun NoFamilyContent(
 @Composable
 private fun FamilyContent(
     family: FamilyOverview,
+    currentUserAvatar: String?,
     onNavigate: (Any) -> Unit
 ) {
     // "Manage" and "Weekly report" are only for the parents of the family
@@ -147,12 +153,13 @@ private fun FamilyContent(
             } else {
                 null
             },
-            // In the design only a parent opens the progress of another member
-            onClick = if (isManager && !member.isCurrentUser) {
-                { onNavigate(FamilyActivityProgressRoute(member.userId)) }
+            avatarImageReference = if (member.isCurrentUser) {
+                currentUserAvatar
             } else {
-                null
-            }
+                member.avatarImageReference
+            },
+            // The progress of a member (frame 22) is not built yet, so the rows do not open anything
+            onClick = null
         )
     }
 }

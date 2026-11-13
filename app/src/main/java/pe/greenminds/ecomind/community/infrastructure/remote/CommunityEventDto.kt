@@ -1,20 +1,17 @@
 package pe.greenminds.ecomind.community.infrastructure.remote
 
-import pe.greenminds.ecomind.community.domain.model.CommunityEvent
-
+import com.google.gson.annotations.SerializedName
 
 data class CommunityEventDto(
     val id: Long,
-    val title: String,
-    val description: String,
-    val date: String
+    @SerializedName("community_id") val communityId: Long,
+    val name: String,
+    val description: String?,
+    val date: String,
+    @SerializedName("start_time") val startTime: String?,
+    val location: String?,
+    val latitude: Double?,
+    val longitude: Double?,
+    val capacity: Int?,
+    @SerializedName("image_url") val imageUrl: String?
 )
-
-fun CommunityEventDto.toDomain(): CommunityEvent {
-    return CommunityEvent(
-        id = id,
-        title = title,
-        description = description,
-        date = date
-    )
-}

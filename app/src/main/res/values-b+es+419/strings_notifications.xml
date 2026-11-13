@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Notificaciones</string>
+    <plurals name="notifications_unread">
+        <item quantity="one">%d sin leer</item>
+        <item quantity="many">%d sin leer</item>
+        <item quantity="other">%d sin leer</item>
+    </plurals>
+    <string name="notifications_all_read">Estás al día</string>
+    <string name="notifications_mark_all">Marcar todo como leído</string>
+    <string name="notifications_empty_title">Aún no tienes notificaciones</string>
+    <string name="notifications_empty_message">Te avisaremos sobre misiones, materiales, logros y actividad de la comunidad.</string>
+    <string name="notifications_error_title">No se pudieron cargar tus notificaciones</string>
+    <string name="notifications_error_message">Tus notificaciones no están disponibles en este momento. Inténtalo de nuevo para volver a cargarlas.</string>
+    <string name="notifications_try_again">Reintentar</string>
+    <string name="notifications_action_failed">No se pudieron actualizar tus notificaciones. Inténtalo de nuevo.</string>
+    <string name="notifications_label_quests">MISIONES</string>
+    <string name="notifications_label_learning">APRENDIZAJE</string>
+    <string name="notifications_label_achievements">LOGROS</string>
+    <string name="notifications_label_progress">PROGRESO</string>
+    <string name="notifications_label_events">EVENTOS</string>
+    <string name="notifications_label_community">COMUNIDAD</string>
+    <string name="notifications_time_minutes">%1$d min</string>
+    <string name="notifications_time_hours">%1$d h</string>
+    <string name="notifications_time_yesterday">Ayer</string>
+    <plurals name="notifications_time_days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <string name="notifications_row_unread_description">Sin leer. %1$s. %2$s. %3$s. %4$s</string>
+    <string name="notifications_row_read_description">%1$s. %2$s. %3$s. %4$s</string>
+    <plurals name="top_bar_notifications_unread">
+        <item quantity="one">Notificaciones, %d sin leer</item>
+        <item quantity="many">Notificaciones, %d sin leer</item>
+        <item quantity="other">Notificaciones, %d sin leer</item>
+    </plurals>
+</resources>

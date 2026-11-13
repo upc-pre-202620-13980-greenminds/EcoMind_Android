@@ -14,7 +14,7 @@ val localProperties = Properties().apply {
 }
 val debugApiBaseUrl = localProperties.getProperty(
     "api.base.url",
-    "http://10.0.2.2:8092/api/v1/"
+    "https://ca-ecomind-api.icybush-bd135296.westus2.azurecontainerapps.io/api/v1/"
 )
 
 android {
@@ -44,15 +44,15 @@ android {
 
     buildTypes {
         debug {
-            // Defaults to the emulator host. A physical device can override it in local.properties.
+            // Use Azure by default; local development can override api.base.url.
             buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
         }
         release {
             optimization {
                 enable = false
             }
-            // Placeholder: replace with the real host once the backend is deployed
-            buildConfigField("String", "API_BASE_URL", "\"https://ecomind-backend-yxp7.onrender.com/api/v1/\"")
+            // Public Azure API used by the release build.
+            buildConfigField("String", "API_BASE_URL", "\"https://ca-ecomind-api.icybush-bd135296.westus2.azurecontainerapps.io/api/v1/\"")
         }
     }
     compileOptions {
@@ -72,6 +72,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -90,6 +91,7 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

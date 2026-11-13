@@ -11,17 +11,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.iam.application.ClearSessionUseCase
 import pe.greenminds.ecomind.iam.application.ConfirmPasswordRecoveryUseCase
 import pe.greenminds.ecomind.iam.domain.model.AuthError
 import pe.greenminds.ecomind.iam.domain.model.AuthException
-import pe.greenminds.ecomind.iam.domain.repositories.SessionRepository
 import pe.greenminds.ecomind.iam.domain.services.PasswordPolicy
 import javax.inject.Inject
 
 @HiltViewModel
 class ResetPasswordViewModel @Inject constructor(
     private val confirmPasswordRecoveryUseCase: ConfirmPasswordRecoveryUseCase,
-    private val sessionRepository: SessionRepository
+    private val clearSessionUseCase: ClearSessionUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(ResetPasswordUiState())
     val state: StateFlow<ResetPasswordUiState> = _state.asStateFlow()
@@ -80,7 +80,7 @@ class ResetPasswordViewModel @Inject constructor(
             // even if the user leaves this screen or receives another recovery link.
             val (result, cleared) = withContext(NonCancellable) {
                 val response = confirmPasswordRecoveryUseCase(token, current.password)
-                response to if (response.isSuccess) clearStoredSession() else false
+                response to if (response.isSuccess) clearSessionUseCase() else false
             }
             if (recoveryToken != token) return@launch
             result
@@ -122,7 +122,7 @@ class ResetPasswordViewModel @Inject constructor(
         _state.update { it.copy(isLoading = true, formError = null) }
         val receivedToken = lastReceivedToken
         viewModelScope.launch {
-            val cleared = withContext(NonCancellable) { clearStoredSession() }
+            val cleared = clearSessionUseCase()
             if (receivedToken != lastReceivedToken || !_state.value.isCompleted) return@launch
             sessionCleared = cleared
             _state.update {
@@ -132,15 +132,6 @@ class ResetPasswordViewModel @Inject constructor(
                     formError = if (cleared) null else R.string.recovery_session_clear_error
                 )
             }
-        }
-    }
-
-    private suspend fun clearStoredSession(): Boolean {
-        return try {
-            sessionRepository.clearSession()
-            true
-        } catch (_: Exception) {
-            false
         }
     }
 }

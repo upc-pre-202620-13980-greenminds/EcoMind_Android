@@ -1,8 +1,6 @@
 package pe.greenminds.ecomind.quests.presentation.ui.family
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -10,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,7 +35,10 @@ internal fun FamilyQuestCard(
     Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), color = White,
         shadowElevation = 2.dp, border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder)) {
         Column(Modifier.padding(12.dp)) {
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 FamilyQuestChip(stringResource(when (quest.category) {
                     QuestCategory.ENERGY -> R.string.quest_category_energy
                     QuestCategory.WATER -> R.string.quest_category_water
@@ -48,6 +50,10 @@ internal fun FamilyQuestCard(
                 })
                 quest.estimatedMinutes?.let { FamilyQuestChip(stringResource(R.string.quest_chip_minutes, it), ChipGray) }
                 FamilyQuestChip(stringResource(R.string.quest_chip_ecopoints, quest.reward.ecopoints), ChipGreen)
+                val gems = quest.reward.gems
+                if (gems > 0) {
+                    FamilyQuestChip(pluralStringResource(R.plurals.quest_chip_gems, gems, gems), SkyBlue)
+                }
                 FamilyQuestChip(stringResource(R.string.quest_theme_collaborative), ChipPurple)
             }
             Spacer(Modifier.height(8.dp))

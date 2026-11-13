@@ -1,13 +1,7 @@
 package pe.greenminds.ecomind.quests.interfaces.search
 
-import pe.greenminds.ecomind.quests.presentation.ui.displayTheme
-import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -34,20 +25,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.quests.domain.entity.Quest
-import pe.greenminds.ecomind.quests.domain.valueobject.QuestCategory
-import pe.greenminds.ecomind.quests.domain.valueobject.QuestTheme
-import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.quests.presentation.ui.QuestMetadataChips
+import pe.greenminds.ecomind.quests.presentation.ui.QuestTile
+import pe.greenminds.ecomind.quests.presentation.ui.displayTheme
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
-import pe.greenminds.ecomind.shared.interfaces.theme.ChipGray
-import pe.greenminds.ecomind.shared.interfaces.theme.ChipGreen
-import pe.greenminds.ecomind.shared.interfaces.theme.ChipPurple
 import pe.greenminds.ecomind.shared.interfaces.theme.DividerGray
-import pe.greenminds.ecomind.shared.interfaces.theme.LeafGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlue
 import pe.greenminds.ecomind.shared.interfaces.theme.SkyBlueDark
-import pe.greenminds.ecomind.shared.interfaces.theme.SunYellow
 import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
-import pe.greenminds.ecomind.shared.interfaces.theme.White
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 @Composable
@@ -66,39 +51,11 @@ fun QuestSearchResultCard(
             .clickable(role = Role.Button, onClick = onOpen)
             .padding(12.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            QuestChip(
-                text = stringResource(categoryLabel(quest.category)).lowercase(),
-                color = categoryColor(quest.category)
-            )
-            QuestChip(
-                text = stringResource(
-                    R.string.quest_chip_minutes,
-                    quest.estimatedMinutes ?: 0
-                ),
-                color = ChipGray
-            )
-            QuestChip(
-                text = stringResource(
-                    R.string.quest_chip_ecopoints,
-                    quest.reward.ecopoints
-                ),
-                color = ChipGreen
-            )
-            if (quest.type == QuestType.COLLABORATIVE || quest.theme == QuestTheme.COLLABORATIVE) {
-                QuestChip(
-                    text = stringResource(R.string.quest_theme_collaborative),
-                    color = ChipPurple
-                )
-            }
-        }
+        QuestMetadataChips(quest)
 
         Spacer(modifier = Modifier.height(8.dp))
         Row {
-            pe.greenminds.ecomind.quests.presentation.ui.QuestTile(
+            QuestTile(
                 theme = quest.displayTheme,
                 contentDescription = quest.title,
                 onClick = onOpen,
@@ -138,32 +95,4 @@ fun QuestSearchResultCard(
         }
     }
 }
-
-@Composable
-private fun QuestChip(text: String, color: Color) {
-    Text(
-        text = text,
-        style = interTextStyle(10, FontWeight.Bold),
-        color = White,
-        maxLines = 1,
-        modifier = Modifier
-            .background(color, RoundedCornerShape(percent = 50))
-            .padding(horizontal = 10.dp, vertical = 5.dp)
-    )
-}
-
-@StringRes
-private fun categoryLabel(category: QuestCategory): Int = when (category) {
-    QuestCategory.ENERGY -> R.string.quest_category_energy
-    QuestCategory.WATER -> R.string.quest_category_water
-    QuestCategory.RECYCLE -> R.string.quest_category_recycle
-}
-
-private fun categoryColor(category: QuestCategory): Color = when (category) {
-    QuestCategory.ENERGY -> SunYellow
-    QuestCategory.WATER -> SkyBlue
-    QuestCategory.RECYCLE -> LeafGreen
-}
-
-
 

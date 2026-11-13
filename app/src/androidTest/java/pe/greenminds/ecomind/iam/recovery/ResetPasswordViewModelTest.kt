@@ -17,6 +17,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.iam.application.ClearSessionUseCase
 import pe.greenminds.ecomind.iam.application.ConfirmPasswordRecoveryUseCase
 import pe.greenminds.ecomind.iam.domain.model.PendingRegistration
 import pe.greenminds.ecomind.iam.domain.model.Session
@@ -47,6 +48,26 @@ class ResetPasswordViewModelTest {
         override suspend fun logout(): Result<Unit> = error("Not used")
     }
 
+    @Test
+    fun mismatchedPasswordsAreRejectedBeforeCallingTheRepository() = runBlocking {
+        val auth = FakeAuthRepository()
+        val sessions = FakeSessionRepository()
+        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), ClearSessionUseCase(sessions)) }
+        try {
+            onMain {
+                viewModel.setToken("fixture-token")
+                viewModel.onPasswordChange("FirstPassword2026")
+                viewModel.onConfirmPasswordChange("DifferentPassword2026")
+                viewModel.resetPassword()
+                assertEquals(R.string.error_password_mismatch, viewModel.state.value.confirmPasswordError)
+                assertFalse(viewModel.state.value.isLoading)
+                assertEquals(0, auth.confirmationCalls)
+            }
+        } finally {
+            onMain { viewModel.viewModelScope.cancel() }
+        }
+    }
+
     private class FakeSessionRepository : SessionRepository {
         var session: Session? = Session(1L, "user@example.com", "previous-session", Long.MAX_VALUE)
         var failClear = false
@@ -68,7 +89,7 @@ class ResetPasswordViewModelTest {
     fun aNewLinkDoesNotPreventCleanupOrReceiveThePreviousResult() = runBlocking {
         val auth = FakeAuthRepository()
         val sessions = FakeSessionRepository()
-        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), sessions) }
+        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), ClearSessionUseCase(sessions)) }
         try {
             onMain { submit(viewModel, "first-link") }
             withTimeout(5_000) { auth.started.await() }
@@ -98,7 +119,7 @@ class ResetPasswordViewModelTest {
     fun failedCleanupRetriesStorageWithoutConsumingTheResetTokenAgain() = runBlocking {
         val auth = FakeAuthRepository()
         val sessions = FakeSessionRepository().apply { failClear = true }
-        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), sessions) }
+        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), ClearSessionUseCase(sessions)) }
         try {
             onMain { submit(viewModel, "one-use-link") }
             withTimeout(5_000) { auth.started.await() }
@@ -133,7 +154,7 @@ class ResetPasswordViewModelTest {
     fun leavingTheScreenDuringConfirmationStillClearsASuccessfulResetSession() = runBlocking {
         val auth = FakeAuthRepository()
         val sessions = FakeSessionRepository()
-        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), sessions) }
+        val viewModel = onMain { ResetPasswordViewModel(ConfirmPasswordRecoveryUseCase(auth), ClearSessionUseCase(sessions)) }
         try {
             onMain { submit(viewModel, "pending-link") }
             withTimeout(5_000) { auth.started.await() }

@@ -21,6 +21,7 @@ class FilterQuestsUseCaseTest {
             if (questId == 3L) ActivityType.WRITE else ActivityType.CHECKBOX, emptyMap(), null))
         override suspend fun activityUsers(questUserId: Long): List<ActivityUser> = error("unused")
         override suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser = error("unused")
+        override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser = error("unused")
         override suspend fun finish(questUserId: Long): QuestUser = error("unused")
     }
     @Test fun combinesGroupsAndIncludesRangeBoundaries() = runBlocking {

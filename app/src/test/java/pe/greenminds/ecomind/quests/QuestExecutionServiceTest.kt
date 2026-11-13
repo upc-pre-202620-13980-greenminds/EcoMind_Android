@@ -23,6 +23,7 @@ class QuestExecutionServiceTest {
         override suspend fun activities(questId: Long) = emptyList<Activity>()
         override suspend fun activityUsers(questUserId: Long) = emptyList<ActivityUser>()
         override suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser = error("unused")
+        override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser = error("unused")
         override suspend fun finish(questUserId: Long): QuestUser { finishes++; return assignment.copy(status = QuestStatus.COMPLETED) }
     }
     private val catalog = object : QuestRepository {
@@ -62,6 +63,82 @@ class QuestExecutionServiceTest {
         val result = QuestExecutionService(catalog, repository).finish(ready)
         assertEquals(QuestStatus.COMPLETED, result.assignment?.status)
         assertEquals(1, repository.finishes)
+    }
+
+    @Test fun dailyQuestCanStartAndCompleteItsCheckboxActivity() = runBlocking {
+        val daily = snapshot.copy(quest = quest.copy(type = QuestType.DAILY_QUEST), assignment = null, checks = emptyList())
+        var check = snapshot.checks.single()
+        var currentAssignment = assignment
+        val repository = object : QuestExecutionRepository {
+            override suspend fun find(questId: Long): QuestUser? = null
+            override suspend fun start(questId: Long) = currentAssignment
+            override suspend fun get(id: Long) = currentAssignment
+            override suspend fun activities(questId: Long) = daily.activities
+            override suspend fun activityUsers(questUserId: Long) = listOf(check)
+            override suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser {
+                assertEquals(check.id, activityUserId)
+                assertTrue(checked)
+                check = check.copy(progress = 100.0)
+                currentAssignment = currentAssignment.copy(status = QuestStatus.READY_TO_COMPLETE, progress = 100.0)
+                return check
+            }
+            override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser = error("unused")
+            override suspend fun finish(questUserId: Long) = currentAssignment.copy(status = QuestStatus.COMPLETED)
+        }
+        val service = QuestExecutionService(catalog, repository)
+
+        assertTrue(daily.supported)
+        assertFalse(daily.copy(activities = emptyList()).supported)
+        val started = service.start(daily)
+        assertEquals(QuestStatus.IN_PROGRESS, started.assignment?.status)
+        assertFalse(started.canFinish)
+        val ready = service.check(started, started.checks.single().id, true)
+        assertTrue(ready.canFinish)
+        assertEquals(QuestStatus.COMPLETED, service.finish(ready).assignment?.status)
+    }
+
+    @Test fun mixedQuestRequiresBothCheckboxesAndAValidWrittenAnswer() = runBlocking {
+        val secondCheckbox = activity.copy(id = 2, order = 2)
+        val write = activity.copy(id = 3, order = 3, type = ActivityType.WRITE)
+        val first = snapshot.checks.single().copy(progress = 100.0)
+        val second = first.copy(id = 10, activityId = secondCheckbox.id, progress = 0.0)
+        val written = first.copy(id = 11, activityId = write.id, progress = 0.0,
+            configuration = mapOf("minCharacters" to 5.0))
+        var stored = written
+        var checkbox = second
+        val repository = object : QuestExecutionRepository by FakeRepository(assignment) {
+            override suspend fun submitWrittenResponse(activityUserId: Long, text: String): ActivityUser {
+                assertEquals(written.id, activityUserId)
+                stored = written.copy(progress = 100.0, responseText = text)
+                return stored
+            }
+
+            override suspend fun check(activityUserId: Long, checked: Boolean): ActivityUser {
+                assertEquals(second.id, activityUserId)
+                checkbox = second.copy(progress = if (checked) 100.0 else 0.0)
+                return checkbox
+            }
+
+            override suspend fun activityUsers(questUserId: Long) = listOf(first, checkbox, stored)
+
+            override suspend fun get(id: Long): QuestUser {
+                val progress = activityUsers(id).map { it.progress }.average()
+                return assignment.copy(progress = progress, status = if (progress == 100.0)
+                    QuestStatus.READY_TO_COMPLETE else QuestStatus.IN_PROGRESS)
+            }
+        }
+        val service = QuestExecutionService(catalog, repository)
+        val mixed = snapshot.copy(quest = quest.copy(theme = QuestTheme.WRITE),
+            activities = listOf(activity, secondCheckbox, write), checks = listOf(first, second, written))
+        assertTrue(mixed.supported)
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking { service.submitWrittenResponse(mixed, written.id, "  abc  ") }
+        }
+        assertNull(stored.responseText)
+        val withAnswer = service.submitWrittenResponse(mixed, written.id, "  Ahorrar agua  ")
+        assertEquals("Ahorrar agua", withAnswer.checks.last().responseText)
+        assertFalse(withAnswer.canFinish)
+        assertTrue(service.check(withAnswer, second.id, true).canFinish)
     }
 
     @Test fun familyQuestUsesTheExistingUiWithoutStartingASoloAttempt() = runBlocking {

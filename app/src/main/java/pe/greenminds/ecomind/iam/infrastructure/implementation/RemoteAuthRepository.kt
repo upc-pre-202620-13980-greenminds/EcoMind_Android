@@ -2,7 +2,6 @@ package pe.greenminds.ecomind.iam.infrastructure.implementation
 
 import com.google.gson.Gson
 import kotlinx.coroutines.CancellationException
-import pe.greenminds.ecomind.BuildConfig
 import pe.greenminds.ecomind.iam.domain.model.AuthError
 import pe.greenminds.ecomind.iam.domain.model.AuthException
 import pe.greenminds.ecomind.iam.domain.model.PendingRegistration
@@ -20,7 +19,6 @@ import pe.greenminds.ecomind.shared.infrastructure.remote.ErrorDto
 import retrofit2.HttpException
 import retrofit2.Response
 import javax.inject.Inject
-import java.util.logging.Logger
 
 class RemoteAuthRepository @Inject constructor(
     private val api: AuthApi
@@ -86,9 +84,6 @@ class RemoteAuthRepository @Inject constructor(
         return try {
             val response = request()
             if (!response.isSuccessful) {
-                if (BuildConfig.DEBUG) {
-                    Logger.getLogger("RemoteAuthRepository").warning("Authentication HTTP ${response.code()}")
-                }
                 Result.failure(toException(response))
             } else {
                 val body = response.body()
@@ -98,9 +93,6 @@ class RemoteAuthRepository @Inject constructor(
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: Exception) {
-            if (BuildConfig.DEBUG) {
-                Logger.getLogger("RemoteAuthRepository").warning("Authentication failed: ${exception.javaClass.simpleName}")
-            }
             Result.failure(exception)
         }
     }

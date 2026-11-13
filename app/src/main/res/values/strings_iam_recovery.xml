@@ -4,7 +4,7 @@
     <string name="recovery_request_button">Send reset link</string>
     <string name="recovery_back_to_sign_in">Back to sign in</string>
     <string name="recovery_check_email_title">Check your email</string>
-    <string name="recovery_check_email_description">If an account exists for %1$s, you will receive a password reset link. Check your inbox and spam folder. The link expires after 30 minutes and can only be used once.</string>
+    <string name="recovery_check_email_description">If an account exists for %1$s, we will try to send a reset link. Check your inbox and spam, and request another link if it does not arrive. Each link expires after 30 minutes and can be used once.</string>
     <string name="recovery_resend_button">Request another link</string>
     <string name="recovery_request_error">We could not request a reset link. Check your connection and try again.</string>
     <string name="recovery_reset_title">Create a new password</string>

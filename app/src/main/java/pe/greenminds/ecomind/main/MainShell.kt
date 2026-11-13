@@ -1,5 +1,17 @@
 package pe.greenminds.ecomind.main
 
+import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.ChooseContactsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InvitationCodeRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InvitationStatusRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.InviteFriendsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FindFriendsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FriendProfileRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FriendRequestsRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.FavoritesRoute
+import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -54,7 +66,7 @@ fun MainShell(
             passwordResetToken = passwordResetToken,
             onPasswordResetHandled = onPasswordResetHandled,
             onAccessReset = {
-                viewModel.clearBalances()
+                viewModel.clearHeader()
                 navigationVersion++
             }
         )
@@ -96,9 +108,10 @@ private fun MainShellContent(
     val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true &&
         backStackEntry?.destination?.hasRoute<FamilyQuestStartedRoute>() != true
 
-    LaunchedEffect(showTopBar) {
+    LaunchedEffect(showTopBar, backStackEntry?.id) {
         if (showTopBar) {
-            viewModel.loadBalances()
+            viewModel.loadHeaderCounters()
+            viewModel.loadUnreadNotifications()
         }
     }
 
@@ -109,14 +122,15 @@ private fun MainShellContent(
             if (showTopBar) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
-                    ecopoints = state.ecopoints,
+                    streak = state.streak,
                     onNotificationsClick = {
                         navController.navigate(NotificationsRoute) { launchSingleTop = true }
                     },
                     onSettingsClick = {
                         navController.navigate(SettingsRoute) { launchSingleTop = true }
                     },
-                    modifier = Modifier.statusBarsPadding()
+                    modifier = Modifier.statusBarsPadding(),
+                    unreadNotifications = state.unreadNotifications
                 )
             }
         },
@@ -154,7 +168,20 @@ private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
         destination.hasRoute<FamilyQuestStartedRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.ProgressListRoute>()) return NavigationItem.PROGRESS
     if (destination.hasRoute<SettingsRoute>() || destination.hasRoute<HelpSupportRoute>() ||
+        destination.hasRoute<NotificationsRoute>() ||
+        destination.hasRoute<NotificationPreferencesRoute>() ||
+        destination.hasRoute<LanguageRoute>() || destination.hasRoute<ThemeRoute>() ||
         destination.hasRoute<FaqRoute>() || destination.hasRoute<FaqDetailRoute>()) return NavigationItem.PROFILE
+    // Sub screens of Profile keep the bars with the Profile item active
+    if (destination.hasRoute<EditProfileRoute>() || destination.hasRoute<ShareProfileRoute>() ||
+        destination.hasRoute<FavoritesRoute>() ||
+        destination.hasRoute<AddCommitmentRoute>() || destination.hasRoute<EditCommitmentRoute>() ||
+        destination.hasRoute<FindFriendsRoute>() || destination.hasRoute<FriendRequestsRoute>() ||
+        destination.hasRoute<InviteFriendsRoute>() || destination.hasRoute<ChooseContactsRoute>() ||
+        destination.hasRoute<InvitationCodeRoute>() || destination.hasRoute<InvitationStatusRoute>() ||
+        destination.hasRoute<FriendProfileRoute>()) {
+        return NavigationItem.PROFILE
+    }
 
     val section = NavigationItem.entries.firstOrNull { item ->
         destination.hasRoute(item.route::class)

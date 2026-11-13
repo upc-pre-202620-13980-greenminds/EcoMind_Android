@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.EcoMind" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- AppCompat parent: MainActivity is an AppCompatActivity so the language can change in the app -->
+    <style name="Theme.EcoMind" parent="Theme.AppCompat.Light.NoActionBar" />
 </resources>

@@ -4,7 +4,7 @@
     <string name="recovery_request_button">Enviar enlace</string>
     <string name="recovery_back_to_sign_in">Volver a iniciar sesión</string>
     <string name="recovery_check_email_title">Revisa tu correo</string>
-    <string name="recovery_check_email_description">Si existe una cuenta para %1$s, recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y la carpeta de correo no deseado. El enlace vence en 30 minutos y solo puede usarse una vez.</string>
+    <string name="recovery_check_email_description">Si existe una cuenta para %1$s, intentaremos enviar un enlace de recuperación. Revisa tu bandeja y correo no deseado, y solicita otro enlace si no llega. Cada enlace vence en 30 minutos y solo puede usarse una vez.</string>
     <string name="recovery_resend_button">Solicitar otro enlace</string>
     <string name="recovery_request_error">No pudimos solicitar el enlace. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="recovery_reset_title">Crea una contraseña nueva</string>

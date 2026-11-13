@@ -10,7 +10,7 @@ import pe.greenminds.ecomind.quests.application.service.*
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestStatus
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestPublicationStatus
-import pe.greenminds.ecomind.quests.domain.model.PartyFriend
+import pe.greenminds.ecomind.quests.domain.model.PartyPerson
 import pe.greenminds.ecomind.quests.application.usecase.GetCollabQuestStateByQuestUseCase
 import pe.greenminds.ecomind.quests.application.usecase.GetCollabQuestInvitationUseCase
 import pe.greenminds.ecomind.quests.presentation.states.QuestPartyUiState
@@ -26,7 +26,7 @@ data class QuestExecutionState(
     val error: Boolean = false,
     val partyState: QuestPartyUiState = QuestPartyUiState(),
     val selectingFriends: Boolean = false,
-    val friends: List<PartyFriend> = emptyList(),
+    val friends: List<PartyPerson> = emptyList(),
     val familyExecution: FamilyQuestExecution? = null
 )
 
@@ -46,7 +46,7 @@ class QuestExecutionViewModel @Inject constructor(
 
     init { reload() }
 
-    private suspend fun loadDetail(previous: QuestExecutionState): QuestExecutionState {
+    private suspend fun loadDetail(previous: QuestExecutionState, refreshPeople: Boolean = false): QuestExecutionState {
         if (route.familyPlanId != null) {
             val family = familyPlans.getExecution(route.familyPlanId, requireNotNull(route.familyPlanItemId)).getOrThrow()
             check(family.quest.id == questId)
@@ -66,9 +66,11 @@ class QuestExecutionViewModel @Inject constructor(
                 else previous.partyState.invitations
             val currentParty = if (party.isSuccess) party.getOrThrow() else previous.partyState.party
             val peopleIds = currentParty?.members.orEmpty().map { it.userId }.toSet() + received.map { it.organizerUserId }
-            val names = previous.partyState.names + partyActions.names(peopleIds - previous.partyState.names.keys)
+            val cachedPeople = previous.partyState.people
+            val peopleToLoad = if (refreshPeople) peopleIds else peopleIds - cachedPeople.keys
+            val people = cachedPeople + partyActions.profiles(peopleToLoad)
             QuestPartyUiState(
-                party = currentParty, invitations = received, names = names,
+                party = currentParty, invitations = received, people = people,
                 hasError = party.isFailure || invitations.isFailure,
                 hasActiveAssignment = loaded.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE),
                 canExecute = loaded.supported,
@@ -82,7 +84,7 @@ class QuestExecutionViewModel @Inject constructor(
     fun reload() = perform(readOnlyAllowed = true) { loadDetail(this) }
 
     fun refreshScreen() = perform(refreshing = true, readOnlyAllowed = true) {
-        val updated = loadDetail(this)
+        val updated = loadDetail(this, refreshPeople = true)
         if (selectingFriends) updated.copy(friends = partyActions.friends()) else updated
     }
 
@@ -135,9 +137,8 @@ class QuestExecutionViewModel @Inject constructor(
         check(fresh.partyState.isOwner)
         val friends = partyActions.friends()
         fresh.copy(selectingFriends = true, friends = friends,
-            partyState = fresh.partyState.copy(names = fresh.partyState.names + friends.mapNotNull { friend ->
-                friend.name?.let { friend.userId to it }
-            }.toMap()))
+            partyState = fresh.partyState.copy(people = fresh.partyState.people + friends
+                .filter { it.name != null }.associateBy { it.userId }))
     }
 
     fun closeFriends() { if (!mutable.value.busy) mutable.update { it.copy(selectingFriends = false) } }
@@ -187,6 +188,20 @@ class QuestExecutionViewModel @Inject constructor(
             withFamily(familyPlans.checkActivity(route.familyPlanId, requireNotNull(route.familyPlanItemId), id, checked).getOrThrow())
         } else copy(execution = service.check(requireNotNull(execution), id, checked))
     }
+    fun submitWrittenResponse(id: Long, text: String) = perform {
+        copy(execution = service.submitWrittenResponse(requireNotNull(execution), id, text))
+    }
+
+    fun viewSavedResponses() {
+        if (route.previewOnly || mutable.value.busy) return
+        mutable.update { state ->
+            val execution = state.execution
+            if (execution?.assignment?.status == QuestStatus.COMPLETED && execution.hasWrittenActivities) {
+                state.copy(stage = QuestStage.ACTIVITIES)
+            } else state
+        }
+    }
+
     fun finish() = perform {
         check(route.familyPlanId == null)
         copy(execution = service.finish(requireNotNull(execution)), stage = QuestStage.FINISHED)
