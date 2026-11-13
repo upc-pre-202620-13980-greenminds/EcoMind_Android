@@ -12,6 +12,8 @@
     <string name="notifications_error_title">Couldn’t load your notifications</string>
     <string name="notifications_error_message">Your notifications are currently unavailable. Try again to reload them.</string>
     <string name="notifications_try_again">Try again</string>
+    <string name="notifications_channel_name">EcoMind notifications</string>
+    <string name="notifications_channel_description">Quests, materials, achievements and community activity.</string>
     <string name="notifications_action_failed">Couldn’t update your notifications. Try again.</string>
     <string name="notifications_label_quests">QUESTS</string>
     <string name="notifications_label_learning">LEARNING</string>
