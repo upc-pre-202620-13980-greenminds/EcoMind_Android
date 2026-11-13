@@ -38,5 +38,7 @@ data class StoreItem(
 
 data class EquippedCosmetics(
     val avatar: Cosmetic? = null,
-    val overlay: Cosmetic? = null
+    val head: Cosmetic? = null,
+    val body: Cosmetic? = null,
+    val accessory: Cosmetic? = null
 )
