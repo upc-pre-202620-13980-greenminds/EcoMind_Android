@@ -61,6 +61,7 @@
     <string name="gamification_source_family">Plan familiar</string>
     <string name="gamification_source_goal">Meta comunitaria</string>
     <string name="gamification_source_event">Evento comunitario</string>
+    <string name="gamification_source_streak">Bono semanal por racha</string>
     <string name="gamification_source_other">Recompensa</string>
     <string name="quest_execution_title">Actividad</string>
     <string name="quest_execution_rewards">Recompensa base: %1$d ecopuntos · %2$d gemas</string>

@@ -61,6 +61,7 @@
     <string name="gamification_source_family">Family plan</string>
     <string name="gamification_source_goal">Community goal</string>
     <string name="gamification_source_event">Community event</string>
+    <string name="gamification_source_streak">Weekly streak bonus</string>
     <string name="gamification_source_other">Reward</string>
     <string name="quest_execution_title">Activity</string>
     <string name="quest_execution_rewards">Base reward: %1$d ecopoints · %2$d gems</string>
