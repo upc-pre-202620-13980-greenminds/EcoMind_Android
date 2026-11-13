@@ -11,5 +11,7 @@ data class Notification(
     val message: String,
     val isRead: Boolean,
     // Milliseconds; used to show "5 min", "1 h" or "Yesterday"
-    val createdAtMillis: Long
+    val createdAtMillis: Long,
+    // Last, with a default, so the previews that only need the texts stay short
+    val type: NotificationType = NotificationType.UNKNOWN
 )

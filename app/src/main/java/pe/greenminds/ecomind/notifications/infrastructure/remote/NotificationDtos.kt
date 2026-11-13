@@ -6,7 +6,7 @@ package pe.greenminds.ecomind.notifications.infrastructure.remote
 data class NotificationDto(
     val id: Long,
     val category: String,
-    // GENERAL or FRIEND_REQUEST_ACCEPTED; the app does not need it to show the notification
+    // What produced it, such as ACHIEVEMENT_UNLOCKED; it decides where a tap goes
     val type: String,
     val title: String,
     val message: String,

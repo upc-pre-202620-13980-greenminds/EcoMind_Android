@@ -43,10 +43,14 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
-    // Opening a notification marks it as read; a read one does not call the web services again
+    // Opening a notification marks it as read and, if it has one, opens its screen.
+    // A read one does not call the web services again.
     fun onNotificationClick(notificationId: Long) {
-        val notification = _state.value.notifications.find { it.id == notificationId }
-        if (notification == null || notification.isRead) return
+        val notification = _state.value.notifications.find { it.id == notificationId } ?: return
+        destinationFor(notification.type)?.let { destination ->
+            _state.update { it.copy(openDestination = destination) }
+        }
+        if (notification.isRead) return
 
         viewModelScope.launch {
             _state.update { it.copy(actionError = null) }
@@ -65,6 +69,10 @@ class NotificationsViewModel @Inject constructor(
                     _state.update { it.copy(actionError = R.string.notifications_action_failed) }
                 }
         }
+    }
+
+    fun onDestinationOpened() {
+        _state.update { it.copy(openDestination = null) }
     }
 
     fun markAllAsRead() {

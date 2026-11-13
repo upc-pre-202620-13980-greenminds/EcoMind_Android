@@ -100,7 +100,27 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, settingsViewModel
     }
 
     composable<NotificationsRoute> {
-        NotificationsScreen(onBack = { navController.popBackStack() })
+        NotificationsScreen(
+            onBack = { navController.popBackStack() },
+            // Only screens that already exist; full names keep the imports of the file as they are
+            onOpen = { destination ->
+                when (destination) {
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.MEDALS ->
+                        navController.navigate(pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute) { launchSingleTop = true }
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.FAVORITES ->
+                        navController.navigate(pe.greenminds.ecomind.users.interfaces.navigation.FavoritesRoute) { launchSingleTop = true }
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.PROGRESS_REWARDS ->
+                        navController.navigate(pe.greenminds.ecomind.gamification.interfaces.navigation.GamificationProgressRoute) { launchSingleTop = true }
+                    // Community is a section of the bottom bar, so it opens like its item does
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.COMMUNITY ->
+                        navController.navigate(pe.greenminds.ecomind.community.interfaces.navigation.CommunityRoute) {
+                            popUpTo<MainMenuRoute> { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                }
+            }
+        )
     }
 
     composable<SettingsRoute> {
