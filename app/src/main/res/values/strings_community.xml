@@ -203,8 +203,28 @@
     <string name="news_session_required">Sign in again to manage reactions.</string>
     <string name="news_reaction_like">Like</string>
     <string name="news_reaction_love">Love</string>
-    <string name="news_reaction_funny">Haha</string>
-    <string name="news_reaction_surprise">Wow</string>
+    <string name="news_reaction_funny">Funny</string>
+    <string name="news_reaction_surprise">Surprise</string>
     <string name="news_reaction_sad">Sad</string>
     <string name="news_reaction_angry">Angry</string>
+
+    <string name="goal_flow_title">Community Goal: Complete %1$d %2$s Quests</string>
+    <string name="goal_flow_progress">Progress</string>
+    <string name="goal_flow_count">%1$d out of %2$d</string>
+    <string name="goal_flow_participants">%1$d participants</string>
+    <string name="goal_flow_expand">Show goal details</string>
+    <string name="goal_flow_collapse">Hide goal details</string>
+    <string name="goal_flow_create">Create</string>
+    <string name="goal_flow_join">Join</string>
+    <string name="goal_flow_joined">You joined this goal</string>
+    <string name="goal_flow_other_active">You already participate in another active goal.</string>
+    <string name="goal_flow_refresh">Refresh</string>
+    <string name="goal_flow_create_title">Create community goal</string>
+    <string name="goal_flow_choose_topic">Choose a topic</string>
+    <string name="goal_flow_target_preview">%1$d members × 10 = %2$d Quests. The final target is calculated when the goal is created.</string>
+    <string name="goal_flow_auto_join">You will join automatically. The target stays fixed after creation.</string>
+    <string name="goal_flow_error">Could not update the goal. Refresh to check its current state.</string>
+    <string name="goal_flow_water">Water</string>
+    <string name="goal_flow_energy">Energy</string>
+    <string name="goal_flow_recycle">Recycling</string>
 </resources>

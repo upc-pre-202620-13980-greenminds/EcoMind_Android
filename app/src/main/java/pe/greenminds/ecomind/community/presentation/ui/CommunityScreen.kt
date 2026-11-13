@@ -392,12 +392,8 @@ private fun CommunityContent(
                     }
                 }
             }
-            GoalCard(
-                goal = state.goals.firstOrNull {
-                    it.status.equals("active", ignoreCase = true)
-                },
-                isLoading = state.isLoadingGoals,
-                onClick = openComingSoon
+            CommunityGoalContent(
+                communityId = community.id
             )
         }
 

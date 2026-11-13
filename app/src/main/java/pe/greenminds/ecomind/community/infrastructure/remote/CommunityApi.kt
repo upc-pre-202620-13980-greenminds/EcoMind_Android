@@ -135,4 +135,19 @@ interface CommunityApi {
     suspend fun removePostReaction(
         @Path("postId") postId: Long
     ): Response<Unit>
+
+    @GET("Community/Community-goals/Panel")
+    suspend fun getGoalPanel(
+        @Query("community_id") communityId: Long
+    ): Response<CommunityGoalPanelDto>
+
+    @POST("Community/Community-goals")
+    suspend fun createGoal(
+        @Body request: CreateCommunityGoalRequest
+    ): Response<CommunityGoalDto>
+
+    @POST("Community/Community-goals/{id}/Participants")
+    suspend fun joinGoal(
+        @Path("id") goalId: Long
+    ): Response<CommunityGoalDto>
 }

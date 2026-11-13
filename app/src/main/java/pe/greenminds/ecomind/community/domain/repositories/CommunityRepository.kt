@@ -10,6 +10,7 @@ import pe.greenminds.ecomind.community.domain.entity.EventChatMessage
 import pe.greenminds.ecomind.community.domain.entity.EventChatPage
 import pe.greenminds.ecomind.community.domain.entity.PostReactions
 import pe.greenminds.ecomind.community.domain.valueobjects.PostReactionType
+import pe.greenminds.ecomind.community.domain.entity.CommunityGoalPanel
 
 interface CommunityRepository {
     suspend fun getEvents(communityId: Long): Result<List<CommunityEvent>>
@@ -41,4 +42,10 @@ interface CommunityRepository {
     suspend fun setPostReaction(postId: Long, type: PostReactionType): Result<Unit>
 
     suspend fun removePostReaction(postId: Long): Result<Unit>
+
+    suspend fun getGoalPanel(communityId: Long): Result<CommunityGoalPanel>
+
+    suspend fun createGoal(communityId: Long, topic: String): Result<Unit>
+
+    suspend fun joinGoal(goalId: Long): Result<Unit>
 }

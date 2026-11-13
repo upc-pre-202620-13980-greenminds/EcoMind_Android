@@ -40,10 +40,8 @@ data class CommunityUiState(
     val isLeavingCommunity: Boolean = false,
 
     val achievements: List<CommunityAchievement> = emptyList(),
-    val goals: List<CommunityGoal> = emptyList(),
 
-    val isLoadingAchievements: Boolean = false,
-    val isLoadingGoals: Boolean = false
+    val isLoadingAchievements: Boolean = false
 ) {
     val filteredLocalCommunities: List<Community>
         get() {

@@ -27,7 +27,6 @@ import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import pe.greenminds.ecomind.community.application.usecase.GetCommunityAchievementsUseCase
-import pe.greenminds.ecomind.community.application.usecase.GetCommunityGoalsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetCurrentLocalityUseCase
 import pe.greenminds.ecomind.community.application.usecase.LeaveCommunityUseCase
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
@@ -44,7 +43,6 @@ class CommunityViewModel @Inject constructor(
     private val getCurrentLocality: GetCurrentLocalityUseCase,
     private val leaveCommunity: LeaveCommunityUseCase,
     private val getAchievements: GetCommunityAchievementsUseCase,
-    private val getGoals: GetCommunityGoalsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CommunityUiState())
@@ -597,32 +595,6 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    private fun loadGoals(id: Long) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoadingGoals = true) }
-
-            getGoals(id)
-                .onSuccess { goals ->
-                    _state.update {
-                        it.copy(goals = goals, isLoadingGoals = false)
-                    }
-                }
-                .onFailure { error ->
-                    _state.update {
-                        it.copy(
-                            isLoadingGoals = false,
-                            errorMessage = error.message,
-                            errorMessageRes = if (error.message == null) {
-                                R.string.community_load_list_error
-                            } else {
-                                null
-                            }
-                        )
-                    }
-                }
-        }
-    }
-
     fun markLocationRequested() {
         _state.update {
             it.copy(hasRequestedLocation = true)
@@ -825,7 +797,6 @@ class CommunityViewModel @Inject constructor(
     private fun loadCommunityContent(community: Community) {
         loadEvents(community.id)
         loadAchievements(community.id)
-        loadGoals(community.id)
     }
     fun refreshCommunityContent() {
         val community = _state.value.selectedCommunity ?: return

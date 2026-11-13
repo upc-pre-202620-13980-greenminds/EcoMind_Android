@@ -35,6 +35,8 @@ import pe.greenminds.ecomind.community.domain.entity.PostReactions
 import pe.greenminds.ecomind.community.domain.valueobjects.PostReactionType
 import pe.greenminds.ecomind.community.infrastructure.remote.PostAuthorDto
 import pe.greenminds.ecomind.community.infrastructure.remote.SetPostReactionRequest
+import pe.greenminds.ecomind.community.domain.entity.CommunityGoalPanel
+import pe.greenminds.ecomind.community.infrastructure.remote.CreateCommunityGoalRequest
 
 class RemoteCommunityRepository @Inject constructor(
     private val api: CommunityApi,
@@ -285,6 +287,25 @@ class RemoteCommunityRepository @Inject constructor(
             api.removePostReaction(postId)
         }
 
+    override suspend fun getGoalPanel(
+        communityId: Long
+    ): Result<CommunityGoalPanel> =
+        execute({ api.getGoalPanel(communityId) }) { it.toDomain() }
+
+    override suspend fun createGoal(
+        communityId: Long,
+        topic: String
+    ): Result<Unit> =
+        execute({
+            api.createGoal(CreateCommunityGoalRequest(communityId, topic))
+        }) {
+            Unit
+        }
+
+    override suspend fun joinGoal(goalId: Long): Result<Unit> =
+        execute({ api.joinGoal(goalId) }) {
+            Unit
+        }
     private fun <T> Result<T>.mapChatFailure(): Result<T> = fold(
         onSuccess = { Result.success(it) },
         onFailure = { exception ->
