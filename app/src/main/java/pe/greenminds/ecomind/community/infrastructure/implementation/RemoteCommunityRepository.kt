@@ -44,9 +44,6 @@ class RemoteCommunityRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) : CommunityRepository {
 
-    override suspend fun getEvents(communityId: Long) =
-        execute({ api.getEvents(communityId) }) { list -> list.map { it.toDomain() } }
-
     override suspend fun getPosts(communityId: Long): Result<List<CommunityPost>> {
         val posts = execute({ api.getPosts(communityId) }) { list ->
             list.map { it.toDomain() }
@@ -78,8 +75,6 @@ class RemoteCommunityRepository @Inject constructor(
     override suspend fun getAchievements(communityId: Long) =
         execute({ api.getAchievements(communityId) }) { list -> list.map { it.toDomain() } }
 
-    override suspend fun getGoals(communityId:Long) =
-        execute({ api.getCommunityGoals(communityId) }) { list -> list.map { it.toDomain() } }
 
     override suspend fun canCreateEvents(): Result<Boolean> = execute(
         request = {

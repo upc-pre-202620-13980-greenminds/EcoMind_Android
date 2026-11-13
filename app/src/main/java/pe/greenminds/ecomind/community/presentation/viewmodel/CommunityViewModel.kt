@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pe.greenminds.ecomind.community.application.usecase.GetCommunityEventsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetLocalCommunitiesUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetMyCommunityMembershipsUseCase
 import pe.greenminds.ecomind.community.application.usecase.GetTopicCommunitiesUseCase
@@ -33,7 +32,6 @@ import pe.greenminds.ecomind.community.domain.valueobjects.LocalityException
 import pe.greenminds.ecomind.community.domain.valueobjects.LocalityFailure
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
-    private val getEvents: GetCommunityEventsUseCase,
     private val getMemberships: GetMyCommunityMembershipsUseCase,
     private val getLocalCommunities: GetLocalCommunitiesUseCase,
     private val getTopicCommunities: GetTopicCommunitiesUseCase,
@@ -545,29 +543,6 @@ class CommunityViewModel @Inject constructor(
         }
         loadCommunityContent(community)
     }
-    private fun loadEvents(communityId: Long) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoadingEvents = true) }
-
-            getEvents(communityId)
-                .onSuccess { events ->
-                    _state.update {
-                        it.copy(events = events, isLoadingEvents = false)
-                    }
-                }
-                .onFailure { error ->
-                    _state.update {
-                        it.copy(
-                            isLoadingEvents = false,
-                            errorMessage = error.message,
-                            errorMessageRes = if (error.message == null) {
-                                R.string.community_events_error
-                            } else null
-                        )
-                    }
-                }
-        }
-    }
 
     private fun loadAchievements(id: Long) {
         viewModelScope.launch {
@@ -795,7 +770,6 @@ class CommunityViewModel @Inject constructor(
     }
 
     private fun loadCommunityContent(community: Community) {
-        loadEvents(community.id)
         loadAchievements(community.id)
     }
     fun refreshCommunityContent() {

@@ -2,12 +2,8 @@ package pe.greenminds.ecomind.community.presentation.states
 
 import pe.greenminds.ecomind.community.domain.entity.Community
 import pe.greenminds.ecomind.community.domain.entity.CommunityAchievement
-import pe.greenminds.ecomind.community.domain.entity.CommunityEvent
-import pe.greenminds.ecomind.community.domain.entity.CommunityGoal
 
 data class CommunityUiState(
-    val isLoadingEvents: Boolean = false,
-    val events: List<CommunityEvent> = emptyList(),
     val selectedSection: CommunitySection = CommunitySection.EVENTS,
 
     val isLoadingCommunity: Boolean = true,

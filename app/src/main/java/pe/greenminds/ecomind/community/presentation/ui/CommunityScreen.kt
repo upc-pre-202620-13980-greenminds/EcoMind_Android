@@ -791,7 +791,7 @@ internal fun SmallActionPill(
 private fun CommunityContentPreview() {
     EcoMindTheme {
         CommunityContent(
-            state = CommunityUiState(isLoadingEvents = false),
+            state = CommunityUiState(),
             community = Community(
                 id = 1L,
                 name = "Lima Community",
