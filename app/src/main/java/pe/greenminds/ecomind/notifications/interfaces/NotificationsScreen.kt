@@ -47,6 +47,7 @@ import pe.greenminds.ecomind.notifications.domain.model.Notification
 import pe.greenminds.ecomind.shared.domain.model.NotificationCategory
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.preferences.PreferencesHeader
+import pe.greenminds.ecomind.shared.interfaces.preferences.RequestNotificationPermission
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
@@ -63,6 +64,7 @@ fun NotificationsScreen(
     viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    RequestNotificationPermission()
 
     NotificationsContent(
         state = state,

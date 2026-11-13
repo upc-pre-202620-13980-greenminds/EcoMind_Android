@@ -25,7 +25,7 @@ class SaveCommitmentUseCase @Inject constructor(
         val session = sessionRepository.getSession().first()
             ?: return Result.failure(IllegalStateException("There is no stored session"))
 
-        // A student only writes their own commitment, so the id comes from the session
+        // The user only writes their own commitment, so the id comes from the session
         return commitmentRepository.saveCommitment(session.accountId, trimmed)
     }
 }

@@ -25,6 +25,7 @@ fun NotificationPreferencesScreen(
     viewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    RequestNotificationPermission()
 
     NotificationPreferencesContent(
         enabledCategories = state.enabledCategories,

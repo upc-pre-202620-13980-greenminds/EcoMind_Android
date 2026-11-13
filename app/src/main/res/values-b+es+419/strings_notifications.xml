@@ -13,6 +13,8 @@
     <string name="notifications_error_title">No se pudieron cargar tus notificaciones</string>
     <string name="notifications_error_message">Tus notificaciones no están disponibles en este momento. Inténtalo de nuevo para volver a cargarlas.</string>
     <string name="notifications_try_again">Reintentar</string>
+    <string name="notifications_channel_name">Notificaciones de EcoMind</string>
+    <string name="notifications_channel_description">Retos, materiales, logros y actividad de la comunidad.</string>
     <string name="notifications_action_failed">No se pudieron actualizar tus notificaciones. Inténtalo de nuevo.</string>
     <string name="notifications_label_quests">MISIONES</string>
     <string name="notifications_label_learning">APRENDIZAJE</string>
