@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -201,7 +200,6 @@ private fun MoreCommunitiesSearchRow(
     onCreate: () -> Unit,
     onToggleList: () -> Unit
 ) {
-    val pillShape = RoundedCornerShape(percent = 50)
     val searchLabel = stringResource(R.string.community_search)
 
     Row(
@@ -210,49 +208,12 @@ private fun MoreCommunitiesSearchRow(
             .fillMaxWidth()
             .padding(top = 8.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .weight(1f)
-                .heightIn(min = 48.dp)
-                .clip(pillShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 12.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_menu),
-                contentDescription = null
-            )
-
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = TextSecondary
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp),
-                decorationBox = { innerTextField ->
-                    Box {
-                        if (query.isEmpty()) {
-                            Text(
-                                text = searchLabel,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TextSecondary
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
-            )
-
-            Icon(
-                painter = painterResource(R.drawable.ic_search),
-                contentDescription = null
-            )
-        }
+        CommunitySearchField(
+            query = query,
+            onQueryChange = onQueryChange,
+            placeholder = searchLabel,
+            modifier = Modifier.weight(1f)
+        )
 
         Spacer(modifier = Modifier.width(8.dp))
 
