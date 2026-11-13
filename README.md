@@ -31,4 +31,3 @@ The independent `signedOutBackAndRelaunch` method requires
 `iamFlutterSignedOutOnly=true` and an already signed-out Flutter app. Never run the
 whole instrumentation suite with a live opt-in. Keep fixtures and recordings private
 and remove staged fixtures after verification.
-
