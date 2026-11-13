@@ -394,13 +394,20 @@ class CommunityViewModel @Inject constructor(
     }
 
     private suspend fun loadSelection() {
-        val locality = try {
-            getPreferredLocality()?.trim()?.takeIf(String::isNotEmpty)
+        val savedLocality = try {
+            getPreferredLocality()
+                ?.trim()
+                ?.takeIf(String::isNotEmpty)
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: IOException) {
             null
         }
+
+        val locality = savedLocality
+            ?: _state.value.preferredLocality
+                ?.trim()
+                ?.takeIf(String::isNotEmpty)
 
         _state.update {
             it.copy(
@@ -410,6 +417,7 @@ class CommunityViewModel @Inject constructor(
                 preferredLocality = locality,
                 localityInput = locality.orEmpty(),
                 localCommunities = emptyList(),
+                localityErrorRes = null,
                 errorMessage = null,
                 errorMessageRes = null
             )
@@ -618,6 +626,22 @@ class CommunityViewModel @Inject constructor(
                                 localityErrorRes = null
                             )
                         }
+
+                        try {
+                            savePreferredLocality(locality)
+                        } catch (exception: CancellationException) {
+                            throw exception
+                        } catch (exception: IOException) {
+                            if (requestId != localityRequestId) return@onSuccess
+
+                            _state.update {
+                                it.copy(
+                                    localityErrorRes = R.string.community_locality_save_error
+                                )
+                            }
+                        }
+
+                        if (requestId != localityRequestId) return@onSuccess
 
                         searchLocalCommunities(locality)
                     }
