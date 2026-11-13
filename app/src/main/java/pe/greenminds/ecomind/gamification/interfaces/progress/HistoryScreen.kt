@@ -64,5 +64,6 @@ private fun rewardSource(source: String): String = stringResource(when (source) 
     "FAMILY_PLAN" -> R.string.gamification_source_family
     "COMMUNITY_GOAL" -> R.string.gamification_source_goal
     "COMMUNITY_EVENT" -> R.string.gamification_source_event
+    "STREAK_BONUS" -> R.string.gamification_source_streak
     else -> R.string.gamification_source_other
 })
