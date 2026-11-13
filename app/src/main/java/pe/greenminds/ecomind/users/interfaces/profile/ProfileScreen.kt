@@ -53,6 +53,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val gemBalance = viewModel.gemBalance.collectAsStateWithLifecycle().value
 
     // The Profile ViewModel can remain alive while the user equips an item in Store.
     // Refresh the overlay whenever this destination enters composition again.
@@ -62,6 +63,7 @@ fun ProfileScreen(
 
     ProfileContent(
         state = state,
+        gemBalance = gemBalance,
         onTabSelected = viewModel::onTabSelected,
         onRetryProfile = viewModel::loadProfile,
         onRetryFriends = viewModel::retryFriends,
@@ -73,6 +75,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(
     state: ProfileUiState,
+    gemBalance: Int?,
     onTabSelected: (ProfileTab) -> Unit,
     onRetryProfile: () -> Unit,
     onRetryFriends: () -> Unit,
@@ -100,6 +103,7 @@ private fun ProfileContent(
             ) {
                 ProfileHeader(
                     profile = profile,
+                    gemBalance = gemBalance ?: profile.gemBalance,
                     equippedCosmetics = state.equippedCosmetics,
                     onNavigate = onNavigate
                 )
@@ -146,6 +150,7 @@ private fun ProfileContent(
 @Composable
 private fun ProfileHeader(
     profile: UserProfile,
+    gemBalance: Int,
     equippedCosmetics: EquippedCosmetics,
     onNavigate: (Any) -> Unit
 ) {
@@ -208,7 +213,7 @@ private fun ProfileHeader(
                 modifier = Modifier.weight(1f)
             )
             ProfileStat(
-                value = profile.gemBalance,
+                value = gemBalance,
                 label = stringResource(R.string.profile_stat_gems),
                 modifier = Modifier.weight(1f)
             )
@@ -289,6 +294,7 @@ private fun ProfileContentPreview() {
                 isLoadingFriends = false,
                 isLoadingFamily = false
             ),
+            gemBalance = previewProfile.gemBalance,
             onTabSelected = {},
             onRetryProfile = {},
             onRetryFriends = {},
@@ -304,6 +310,7 @@ private fun ProfileContentErrorPreview() {
     EcoMindTheme {
         ProfileContent(
             state = ProfileUiState(isLoadingProfile = false, profileFailed = true),
+            gemBalance = null,
             onTabSelected = {},
             onRetryProfile = {},
             onRetryFriends = {},

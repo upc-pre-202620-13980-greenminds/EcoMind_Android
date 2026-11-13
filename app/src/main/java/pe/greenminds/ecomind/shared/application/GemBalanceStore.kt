@@ -11,6 +11,10 @@ class GemBalanceStore @Inject constructor() {
     private val _balance = MutableStateFlow<Int?>(null)
     val balance: StateFlow<Int?> = _balance.asStateFlow()
 
+    fun initializeIfEmpty(balance: Int) {
+        _balance.compareAndSet(null, balance)
+    }
+
     fun update(balance: Int) {
         _balance.value = balance
     }

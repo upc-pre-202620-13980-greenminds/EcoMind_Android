@@ -14,6 +14,7 @@ import pe.greenminds.ecomind.users.application.GetFamilyUseCase
 import pe.greenminds.ecomind.users.application.GetFriendsUseCase
 import pe.greenminds.ecomind.monetization.interfaces.acl.MonetizationContextFacade
 import pe.greenminds.ecomind.gamification.interfaces.acl.GamificationContextFacade
+import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,11 +23,13 @@ class ProfileViewModel @Inject constructor(
     private val getFriends: GetFriendsUseCase,
     private val getFamily: GetFamilyUseCase,
     private val monetization: MonetizationContextFacade,
-    private val gamification: GamificationContextFacade
+    private val gamification: GamificationContextFacade,
+    private val gemBalanceStore: GemBalanceStore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileUiState())
     val state: StateFlow<ProfileUiState> = _state.asStateFlow()
+    val gemBalance: StateFlow<Int?> = gemBalanceStore.balance
 
     init {
         loadProfile()
@@ -47,6 +50,7 @@ class ProfileViewModel @Inject constructor(
 
             getCurrentProfile()
                 .onSuccess { profile ->
+                    gemBalanceStore.initializeIfEmpty(profile.gemBalance)
                     _state.update { currentState ->
                         currentState.copy(isLoadingProfile = false, profile = profile)
                     }
