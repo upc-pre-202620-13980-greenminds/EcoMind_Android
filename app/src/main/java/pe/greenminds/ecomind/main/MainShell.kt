@@ -163,6 +163,12 @@ private fun MainShellContent(
 // Null means the destination is shown without bars (loading, access and placeholder screens)
 private fun selectedItemFor(destination: NavDestination?): NavigationItem? {
     if (destination == null) return null
+    if (destination.hasRoute<pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute>() ||
+        destination.hasRoute<pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute>() ||
+        destination.hasRoute<pe.greenminds.ecomind.gamification.interfaces.navigation.ShareAchievementRoute>()) return NavigationItem.PROFILE
+    if (destination.hasRoute<pe.greenminds.ecomind.gamification.interfaces.navigation.GamificationProgressRoute>() ||
+        destination.hasRoute<pe.greenminds.ecomind.gamification.interfaces.navigation.RewardHistoryRoute>() ||
+        destination.hasRoute<pe.greenminds.ecomind.gamification.interfaces.navigation.GroupAchievementsRoute>()) return NavigationItem.RANKING
     if (destination.hasRoute<FamilyPlanBuilderRoute>() || destination.hasRoute<FamilyPlanListRoute>() ||
         destination.hasRoute<FamilyPlanDetailRoute>() ||
         destination.hasRoute<FamilyQuestStartedRoute>()) return NavigationItem.PROGRESS

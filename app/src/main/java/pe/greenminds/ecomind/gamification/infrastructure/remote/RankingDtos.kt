@@ -1,7 +1,6 @@
 package pe.greenminds.ecomind.gamification.infrastructure.remote
 
-// PROVISIONAL: these contracts come from a branch of the web services that is not merged yet.
-// They must be checked again when Gamification reaches the main branch.
+// Contracts reviewed against backend develop 19b85df and its Gamification REST resources.
 
 // Page returned by both ranking routes
 data class RankingPageDto<T>(

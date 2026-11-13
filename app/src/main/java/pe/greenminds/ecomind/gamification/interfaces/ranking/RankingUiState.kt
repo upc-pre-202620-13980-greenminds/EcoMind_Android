@@ -11,5 +11,7 @@ data class RankingUiState(
     // True when the user has not completed any activity yet: the ranking stays closed
     val isLocked: Boolean = false,
     val hasError: Boolean = false,
+    val sessionRequired: Boolean = false,
+    val refreshFailed: Boolean = false,
     val ranking: Ranking? = null
 )

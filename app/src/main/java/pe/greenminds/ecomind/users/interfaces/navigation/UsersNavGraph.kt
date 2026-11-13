@@ -190,7 +190,13 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
         )
     }
 
-    composable<MyMedalsRoute> { PlaceholderScreen() }
+    composable<MyMedalsRoute> {
+        pe.greenminds.ecomind.gamification.interfaces.achievements.AchievementsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenAchievement = { navController.navigate(pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute(it)) },
+            onSignIn = { navController.navigate(pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute) }
+        )
+    }
     composable<FindFriendsRoute> { backStackEntry ->
         val viewModel: FindFriendsViewModel = hiltViewModel()
         val requestsAnswered by backStackEntry.savedStateHandle

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import pe.greenminds.ecomind.quests.application.service.FamilyPlanService
 import pe.greenminds.ecomind.quests.domain.entity.FamilyPlan
 import pe.greenminds.ecomind.quests.application.FilterQuestsUseCase
@@ -19,12 +20,14 @@ import pe.greenminds.ecomind.quests.application.QuestFilters
 import pe.greenminds.ecomind.quests.presentation.states.FamilyPlanUiError
 import pe.greenminds.ecomind.quests.presentation.states.FamilyPlanEvent
 import pe.greenminds.ecomind.quests.presentation.states.FamilyPlansUiState
+import pe.greenminds.ecomind.gamification.interfaces.acl.GamificationContextFacade
 import javax.inject.Inject
 
 @HiltViewModel
 class FamilyPlansViewModel @Inject constructor(
     private val service: FamilyPlanService,
-    private val filterQuests: FilterQuestsUseCase
+    private val filterQuests: FilterQuestsUseCase,
+    private val gamification: GamificationContextFacade
 ) : ViewModel() {
     private val mutable = MutableStateFlow(FamilyPlansUiState())
     val state = mutable.asStateFlow()
@@ -89,7 +92,26 @@ class FamilyPlansViewModel @Inject constructor(
     fun moveQuest(questId: Long, direction: Int) = changePlan { id -> service.moveQuest(id, questId, direction).getOrThrow() }
     fun save() = changePlan({ FamilyPlanEvent.Saved(it) }) { id -> service.saveDraft(id).getOrThrow() }
     fun activate() = changePlan({ FamilyPlanEvent.Activated(it) }) { id -> service.activate(id).getOrThrow() }
-    fun complete() = changePlan({ FamilyPlanEvent.Completed(it) }) { id -> service.complete(id).getOrThrow() }
+    fun complete() = perform {
+        val plan = requireNotNull(mutable.value.details).plan
+        val previous = withTimeoutOrNull(5_000) {
+            gamification.getFamilyAchievements(plan.familyId).getOrNull()
+        }
+        val completed = service.complete(plan.id).getOrThrow()
+        mutable.update { current -> current.copy(details = current.details?.copy(plan = completed)) }
+        // Award reads must never turn a committed completion into a failed completion.
+        val achievements = if (previous == null) emptyList() else {
+            val knownIds = previous.map { it.awardId }.toSet()
+            withTimeoutOrNull(5_000) { gamification.getFamilyAchievements(plan.familyId).getOrNull() }.orEmpty()
+                .filter { it.awardId !in knownIds }.map { it.name }
+        }
+        mutable.update { it.copy(completedAchievements = achievements) }
+        mutableEvents.emit(FamilyPlanEvent.Completed(completed.id))
+        withTimeoutOrNull(5_000) { service.getDetails(completed.id) }
+            ?.onSuccess { details -> mutable.update { it.copy(details = details) } }
+        withTimeoutOrNull(5_000) { service.getOverview() }
+            ?.onSuccess { overview -> mutable.update { it.copy(overview = overview) } }
+    }
 
     fun delete() { mutable.value.details?.plan?.id?.let(::deletePlan) }
 
@@ -105,6 +127,8 @@ class FamilyPlansViewModel @Inject constructor(
     }
 
     fun dismissError() { mutable.update { it.copy(error = null) } }
+
+    fun dismissCompletion() { mutable.update { it.copy(completedAchievements = null) } }
 
     private fun changePlan(
         event: ((Long) -> FamilyPlanEvent)? = null,
