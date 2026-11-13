@@ -19,8 +19,14 @@ class MonetizationContextFacade @Inject constructor(
             avatar = catalog.firstOrNull {
                 it.id in equippedIds && it.type == CosmeticType.AVATAR
             },
-            overlay = catalog.firstOrNull {
-                it.id in equippedIds && it.type != CosmeticType.AVATAR
+            head = catalog.firstOrNull {
+                it.id in equippedIds && it.type == CosmeticType.HEAD
+            },
+            body = catalog.firstOrNull {
+                it.id in equippedIds && it.type == CosmeticType.BODY
+            },
+            accessory = catalog.firstOrNull {
+                it.id in equippedIds && it.type == CosmeticType.ACCESSORY
             }
         )
     }
