@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,13 +58,21 @@ private const val MINUTE_MILLIS = 60_000L
 private const val HOUR_MINUTES = 60L
 private const val DAY_MINUTES = 24 * HOUR_MINUTES
 
-// Frames 63, 64, 66 and 67. Frame 65 is the inbox of a parent, which this app does not have.
+// Frames 63, 64, 66 and 67, the same for students and parents in this app
 @Composable
 fun NotificationsScreen(
     onBack: () -> Unit,
+    onOpen: (NotificationDestination) -> Unit,
     viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(state.openDestination) {
+        state.openDestination?.let { destination ->
+            viewModel.onDestinationOpened()
+            onOpen(destination)
+        }
+    }
     RequestNotificationPermission()
 
     NotificationsContent(
