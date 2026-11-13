@@ -23,41 +23,64 @@ import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
-import pe.greenminds.ecomind.users.domain.model.SocialRole
+import pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
-import pe.greenminds.ecomind.quests.interfaces.navigation.ProgressRoute
 
-// Profile tab: a student sees their commitment and medals. The weekly report of the family
-// is in the EcoMind Parents app, so a parent only sees the progress history here
+// The profile only shows a few earned medals; the full list is in "View all"
+private const val MEDALS_IN_PROFILE = 3
+
+// Profile tab: the same for students and parents, their commitment and their medals
 @Composable
 fun ProfileTabContent(
     profile: UserProfile,
     state: ProfileUiState,
     onNavigate: (Any) -> Unit
 ) {
-    SectionHeaderRow(
-        title = stringResource(R.string.progress_history),
-        action = stringResource(R.string.progress_view_progress),
-        onAction = { onNavigate(ProgressRoute) }
+    CommitmentCard(
+        commitment = profile.commitment,
+        onAdd = { onNavigate(AddCommitmentRoute) },
+        onEdit = { onNavigate(EditCommitmentRoute) }
     )
+
     Spacer(modifier = Modifier.height(16.dp))
-    if (profile.socialRole != SocialRole.PARENT) {
-        CommitmentCard(
-            commitment = profile.commitment,
-            onAdd = { onNavigate(AddCommitmentRoute) },
-            onEdit = { onNavigate(EditCommitmentRoute) }
+    SectionHeaderRow(
+        title = stringResource(R.string.profile_medals_title),
+        action = stringResource(R.string.profile_view_all),
+        onAction = { onNavigate(MyMedalsRoute) }
+    )
+    MedalsContent(
+        state = state,
+        onOpenMedal = { achievementId -> onNavigate(AchievementDetailRoute(achievementId)) }
+    )
+}
+
+// If the medals fail to load, only the title and "View all" stay on screen
+@Composable
+private fun MedalsContent(
+    state: ProfileUiState,
+    onOpenMedal: (String) -> Unit
+) {
+    when {
+        state.isLoadingAchievements -> TabLoading()
+
+        state.achievementsFailed -> Unit
+
+        state.myAchievements.isEmpty() -> Text(
+            text = stringResource(R.string.profile_medals_empty),
+            style = interTextStyle(13),
+            color = TextSecondary,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-        // The design only shows the title of this block; the medals are in their own screen
-        SectionHeaderRow(
-            title = stringResource(R.string.profile_medals_title),
-            action = stringResource(R.string.profile_view_all),
-            onAction = { onNavigate(MyMedalsRoute) }
-        )
+        else -> state.myAchievements.take(MEDALS_IN_PROFILE).forEach { medal ->
+            MedalRow(
+                name = medal.name,
+                onClick = { onOpenMedal(medal.achievementId) }
+            )
+        }
     }
 }
 

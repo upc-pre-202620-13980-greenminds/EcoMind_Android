@@ -4,6 +4,7 @@ import pe.greenminds.ecomind.users.domain.model.FamilyOverview
 import pe.greenminds.ecomind.users.domain.model.FriendsOverview
 import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.monetization.domain.model.EquippedCosmetics
+import pe.greenminds.ecomind.gamification.interfaces.acl.MyAchievement
 
 // Order of this enum is the order of the tabs on screen
 enum class ProfileTab {
@@ -20,6 +21,11 @@ data class ProfileUiState(
     val profile: UserProfile? = null,
     val profileFailed: Boolean = false,
     val equippedCosmetics: EquippedCosmetics = EquippedCosmetics(),
+
+    // Medals of the Profile tab, read from Gamification
+    val isLoadingAchievements: Boolean = true,
+    val myAchievements: List<MyAchievement> = emptyList(),
+    val achievementsFailed: Boolean = false,
 
     // Friends tab
     val isLoadingFriends: Boolean = true,
