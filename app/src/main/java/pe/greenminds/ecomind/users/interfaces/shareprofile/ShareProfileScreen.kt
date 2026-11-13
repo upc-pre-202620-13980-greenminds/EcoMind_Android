@@ -33,13 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.interfaces.editprofile.SubScreenHeader
+import pe.greenminds.ecomind.users.interfaces.profile.ProfileAvatar
 
 @Composable
 fun ShareProfileScreen(
@@ -96,7 +96,11 @@ private fun ShareProfileContent(
             )
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                InitialsAvatar(name = state.name, size = 56.dp)
+                ProfileAvatar(
+                    name = state.name,
+                    equippedCosmetics = state.equippedCosmetics,
+                    size = 80.dp
+                )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(

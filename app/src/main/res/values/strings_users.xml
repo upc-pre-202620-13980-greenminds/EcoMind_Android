@@ -18,10 +18,6 @@
     <string name="profile_commitment_add">Add commitment</string>
     <string name="profile_medals_title">Medals and achievements</string>
     <string name="profile_view_all">View all</string>
-    <string name="profile_weekly_report_title">Family weekly report</string>
-    <string name="profile_view_report">View report</string>
-    <string name="profile_weekly_report_empty">There is no report for this week yet.</string>
-    <string name="profile_weekly_report_quests">%1$d of %2$d quests completed</string>
     <string name="profile_invite_friends">Invite friends</string>
     <string name="profile_find_friends">Find friends</string>
     <string name="profile_friend_requests">Friend requests</string>
@@ -31,10 +27,8 @@
     <string name="profile_family_empty_title">No family yet</string>
     <string name="profile_family_empty_student_message">A parent can create a family and add you as a member.</string>
     <string name="profile_family_empty_parent_message">Create your family to bring everyone together.</string>
-    <string name="profile_family_create">Create family</string>
-    <string name="profile_family_manage">Manage</string>
+    <string name="profile_family_parents_app">Create and manage your family in the EcoMind Parents app.</string>
     <string name="profile_family_members">Members · %1$d</string>
-    <string name="profile_family_weekly_report">Weekly report</string>
     <string name="profile_family_manager">Parent · family manager</string>
     <string name="profile_family_member_progress">%1$s · %2$d/%3$d activities</string>
     <string name="profile_relationship_mother">Mother</string>
@@ -48,10 +42,6 @@
     <plurals name="profile_friends_count">
         <item quantity="one">%d friend</item>
         <item quantity="other">%d friends</item>
-    </plurals>
-    <plurals name="profile_weekly_report_achievements">
-        <item quantity="one">%d achievement earned this week</item>
-        <item quantity="other">%d achievements earned this week</item>
     </plurals>
 
     <!-- Edit and share profile -->

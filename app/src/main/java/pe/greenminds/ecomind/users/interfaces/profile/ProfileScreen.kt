@@ -253,62 +253,6 @@ private fun ProfileHeader(
 }
 
 @Composable
-private fun ProfileAvatar(
-    name: String,
-    equippedCosmetics: EquippedCosmetics
-) {
-    val avatar = equippedCosmetics.avatar
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(110.dp)
-    ) {
-        if (avatar == null) {
-            InitialsAvatar(name = name, size = 76.dp)
-        } else {
-            Image(
-                painter = painterResource(cosmeticImageResource(avatar.imageReference)),
-                contentDescription = avatar.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(76.dp)
-            )
-        }
-
-        equippedCosmetics.body?.let { cosmetic ->
-            Image(
-                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
-                contentDescription = cosmetic.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(76.dp)
-            )
-        }
-
-        equippedCosmetics.head?.let { cosmetic ->
-            Image(
-                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
-                contentDescription = cosmetic.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset { IntOffset(0, -4.dp.roundToPx()) }
-                    .size(44.dp)
-            )
-        }
-
-        equippedCosmetics.accessory?.let { cosmetic ->
-            Image(
-                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
-                contentDescription = cosmetic.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(34.dp)
-            )
-        }
-    }
-}
-
-@Composable
 private fun ProfileStat(
     value: Int,
     label: String,

@@ -1,18 +1,16 @@
 package pe.greenminds.ecomind.users.interfaces.profile
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
@@ -23,9 +21,6 @@ import pe.greenminds.ecomind.users.domain.model.FamilyRelationship
 import pe.greenminds.ecomind.users.domain.model.FamilyRole
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
-import pe.greenminds.ecomind.users.interfaces.navigation.CreateFamilyRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.ManageFamilyRoute
 
 @Composable
 fun FamilyTabContent(
@@ -42,30 +37,25 @@ fun FamilyTabContent(
         state.familyFailed -> TabError(onRetry = onRetry)
 
         family == null -> NoFamilyContent(
-            canCreateFamily = profile.socialRole == SocialRole.PARENT,
-            onCreateFamily = { onNavigate(CreateFamilyRoute) }
+            isParent = profile.socialRole == SocialRole.PARENT
         )
 
         else -> FamilyContent(
             family = family,
             // Read again each time the profile opens, so it is already up to date after
             // equipping an avatar in Store, like the header
-            currentUserAvatar = state.equippedCosmetics.avatar?.imageReference,
-            onNavigate = onNavigate
+            currentUserAvatar = state.equippedCosmetics.avatar?.imageReference
         )
     }
 }
 
-// Only a parent can create a family, so a student just reads the explanation
+// Families are created and managed in the EcoMind Parents app, so this tab only reads them
 @Composable
-private fun NoFamilyContent(
-    canCreateFamily: Boolean,
-    onCreateFamily: () -> Unit
-) {
+private fun NoFamilyContent(isParent: Boolean) {
     EmptyTabMessage(
         title = stringResource(R.string.profile_family_empty_title),
         message = stringResource(
-            if (canCreateFamily) {
+            if (isParent) {
                 R.string.profile_family_empty_parent_message
             } else {
                 R.string.profile_family_empty_student_message
@@ -73,50 +63,32 @@ private fun NoFamilyContent(
         ),
         titleSizeSp = 20
     )
-    if (canCreateFamily) {
-        Box(
-            contentAlignment = Alignment.Center,
+    if (isParent) {
+        Text(
+            text = stringResource(R.string.profile_family_parents_app),
+            style = interTextStyle(14, FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-        ) {
-            TextLink(
-                text = stringResource(R.string.profile_family_create),
-                onClick = onCreateFamily,
-                style = interTextStyle(14, FontWeight.Bold)
-            )
-        }
+        )
     }
 }
 
 @Composable
 private fun FamilyContent(
     family: FamilyOverview,
-    currentUserAvatar: String?,
-    onNavigate: (Any) -> Unit
+    currentUserAvatar: String?
 ) {
-    // "Manage" and "Weekly report" are only for the parents of the family
-    val isManager = family.isManagedByCurrentUser
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = family.name,
-            style = interTextStyle(18, FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .weight(1f)
-                .semantics { heading() }
-        )
-        if (isManager) {
-            TextLink(
-                text = stringResource(R.string.profile_family_manage),
-                onClick = { onNavigate(ManageFamilyRoute) }
-            )
-        }
-    }
+    Text(
+        text = family.name,
+        style = interTextStyle(18, FontWeight.Bold),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { heading() }
+    )
     Text(
         text = family.commitment,
         style = interTextStyle(13),
@@ -124,25 +96,14 @@ private fun FamilyContent(
         modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
     )
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.profile_family_members, family.members.size),
-            style = interTextStyle(16, FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .weight(1f)
-                .semantics { heading() }
-        )
-        if (isManager) {
-            TextLink(
-                text = stringResource(R.string.profile_family_weekly_report),
-                onClick = { onNavigate(FamilyWeeklyReportRoute) }
-            )
-        }
-    }
+    Text(
+        text = stringResource(R.string.profile_family_members, family.members.size),
+        style = interTextStyle(16, FontWeight.Bold),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { heading() }
+    )
 
     family.members.forEach { member ->
         PersonRow(

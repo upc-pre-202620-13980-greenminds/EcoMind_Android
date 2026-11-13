@@ -9,6 +9,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import pe.greenminds.ecomind.main.MainMenuRoute
+import pe.greenminds.ecomind.quests.interfaces.navigation.ProgressRoute
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
 import pe.greenminds.ecomind.learning.interfaces.FavoriteMaterialsScreen
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningDetailRoute
@@ -105,7 +107,16 @@ fun NavGraphBuilder.usersNavGraph(navController: NavController) {
 
         ProfileScreen(
             onNavigate = { route ->
-                navController.navigate(route) { launchSingleTop = true }
+                if (route == ProgressRoute) {
+                    // Progress is a section of the bottom bar, so it opens like its item does:
+                    // Profile is saved and comes back as it was when its item is tapped
+                    navController.navigate(ProgressRoute) {
+                        popUpTo<MainMenuRoute> { saveState = true }
+                        launchSingleTop = true
+                    }
+                } else {
+                    navController.navigate(route) { launchSingleTop = true }
+                }
             },
             viewModel = viewModel
         )

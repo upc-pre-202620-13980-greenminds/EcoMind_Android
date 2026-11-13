@@ -18,10 +18,6 @@
     <string name="profile_commitment_add">Añadir compromiso</string>
     <string name="profile_medals_title">Medallas y logros</string>
     <string name="profile_view_all">Ver todo</string>
-    <string name="profile_weekly_report_title">Informe semanal de la familia</string>
-    <string name="profile_view_report">Ver informe</string>
-    <string name="profile_weekly_report_empty">Aún no hay un informe de esta semana.</string>
-    <string name="profile_weekly_report_quests">%1$d de %2$d retos completados</string>
     <string name="profile_invite_friends">Invitar amigos</string>
     <string name="profile_find_friends">Buscar amigos</string>
     <string name="profile_friend_requests">Solicitudes de amistad</string>
@@ -31,10 +27,8 @@
     <string name="profile_family_empty_title">Aún no tienes familia</string>
     <string name="profile_family_empty_student_message">Tu madre o tu padre puede crear una familia y añadirte como miembro.</string>
     <string name="profile_family_empty_parent_message">Crea tu familia para reunir a todos.</string>
-    <string name="profile_family_create">Crear familia</string>
-    <string name="profile_family_manage">Gestionar</string>
+    <string name="profile_family_parents_app">Crea y gestiona tu familia en la app EcoMind Parents.</string>
     <string name="profile_family_members">Miembros · %1$d</string>
-    <string name="profile_family_weekly_report">Informe semanal</string>
     <string name="profile_family_manager">Madre o padre · gestiona la familia</string>
     <string name="profile_family_member_progress">%1$s · %2$d/%3$d actividades</string>
     <string name="profile_relationship_mother">Madre</string>
@@ -47,11 +41,6 @@
         <item quantity="one">%d amigo</item>
         <item quantity="many">%d amigos</item>
         <item quantity="other">%d amigos</item>
-    </plurals>
-    <plurals name="profile_weekly_report_achievements">
-        <item quantity="one">%d logro obtenido esta semana</item>
-        <item quantity="many">%d logros obtenidos esta semana</item>
-        <item quantity="other">%d logros obtenidos esta semana</item>
     </plurals>
 
     <!-- Edit and share profile -->
