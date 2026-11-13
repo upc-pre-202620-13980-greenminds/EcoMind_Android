@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -26,14 +25,13 @@ import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 import pe.greenminds.ecomind.users.domain.model.SocialRole
 import pe.greenminds.ecomind.users.domain.model.UserProfile
-import pe.greenminds.ecomind.users.domain.model.WeeklyReport
 import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
 import pe.greenminds.ecomind.quests.interfaces.navigation.ProgressRoute
 
-// Profile tab: a parent sees the weekly report of the family, a student sees their commitment
+// Profile tab: a student sees their commitment and medals. The weekly report of the family
+// is in the EcoMind Parents app, so a parent only sees the progress history here
 @Composable
 fun ProfileTabContent(
     profile: UserProfile,
@@ -46,15 +44,7 @@ fun ProfileTabContent(
         onAction = { onNavigate(ProgressRoute) }
     )
     Spacer(modifier = Modifier.height(16.dp))
-    if (profile.socialRole == SocialRole.PARENT) {
-        when {
-            state.isLoadingFamily -> TabLoading()
-            else -> WeeklyReportCard(
-                report = state.family?.weeklyReport,
-                onViewReport = { onNavigate(FamilyWeeklyReportRoute) }
-            )
-        }
-    } else {
+    if (profile.socialRole != SocialRole.PARENT) {
         CommitmentCard(
             commitment = profile.commitment,
             onAdd = { onNavigate(AddCommitmentRoute) },
@@ -109,48 +99,6 @@ private fun CommitmentCard(
                 style = interTextStyle(13),
                 color = TextPrimary,
                 modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun WeeklyReportCard(
-    report: WeeklyReport?,
-    onViewReport: () -> Unit
-) {
-    ProfileCard {
-        SectionHeaderRow(
-            title = stringResource(R.string.profile_weekly_report_title),
-            action = stringResource(R.string.profile_view_report),
-            onAction = onViewReport
-        )
-        if (report == null) {
-            Text(
-                text = stringResource(R.string.profile_weekly_report_empty),
-                style = interTextStyle(13),
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        } else {
-            Text(
-                text = stringResource(
-                    R.string.profile_weekly_report_quests,
-                    report.questsCompleted,
-                    report.questsTotal
-                ),
-                style = interTextStyle(13),
-                color = TextPrimary
-            )
-            Text(
-                text = pluralStringResource(
-                    R.plurals.profile_weekly_report_achievements,
-                    report.achievementsEarned,
-                    report.achievementsEarned
-                ),
-                style = interTextStyle(13),
-                color = TextPrimary,
-                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
             )
         }
     }

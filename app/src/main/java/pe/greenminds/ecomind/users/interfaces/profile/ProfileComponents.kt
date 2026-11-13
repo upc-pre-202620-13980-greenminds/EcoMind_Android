@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -32,8 +33,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.monetization.domain.model.EquippedCosmetics
 import pe.greenminds.ecomind.monetization.interfaces.store.cosmeticImageResource
 import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.theme.RowDivider
@@ -204,5 +208,65 @@ fun TabError(
             text = stringResource(R.string.profile_try_again),
             onClick = onRetry
         )
+    }
+}
+
+// Avatar of the profile header with the equipped cosmetics drawn on top, by slot.
+// Share profile shows it smaller; the layers keep the proportions of the 110dp header
+@Composable
+internal fun ProfileAvatar(
+    name: String,
+    equippedCosmetics: EquippedCosmetics,
+    size: Dp = 110.dp
+) {
+    val avatar = equippedCosmetics.avatar
+    val scale = size / 110.dp
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(size)
+    ) {
+        if (avatar == null) {
+            InitialsAvatar(name = name, size = 76.dp * scale)
+        } else {
+            Image(
+                painter = painterResource(cosmeticImageResource(avatar.imageReference)),
+                contentDescription = avatar.name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(76.dp * scale)
+            )
+        }
+
+        equippedCosmetics.body?.let { cosmetic ->
+            Image(
+                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
+                contentDescription = cosmetic.name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(76.dp * scale)
+            )
+        }
+
+        equippedCosmetics.head?.let { cosmetic ->
+            Image(
+                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
+                contentDescription = cosmetic.name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset { IntOffset(0, -(4.dp * scale).roundToPx()) }
+                    .size(44.dp * scale)
+            )
+        }
+
+        equippedCosmetics.accessory?.let { cosmetic ->
+            Image(
+                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
+                contentDescription = cosmetic.name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(34.dp * scale)
+            )
+        }
     }
 }
