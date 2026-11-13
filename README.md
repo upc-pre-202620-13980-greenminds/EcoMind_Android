@@ -31,23 +31,3 @@ The independent `signedOutBackAndRelaunch` method requires
 `iamFlutterSignedOutOnly=true` and an already signed-out Flutter app. Never run the
 whole instrumentation suite with a live opt-in. Keep fixtures and recordings private
 and remove staged fixtures after verification.
-
-
-## Gamification
-
-Ranking, medals, reward history and collective achievements use the shared
-Azure client and current IAM session. Rankings calculate the top 20 from all
-server pages and retain the current account/family position. Periods use UTC;
-the visible ranking refreshes every 30 seconds while resumed and identifies
-failed refreshes without discarding loaded results.
-
-Profile → Medals opens earned/available collections and medal details. Ranking
-→ Progress opens server ecopoints, streaks, granted rewards and family/community
-medals. Rewards and achievement granting remain backend operations. XP is the
-ecopoints score, and multipliers never increase gems. Family completion only
-celebrates a committed result and newly confirmed awards.
-
-Sharing is voluntary and preserves a stable request ID for uncertain outcomes.
-Use only synthetic accounts for live checks and keep their credentials outside
-Git. HU-005 does not define the amount/formula for its weekly point bonus; the
-client does not invent one or replace it with a medal.
