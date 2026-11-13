@@ -207,4 +207,24 @@
     <string name="news_reaction_surprise">Me sorprende</string>
     <string name="news_reaction_sad">Me entristece</string>
     <string name="news_reaction_angry">Me enoja</string>
+
+    <string name="goal_flow_title">Meta comunitaria: completar %1$d retos de %2$s</string>
+    <string name="goal_flow_progress">Progreso</string>
+    <string name="goal_flow_count">%1$d de %2$d</string>
+    <string name="goal_flow_participants">%1$d participantes</string>
+    <string name="goal_flow_expand">Mostrar detalles de la meta</string>
+    <string name="goal_flow_collapse">Ocultar detalles de la meta</string>
+    <string name="goal_flow_create">Crear</string>
+    <string name="goal_flow_join">Unirse</string>
+    <string name="goal_flow_joined">Ya participas en esta meta</string>
+    <string name="goal_flow_other_active">Ya participas en otra meta activa.</string>
+    <string name="goal_flow_refresh">Actualizar</string>
+    <string name="goal_flow_create_title">Crear meta comunitaria</string>
+    <string name="goal_flow_choose_topic">Elige un tópico</string>
+    <string name="goal_flow_target_preview">%1$d miembros × 10 = %2$d retos. El objetivo final se calcula al crear la meta.</string>
+    <string name="goal_flow_auto_join">Te unirás automáticamente. El objetivo queda fijo después de crearla.</string>
+    <string name="goal_flow_error">No se pudo actualizar la meta. Recarga para comprobar su estado actual.</string>
+    <string name="goal_flow_water">Agua</string>
+    <string name="goal_flow_energy">Energía</string>
+    <string name="goal_flow_recycle">Reciclaje</string>
 </resources>

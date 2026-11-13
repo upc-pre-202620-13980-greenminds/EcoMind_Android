@@ -57,12 +57,10 @@ internal fun CommunityEventsContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
-                value = state.search,
-                onValueChange = viewModel::search,
-                placeholder = { Text(stringResource(R.string.event_flow_search)) },
-                singleLine = true,
-                shape = RoundedCornerShape(50),
+            CommunitySearchField(
+                query = state.search,
+                onQueryChange = viewModel::search,
+                placeholder = stringResource(R.string.event_flow_search),
                 modifier = Modifier.weight(1f)
             )
 

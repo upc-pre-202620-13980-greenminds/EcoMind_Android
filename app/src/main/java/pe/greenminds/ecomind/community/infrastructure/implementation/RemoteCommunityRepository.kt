@@ -35,15 +35,14 @@ import pe.greenminds.ecomind.community.domain.entity.PostReactions
 import pe.greenminds.ecomind.community.domain.valueobjects.PostReactionType
 import pe.greenminds.ecomind.community.infrastructure.remote.PostAuthorDto
 import pe.greenminds.ecomind.community.infrastructure.remote.SetPostReactionRequest
+import pe.greenminds.ecomind.community.domain.entity.CommunityGoalPanel
+import pe.greenminds.ecomind.community.infrastructure.remote.CreateCommunityGoalRequest
 
 class RemoteCommunityRepository @Inject constructor(
     private val api: CommunityApi,
     private val sessions: SessionRepository,
     @ApplicationContext private val context: Context
 ) : CommunityRepository {
-
-    override suspend fun getEvents(communityId: Long) =
-        execute({ api.getEvents(communityId) }) { list -> list.map { it.toDomain() } }
 
     override suspend fun getPosts(communityId: Long): Result<List<CommunityPost>> {
         val posts = execute({ api.getPosts(communityId) }) { list ->
@@ -76,8 +75,6 @@ class RemoteCommunityRepository @Inject constructor(
     override suspend fun getAchievements(communityId: Long) =
         execute({ api.getAchievements(communityId) }) { list -> list.map { it.toDomain() } }
 
-    override suspend fun getGoals(communityId:Long) =
-        execute({ api.getCommunityGoals(communityId) }) { list -> list.map { it.toDomain() } }
 
     override suspend fun canCreateEvents(): Result<Boolean> = execute(
         request = {
@@ -285,6 +282,25 @@ class RemoteCommunityRepository @Inject constructor(
             api.removePostReaction(postId)
         }
 
+    override suspend fun getGoalPanel(
+        communityId: Long
+    ): Result<CommunityGoalPanel> =
+        execute({ api.getGoalPanel(communityId) }) { it.toDomain() }
+
+    override suspend fun createGoal(
+        communityId: Long,
+        topic: String
+    ): Result<Unit> =
+        execute({
+            api.createGoal(CreateCommunityGoalRequest(communityId, topic))
+        }) {
+            Unit
+        }
+
+    override suspend fun joinGoal(goalId: Long): Result<Unit> =
+        execute({ api.joinGoal(goalId) }) {
+            Unit
+        }
     private fun <T> Result<T>.mapChatFailure(): Result<T> = fold(
         onSuccess = { Result.success(it) },
         onFailure = { exception ->

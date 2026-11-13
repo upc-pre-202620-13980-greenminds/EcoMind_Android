@@ -392,12 +392,8 @@ private fun CommunityContent(
                     }
                 }
             }
-            GoalCard(
-                goal = state.goals.firstOrNull {
-                    it.status.equals("active", ignoreCase = true)
-                },
-                isLoading = state.isLoadingGoals,
-                onClick = openComingSoon
+            CommunityGoalContent(
+                communityId = community.id
             )
         }
 
@@ -795,7 +791,7 @@ internal fun SmallActionPill(
 private fun CommunityContentPreview() {
     EcoMindTheme {
         CommunityContent(
-            state = CommunityUiState(isLoadingEvents = false),
+            state = CommunityUiState(),
             community = Community(
                 id = 1L,
                 name = "Lima Community",
