@@ -2,6 +2,7 @@ package pe.greenminds.ecomind.gamification.application
 
 import kotlinx.coroutines.flow.first
 import pe.greenminds.ecomind.gamification.domain.model.Ranking
+import pe.greenminds.ecomind.gamification.domain.model.AchievementSessionRequiredException
 import pe.greenminds.ecomind.gamification.domain.model.RankingPeriod
 import pe.greenminds.ecomind.gamification.domain.model.RankingType
 import pe.greenminds.ecomind.gamification.domain.repositories.RankingRepository
@@ -19,7 +20,10 @@ class GetRankingUseCase @Inject constructor(
 
     suspend operator fun invoke(type: RankingType, period: RankingPeriod): Result<Ranking> {
         val session = sessionRepository.getSession().first()
-            ?: return Result.failure(IllegalStateException("There is no stored session"))
+            ?: return Result.failure(AchievementSessionRequiredException())
+        if (session.isExpired(System.currentTimeMillis())) {
+            return Result.failure(AchievementSessionRequiredException())
+        }
 
         // In the ranking of families the highlighted row is the family of the user
         val currentId = if (type == RankingType.FAMILIES) {
@@ -44,6 +48,10 @@ class GetRankingUseCase @Inject constructor(
             RankingCalculator.sumByParticipant(transactions)
         }
 
+        val currentSession = sessionRepository.getSession().first()
+        if (currentSession != session || currentSession.isExpired(System.currentTimeMillis())) {
+            return Result.failure(AchievementSessionRequiredException())
+        }
         return Result.success(RankingCalculator.rank(participants, ecopointsById, currentId))
     }
 }

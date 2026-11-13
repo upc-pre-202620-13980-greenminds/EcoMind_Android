@@ -35,7 +35,6 @@ fun FamilyPlanDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var deleting by rememberSaveable { mutableStateOf(false) }
-    var celebrating by rememberSaveable { mutableStateOf(false) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (state.details == null) viewModel.openPlan(planId) else viewModel.refresh()
     }
@@ -43,7 +42,6 @@ fun FamilyPlanDetailScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is FamilyPlanEvent.Deleted -> onBack()
-                is FamilyPlanEvent.Completed -> celebrating = true
                 else -> Unit
             }
         }
@@ -52,10 +50,18 @@ fun FamilyPlanDetailScreen(
         onDelete = { viewModel.dismissError(); deleting = true }, onRefresh = { viewModel.openPlan(planId) })
     if (deleting) FamilyPlanDeleteDialog(state.details?.plan?.status == FamilyPlanStatus.ACTIVE, state.busy,
         state.error != null, { deleting = false; viewModel.dismissError() }, viewModel::delete)
-    if (celebrating) AlertDialog(onDismissRequest = { celebrating = false }, containerColor = White,
+    if (state.completedAchievements != null) AlertDialog(onDismissRequest = viewModel::dismissCompletion, containerColor = White,
         title = { Text(stringResource(R.string.family_plan_completion_title)) },
-        text = { Text(stringResource(R.string.family_plan_completion_body)) },
-        confirmButton = { TextButton(onClick = { celebrating = false }) { Text(stringResource(R.string.family_plan_close)) } })
+        text = {
+            Column {
+                pe.greenminds.ecomind.quests.presentation.ui.execution.EcoMascot(
+                    confetti = true, modifier = Modifier.align(Alignment.CenterHorizontally).size(160.dp)
+                )
+                Text(stringResource(R.string.family_plan_completion_body))
+                state.completedAchievements.orEmpty().forEach { name -> Text(name, fontWeight = FontWeight.Bold) }
+            }
+        },
+        confirmButton = { TextButton(onClick = viewModel::dismissCompletion) { Text(stringResource(R.string.family_plan_close)) } })
 }
 
 @Composable

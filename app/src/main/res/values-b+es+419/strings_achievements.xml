@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="achievements_title">Medallas y logros</string>
+    <string name="achievements_back">Volver</string>
+    <string name="achievements_earned">Obtenidas</string>
+    <string name="achievements_available">Disponibles</string>
+    <string name="achievements_empty">Tu colección está vacía. Las medallas aparecen aquí cuando se confirma una actividad elegible.</string>
+    <string name="achievements_no_available">No hay más medallas disponibles por ahora.</string>
+    <string name="achievements_demo">Demostración · estas medallas y criterios son datos de ejemplo.</string>
+    <string name="achievements_error">No pudimos cargar tus logros. Inténtalo de nuevo.</string>
+    <string name="achievements_session_required">Inicia sesión nuevamente para ver tus logros.</string>
+    <string name="achievements_sign_in">Iniciar sesión</string>
+    <string name="achievement_detail_title">Detalle del logro</string>
+    <string name="achievement_not_found">Este logro ya no está disponible. Vuelve a tu colección.</string>
+    <string name="achievement_about">Acerca de esta medalla</string>
+    <string name="achievement_requirement">Cómo se obtiene</string>
+    <string name="achievement_awarded_at">Fecha de obtención (UTC)</string>
+    <string name="achievement_archived">Medalla archivada · conservada en tu historial</string>
+    <string name="achievement_impact_note">Las medallas reconocen participación y aprendizaje. No certifican impacto ambiental.</string>
+    <string name="achievement_awarded">Medalla otorgada</string>
+    <string name="achievement_not_earned">Todavía no obtenida</string>
+    <string name="achievement_locked">Pendiente</string>
+    <string name="achievement_demo_section">Sección completada</string>
+    <string name="achievement_demo_activity">Actividad importante</string>
+    <string name="achievement_demo_streak">Práctica constante</string>
+    <string name="achievement_demo_section_description">Reconocimiento de ejemplo por completar una sección de aprendizaje.</string>
+    <string name="achievement_demo_activity_description">Reconocimiento de ejemplo por completar una actividad importante.</string>
+    <string name="achievement_demo_streak_description">Reconocimiento de ejemplo por la continuidad en actividades elegibles.</string>
+    <string name="achievement_ecopoints_requirement">Alcanza %1$d ecopuntos mediante actividades elegibles.</string>
+    <string name="achievement_streak_requirement">Alcanza una racha máxima de %1$d días.</string>
+    <string name="achievement_goals_requirement">Completa %1$d metas comunitarias.</string>
+    <string name="achievement_plans_requirement">Completa %1$d planes familiares.</string>
+    <plurals name="achievements_count">
+        <item quantity="one">Medallas · %d</item>
+        <item quantity="other">Medallas · %d</item>
+    </plurals>
+</resources>

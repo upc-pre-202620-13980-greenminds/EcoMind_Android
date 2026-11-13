@@ -14,7 +14,8 @@ data class FamilyPlansUiState(
     val busy: Boolean = false,
     val searching: Boolean = false,
     val error: FamilyPlanUiError? = null,
-    val searchError: FamilyPlanUiError? = null
+    val searchError: FamilyPlanUiError? = null,
+    val completedAchievements: List<String>? = null
 ) {
     val selectedQuestIds: Set<Long> get() = details?.plan?.items.orEmpty().map { it.questId }.toSet()
 }
