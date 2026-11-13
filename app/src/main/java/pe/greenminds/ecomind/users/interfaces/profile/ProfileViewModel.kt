@@ -3,6 +3,7 @@ package pe.greenminds.ecomind.users.interfaces.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,7 @@ import pe.greenminds.ecomind.users.application.GetCurrentProfileUseCase
 import pe.greenminds.ecomind.users.application.GetFamilyUseCase
 import pe.greenminds.ecomind.users.application.GetFriendsUseCase
 import pe.greenminds.ecomind.monetization.interfaces.acl.MonetizationContextFacade
+import pe.greenminds.ecomind.gamification.interfaces.acl.GamificationContextFacade
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +21,8 @@ class ProfileViewModel @Inject constructor(
     private val getCurrentProfile: GetCurrentProfileUseCase,
     private val getFriends: GetFriendsUseCase,
     private val getFamily: GetFamilyUseCase,
-    private val monetization: MonetizationContextFacade
+    private val monetization: MonetizationContextFacade,
+    private val gamification: GamificationContextFacade
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileUiState())
@@ -51,6 +54,7 @@ class ProfileViewModel @Inject constructor(
                     loadFriends(profile.id)
                     loadFamily(profile.id)
                     loadEquippedCosmetics()
+                    loadAchievements()
                 }
                 .onFailure {
                     _state.update { currentState ->
@@ -111,6 +115,35 @@ class ProfileViewModel @Inject constructor(
                 .onFailure {
                     _state.update { currentState ->
                         currentState.copy(isLoadingFamily = false, familyFailed = true)
+                    }
+                }
+        }
+    }
+
+    // The medals come from Gamification; Users only reads them through its facade
+    private fun loadAchievements() {
+        viewModelScope.launch {
+            _state.update { currentState ->
+                currentState.copy(isLoadingAchievements = true, achievementsFailed = false)
+            }
+
+            val result = try {
+                gamification.getMyAchievements()
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                Result.failure(exception)
+            }
+
+            result
+                .onSuccess { achievements ->
+                    _state.update { currentState ->
+                        currentState.copy(isLoadingAchievements = false, myAchievements = achievements)
+                    }
+                }
+                .onFailure {
+                    _state.update { currentState ->
+                        currentState.copy(isLoadingAchievements = false, achievementsFailed = true)
                     }
                 }
         }

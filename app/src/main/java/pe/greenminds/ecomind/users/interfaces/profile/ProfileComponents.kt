@@ -270,3 +270,44 @@ internal fun ProfileAvatar(
         }
     }
 }
+
+// Earned medal in the Profile tab; it opens the detail of Gamification
+@Composable
+fun MedalRow(
+    name: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 64.dp)
+                .clickable(role = Role.Button, onClick = onClick)
+        ) {
+            // Decorative: the name of the medal is written next to it
+            Image(
+                painter = painterResource(R.drawable.ic_achievement_activity),
+                contentDescription = null,
+                modifier = Modifier.size(44.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = name,
+                style = interTextStyle(14, FontWeight.Bold),
+                color = TextPrimary,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(R.string.profile_row_arrow),
+                style = interTextStyle(13, FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .clearAndSetSemantics { }
+            )
+        }
+        HorizontalDivider(thickness = 1.dp, color = RowDivider)
+    }
+}

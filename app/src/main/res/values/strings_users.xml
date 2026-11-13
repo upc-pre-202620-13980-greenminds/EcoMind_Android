@@ -18,6 +18,7 @@
     <string name="profile_commitment_add">Add commitment</string>
     <string name="profile_medals_title">Medals and achievements</string>
     <string name="profile_view_all">View all</string>
+    <string name="profile_medals_empty">You have no medals yet.</string>
     <string name="profile_invite_friends">Invite friends</string>
     <string name="profile_find_friends">Find friends</string>
     <string name="profile_friend_requests">Friend requests</string>
