@@ -16,6 +16,9 @@ import pe.greenminds.ecomind.quests.application.usecase.GetCollabQuestInvitation
 import pe.greenminds.ecomind.quests.presentation.states.QuestPartyUiState
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
 import pe.greenminds.ecomind.quests.application.FamilyQuestExecution
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuest
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuestStatus
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuestStore
 
 enum class QuestStage { DETAIL, STARTING, ACTIVITIES, FINISHED }
 data class QuestExecutionState(
@@ -27,7 +30,8 @@ data class QuestExecutionState(
     val partyState: QuestPartyUiState = QuestPartyUiState(),
     val selectingFriends: Boolean = false,
     val friends: List<PartyPerson> = emptyList(),
-    val familyExecution: FamilyQuestExecution? = null
+    val familyExecution: FamilyQuestExecution? = null,
+    val savedQuest: OfflineQuest? = null
 )
 
 @HiltViewModel
@@ -37,14 +41,33 @@ class QuestExecutionViewModel @Inject constructor(
     private val getPartyState: GetCollabQuestStateByQuestUseCase,
     private val getInvitations: GetCollabQuestInvitationUseCase,
     private val partyActions: QuestPartyService,
-    private val familyPlans: FamilyPlanService
+    private val familyPlans: FamilyPlanService,
+    private val offlineQuests: OfflineQuestStore
 ) : ViewModel() {
     private val route = savedStateHandle.toRoute<QuestDetailRoute>()
     private val questId = route.questId
     private val mutable = MutableStateFlow(QuestExecutionState())
     val state = mutable.asStateFlow()
 
-    init { reload() }
+    init {
+        reload()
+        if (route.familyPlanId == null && !route.previewOnly) viewModelScope.launch {
+            val account = offlineQuests.session() ?: return@launch
+            offlineQuests.observe(account.accountId).collect { saved ->
+                val quest = saved.firstOrNull { it.execution.quest.id == questId }
+                mutable.update { current ->
+                    val matches = current.execution?.assignment?.id == quest?.execution?.assignment?.id
+                    if (quest == null || (!matches && current.execution != null)) current
+                    else current.copy(
+                        savedQuest = quest,
+                        execution = if (current.execution == null || quest.status != OfflineQuestStatus.SAVED ||
+                            current.savedQuest?.status == OfflineQuestStatus.EDITED
+                        ) quest.execution else current.execution
+                    )
+                }
+            }
+        }
+    }
 
     private suspend fun loadDetail(previous: QuestExecutionState, refreshPeople: Boolean = false): QuestExecutionState {
         if (route.familyPlanId != null) {
@@ -52,7 +75,7 @@ class QuestExecutionViewModel @Inject constructor(
             check(family.quest.id == questId)
             return previous.withFamily(family)
         }
-        val loaded = service.load(questId)
+        val loaded = if (route.previewOnly) service.load(questId) else offlineQuests.load(questId, service)
         val partyState = if (loaded.quest.type == QuestType.COLLABORATIVE) {
             val party = try {
                 Result.success(partyActions.resolveEnrolledState(questId, getPartyState(questId).getOrThrow()))
@@ -78,7 +101,8 @@ class QuestExecutionViewModel @Inject constructor(
                     && loaded.assignment?.status !in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)
             )
         } else QuestPartyUiState()
-        return previous.copy(execution = loaded, partyState = partyState)
+        return previous.copy(execution = loaded, partyState = partyState, savedQuest = offlineQuests.get(questId)
+            ?.takeIf { it.execution.assignment?.id == loaded.assignment?.id })
     }
 
     fun reload() = perform(readOnlyAllowed = true) { loadDetail(this) }
@@ -96,9 +120,17 @@ class QuestExecutionViewModel @Inject constructor(
             check(family.canCheck || family.assignment.status == QuestStatus.COMPLETED)
             fresh.copy(stage = QuestStage.ACTIVITIES)
         } else {
-            val current = service.load(questId)
+            val current = offlineQuests.load(questId, service)
+            val saved = offlineQuests.get(questId)
+            if (saved != null && current.assignment?.status in listOf(QuestStatus.IN_PROGRESS, QuestStatus.READY_TO_COMPLETE)
+                && saved.execution.assignment?.id == current.assignment?.id) {
+                return@perform copy(execution = current, savedQuest = saved, stage = QuestStage.ACTIVITIES)
+            }
             val started = service.start(current)
-            copy(execution = started, stage = if (started.assignment?.id == current.assignment?.id)
+            offlineQuests.remember(started)
+            copy(execution = started, savedQuest = offlineQuests.get(questId)
+                ?.takeIf { it.execution.assignment?.id == started.assignment?.id },
+                stage = if (started.assignment?.id == current.assignment?.id)
                 QuestStage.ACTIVITIES else QuestStage.STARTING)
         }
     }
@@ -186,7 +218,12 @@ class QuestExecutionViewModel @Inject constructor(
     fun check(id: Long, checked: Boolean) = perform {
         if (route.familyPlanId != null) {
             withFamily(familyPlans.checkActivity(route.familyPlanId, requireNotNull(route.familyPlanItemId), id, checked).getOrThrow())
-        } else copy(execution = service.check(requireNotNull(execution), id, checked))
+        } else {
+            val current = requireNotNull(execution)
+            val updated = offlineQuests.check(current, id, checked) ?: service.check(current, id, checked)
+            copy(execution = updated, savedQuest = offlineQuests.get(questId)
+                ?.takeIf { it.execution.assignment?.id == updated.assignment?.id })
+        }
     }
     fun submitWrittenResponse(id: Long, text: String) = perform {
         copy(execution = service.submitWrittenResponse(requireNotNull(execution), id, text))
@@ -204,7 +241,12 @@ class QuestExecutionViewModel @Inject constructor(
 
     fun finish() = perform {
         check(route.familyPlanId == null)
-        copy(execution = service.finish(requireNotNull(execution)), stage = QuestStage.FINISHED)
+        val current = requireNotNull(execution)
+        if (offlineQuests.finish(current)) {
+            copy(savedQuest = offlineQuests.get(questId), stage = QuestStage.FINISHED)
+        } else {
+            copy(execution = service.finish(current), stage = QuestStage.FINISHED)
+        }
     }
 
     private fun QuestExecutionState.withFamily(family: FamilyQuestExecution) = copy(
@@ -220,7 +262,14 @@ class QuestExecutionViewModel @Inject constructor(
         mutable.update { it.copy(busy = true, refreshing = refreshing, error = false) }
         viewModelScope.launch {
             try {
-                mutable.value = action(mutable.value).copy(busy = false, refreshing = false, error = false)
+                val updated = action(mutable.value)
+                val latest = if (updated.savedQuest != null) offlineQuests.get(questId)
+                    ?.takeIf { it.execution.assignment?.id == updated.execution?.assignment?.id } else null
+                mutable.value = updated.copy(
+                    execution = latest?.execution ?: updated.execution,
+                    savedQuest = latest ?: updated.savedQuest,
+                    busy = false, refreshing = false, error = false
+                )
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Exception) {

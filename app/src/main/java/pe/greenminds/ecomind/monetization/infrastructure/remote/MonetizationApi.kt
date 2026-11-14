@@ -7,13 +7,15 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Tag
+import pe.greenminds.ecomind.iam.domain.model.Session
 
 interface MonetizationApi {
     @GET("monetization/cosmetics")
-    suspend fun getCosmetics(): Response<List<CosmeticDto>>
+    suspend fun getCosmetics(@Tag session: Session? = null): Response<List<CosmeticDto>>
 
     @GET("monetization/me/inventory")
-    suspend fun getInventory(): Response<InventoryDto>
+    suspend fun getInventory(@Tag session: Session? = null): Response<InventoryDto>
 
     @GET("monetization/me/wallet")
     suspend fun getWallet(): Response<GemWalletDto>

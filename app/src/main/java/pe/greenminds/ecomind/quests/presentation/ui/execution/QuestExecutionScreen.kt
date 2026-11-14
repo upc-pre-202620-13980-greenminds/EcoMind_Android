@@ -1,5 +1,9 @@
 package pe.greenminds.ecomind.quests.presentation.ui.execution
 
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuestStatus
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
+import pe.greenminds.ecomind.shared.interfaces.components.OfflineContent
+
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -42,6 +46,14 @@ fun QuestExecutionScreen(
     onPlayMinigame: (Long) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val online = isOnline()
+    LaunchedEffect(online) {
+        if (online && state.error && state.execution == null) viewModel.reload()
+    }
+    if (!online && state.savedQuest == null && !state.busy) {
+        OfflineContent(R.string.offline_quest_open, onBack = onBack)
+        return
+    }
     var showParticipants by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state.partyState.isEnrolled) {
         if (!state.partyState.isEnrolled) showParticipants = false
@@ -71,7 +83,8 @@ fun QuestExecutionScreen(
         onAcceptInvitation = viewModel::acceptInvitation, onDeclineInvitation = viewModel::declineInvitation,
         onPartyStart = viewModel::startPartyOrSolo, onInviteFriends = viewModel::openFriends, onLeaveParty = viewModel::leaveParty,
         onRefresh = viewModel::refreshScreen, readOnly = previewOnly, onPlayMinigame = onPlayMinigame,
-        onWrite = viewModel::submitWrittenResponse, onViewSavedResponses = viewModel::viewSavedResponses)
+        onWrite = viewModel::submitWrittenResponse, onViewSavedResponses = viewModel::viewSavedResponses,
+        online = online)
 }
 
 @Composable
@@ -87,7 +100,8 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
     readOnly: Boolean = false,
     onPlayMinigame: (Long) -> Unit = {},
     onWrite: (Long, String) -> Unit = { _, _ -> },
-    onViewSavedResponses: () -> Unit = {}) {
+    onViewSavedResponses: () -> Unit = {},
+    online: Boolean = true) {
     QuestRefreshContainer(
         isRefreshing = state.refreshing,
         onRefresh = onRefresh,
@@ -110,13 +124,53 @@ internal fun QuestExecutionContent(state: QuestExecutionState, onBack: () -> Uni
         val minigameId = execution.quest.minigameId
         val canPlay = family == null && minigameId != null &&
             execution.quest.publicationStatus == QuestPublicationStatus.PUBLISHED
-        if (state.stage == QuestStage.FINISHED) {
+        val saved = state.savedQuest
+        if (saved?.status in setOf(OfflineQuestStatus.PENDING, OfflineQuestStatus.REJECTED) ||
+            !online && saved?.status == OfflineQuestStatus.CONFIRMED
+        ) {
+            val message = when (saved?.status) {
+                OfflineQuestStatus.REJECTED -> R.string.offline_quest_rejected
+                OfflineQuestStatus.CONFIRMED -> R.string.offline_quest_confirmed
+                else -> R.string.offline_quest_pending
+            }
+            Column(
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).fillMaxWidth().padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(execution.quest.title, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(16.dp))
+                Text(stringResource(message), textAlign = TextAlign.Center)
+                saved?.reward?.let { reward ->
+                    Text(stringResource(R.string.offline_quest_points, reward.ecopoints))
+                    if (reward.gems > 0) Text(stringResource(R.string.offline_quest_gems, reward.gems))
+                }
+                if (saved?.status == OfflineQuestStatus.REJECTED) {
+                    Spacer(Modifier.height(16.dp))
+                    execution.activities.forEach { activity ->
+                        val done = execution.checks.any { it.activityId == activity.id && it.progress >= 100 }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = done, onCheckedChange = null, enabled = false)
+                            Text(activity.description, modifier = Modifier.padding(start = 8.dp))
+                        }
+                    }
+                }
+            }
+            QuestButton(stringResource(R.string.offline_back), onBack, true, true)
+            Spacer(Modifier.height(28.dp))
+            return@Column
+        }
+        if (state.stage == QuestStage.FINISHED || saved?.status == OfflineQuestStatus.CONFIRMED && !readOnly) {
+            val reward = saved?.reward
             QuestCompletion(
-                rewardText = "+${execution.quest.reward.ecopoints} ecoPoints",
-                gems = execution.quest.reward.gems,
+                rewardText = stringResource(R.string.offline_quest_points, reward?.ecopoints ?: execution.quest.reward.ecopoints.toLong()),
+                gems = reward?.gems ?: execution.quest.reward.gems,
                 actionLabel = "Nice!",
                 onAction = onBack
-            )
+            ) {
+                if (saved?.status == OfflineQuestStatus.CONFIRMED && online) {
+                    TextButton(onClick = onStart, enabled = !state.busy) { Text("Restart Quest") }
+                }
+            }
             return@Column
         }
         if (state.stage == QuestStage.STARTING) {

@@ -27,6 +27,27 @@ import java.io.File
 class ProgressScreenTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun offlineProgressShowsSavedEntriesAndPendingRewards() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val overview = runBlocking { GetProgressOverviewUseCase(LocalQuestProgressRepository())().getOrThrow() }
+        compose.setContent {
+            EcoMindTheme {
+                ProgressContent(
+                    state = ProgressUiState(
+                        isLoading = false, hasLoaded = true, hasError = true,
+                        inProgress = overview.inProgress,
+                        finished = overview.finished,
+                        pendingAssignmentIds = setOf(overview.inProgress.first().questUser.id)
+                    ),
+                    online = false
+                )
+            }
+        }
+        compose.onNodeWithText(context.getString(R.string.offline_quest_pending_short)).assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.progress_load_error)).assertDoesNotExist()
+        compose.onNodeWithText(context.getString(R.string.offline_progress_missing)).assertDoesNotExist()
+    }
+
     @Test fun showsProgressSectionsAndOpensFullList() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val overview = runBlocking {

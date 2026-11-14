@@ -91,6 +91,9 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.compose.material.icons.extended)
 
     testImplementation(libs.junit)

@@ -8,5 +8,6 @@ data class QuestSearchUiState(
     val isLoading: Boolean = true,
     val hasError: Boolean = false,
     val focusSearch: Boolean = false,
-    val filters: pe.greenminds.ecomind.quests.application.QuestFilters = pe.greenminds.ecomind.quests.application.QuestFilters()
+    val filters: pe.greenminds.ecomind.quests.application.QuestFilters = pe.greenminds.ecomind.quests.application.QuestFilters(),
+    val online: Boolean = true
 )

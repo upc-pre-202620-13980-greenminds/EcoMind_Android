@@ -1,5 +1,7 @@
 package pe.greenminds.ecomind.quests.presentation.ui
 
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -71,13 +74,16 @@ fun QuestsScreen(
     viewModel: QuestsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val online = isOnline()
+    LaunchedEffect(online) { viewModel.loadQuests(online) }
     QuestsContent(
         state = state,
         selectedFilter = selectedFilter,
         onOpenCategories = onOpenCategories,
         onOpenQuest = onOpenQuest,
         onOpenLearning = onOpenLearning,
-        onRetry = viewModel::loadQuests,
+        onRetry = { viewModel.loadQuests(online) },
+        online = online,
         modifier = modifier
     )
 }
@@ -90,9 +96,13 @@ private fun QuestsContent(
     onOpenQuest: (Long) -> Unit,
     onOpenLearning: () -> Unit,
     modifier: Modifier = Modifier,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
+    online: Boolean = true
 ) {
-    val categoryQuests = state.quests
+    val visibleQuests = if (online) state.quests else state.savedQuests
+        .filter { it.isAvailableOffline }
+        .map { it.execution.quest }
+    val categoryQuests = visibleQuests
         .filter { it.type != QuestType.FAMILY }
         .filter { quest ->
             when (selectedFilter) {
@@ -111,7 +121,7 @@ private fun QuestsContent(
     val pages = categoryQuests.chunked(4).ifEmpty { listOf(emptyList()) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
 
-    LaunchedEffect(selectedFilter) {
+    LaunchedEffect(selectedFilter, online) {
         pagerState.scrollToPage(0)
     }
 
@@ -131,13 +141,13 @@ private fun QuestsContent(
 
         Spacer(modifier = Modifier.height(40.dp))
         when {
-            state.isLoading -> CircularProgressIndicator(
+            online && state.isLoading -> CircularProgressIndicator(
                 modifier = Modifier
                     .height(320.dp)
                     .padding(120.dp)
             )
 
-            state.hasError -> Column(
+            online && state.hasError -> Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.height(320.dp)
@@ -199,6 +209,15 @@ private fun QuestsContent(
                     )
                 }
             }
+        }
+
+        if (!online) {
+            Text(
+                stringResource(R.string.offline_quest_results),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = QUEST_SCREEN_HORIZONTAL_PADDING, vertical = 16.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(30.dp))

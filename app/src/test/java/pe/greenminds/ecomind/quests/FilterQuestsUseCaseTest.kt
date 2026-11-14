@@ -39,4 +39,14 @@ class FilterQuestsUseCaseTest {
         assertEquals(listOf(write), useCase(quests, QuestFilters(types = setOf("WRITE"))).getOrThrow())
         assertEquals(quests, useCase(quests, QuestFilters()).getOrThrow())
     }
+
+    @Test fun typeFilterUsesSavedActivitiesWhenProvided() = runBlocking {
+        val offlineRepository = object : QuestExecutionRepository by repository {
+            override suspend fun activities(questId: Long): List<Activity> = error("Network unavailable")
+        }
+        val result = FilterQuestsUseCase(offlineRepository)(
+            listOf(energy, write), QuestFilters(types = setOf("CHECKBOX")), repository::activities
+        ).getOrThrow()
+        assertEquals(listOf(energy), result)
+    }
 }

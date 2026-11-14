@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline_community">Reconnect to catch up with your community.</string>
+    <string name="offline_ranking">Reconnect to see where you stand in the rankings.</string>
+    <string name="offline_quest_open">Connect to open this quest.</string>
+    <string name="offline_profile_missing">Open your profile online once to see it offline next time.</string>
+    <string name="offline_progress_missing">Open Progress online once to keep your history handy.</string>
+    <string name="offline_back">Go back</string>
+    <string name="offline_saved_data">You’re offline. Showing saved data.</string>
+    <string name="offline_inventory_missing">Open your inventory online once to see it offline next time.</string>
+    <string name="offline_inventory_empty">Your inventory is empty.</string>
+    <string name="offline_load_error">We couldn’t load this data.</string>
+    <string name="offline_quest_results">Here are your saved quests. Reconnect to see them all.</string>
+    <string name="offline_quest_pending">You finished the quest! Your reward is waiting for confirmation.</string>
+    <string name="offline_quest_pending_short">Reward pending</string>
+    <string name="offline_quest_rejected">We couldn’t submit this progress. Your activities are still saved here.</string>
+    <string name="offline_quest_confirmed">Reward confirmed</string>
+    <string name="offline_quest_points">+%1$d ecoPoints</string>
+    <string name="offline_quest_gems">+%1$d gems</string>
+    <string name="offline_sign_in_again">Sign in again to sync</string>
+    <string name="offline_session_expired">Your session expired. Saved data is still available.</string>
+</resources>

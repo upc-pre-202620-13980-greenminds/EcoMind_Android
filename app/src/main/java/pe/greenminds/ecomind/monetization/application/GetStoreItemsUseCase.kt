@@ -2,27 +2,36 @@ package pe.greenminds.ecomind.monetization.application
 
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import pe.greenminds.ecomind.monetization.domain.model.StoreItem
-import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
+import com.google.gson.reflect.TypeToken
+import pe.greenminds.ecomind.monetization.infrastructure.remote.MonetizationApi
+import pe.greenminds.ecomind.monetization.infrastructure.remote.toDomain
+import pe.greenminds.ecomind.shared.infrastructure.offline.OfflineSnapshots
+import pe.greenminds.ecomind.shared.infrastructure.remote.apiResult
+import pe.greenminds.ecomind.shared.infrastructure.remote.requireBody
 import javax.inject.Inject
 
-class GetStoreItemsUseCase @Inject constructor(private val repository: StoreRepository) {
+class GetStoreItemsUseCase @Inject constructor(
+    private val api: MonetizationApi,
+    private val snapshots: OfflineSnapshots
+) {
+    private val type = object : TypeToken<List<StoreItem>>() {}.type
 
-    suspend operator fun invoke(): Result<List<StoreItem>> {
-        val cosmetics = repository.getCosmetics()
-            .getOrElse { return Result.failure(it) }
-        val owned = repository.getUserCosmetics()
-            .getOrElse { return Result.failure(it) }
+    suspend fun saved(): List<StoreItem>? =
+        snapshots.session()?.let { snapshots.read(it, "store-items", type) }
 
-        // The catalog does not say what the user owns, so both answers are crossed here
-        val items = cosmetics.map { cosmetic ->
-            val userCosmetic = owned.find { it.cosmeticId == cosmetic.id }
-            val ownership = when {
-                userCosmetic == null -> CosmeticOwnership.NOT_OWNED
-                userCosmetic.equipped -> CosmeticOwnership.EQUIPPED
-                else -> CosmeticOwnership.IN_INVENTORY
+    suspend operator fun invoke(): Result<List<StoreItem>> =
+        snapshots.fetch("store-items", type) { session ->
+            apiResult {
+                val cosmetics = api.getCosmetics(session).requireBody().map { it.toDomain() }
+                val owned = api.getInventory(session).requireBody().toDomain().associateBy { it.cosmeticId }
+                cosmetics.map { cosmetic ->
+                    val ownership = when (owned[cosmetic.id]?.equipped) {
+                        null -> CosmeticOwnership.NOT_OWNED
+                        true -> CosmeticOwnership.EQUIPPED
+                        false -> CosmeticOwnership.IN_INVENTORY
+                    }
+                    StoreItem(cosmetic, ownership)
+                }
             }
-            StoreItem(cosmetic, ownership)
         }
-        return Result.success(items)
-    }
 }

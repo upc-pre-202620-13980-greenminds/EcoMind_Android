@@ -6,13 +6,6 @@ import javax.inject.Inject
 
 class CheckSessionUseCase @Inject constructor(private val repository: SessionRepository) {
 
-    // True only when there is a stored session whose token is still valid
-    suspend operator fun invoke(): Boolean {
-        val session = repository.getSession().first() ?: return false
-        if (session.isExpired(System.currentTimeMillis())) {
-            repository.clearSession()
-            return false
-        }
-        return true
-    }
+    // A saved account can open local data. The interceptor still requires a valid token.
+    suspend operator fun invoke(): Boolean = repository.getSession().first() != null
 }

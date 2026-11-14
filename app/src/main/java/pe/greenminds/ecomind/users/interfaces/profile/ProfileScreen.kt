@@ -44,6 +44,8 @@ import pe.greenminds.ecomind.users.domain.model.UserProfile
 import pe.greenminds.ecomind.users.interfaces.navigation.EditProfileRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.FavoritesRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.ShareProfileRoute
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
+import pe.greenminds.ecomind.shared.interfaces.components.OfflineContent
 
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen.
 // onNavigate receives one of the hook routes declared in UsersNavGraph.
@@ -54,21 +56,19 @@ fun ProfileScreen(
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
     val gemBalance = viewModel.gemBalance.collectAsStateWithLifecycle().value
+    val online = isOnline()
 
-    // The Profile ViewModel can remain alive while the user equips an item in Store.
-    // Refresh the overlay whenever this destination enters composition again.
-    LaunchedEffect(Unit) {
-        viewModel.loadEquippedCosmetics()
-    }
+    LaunchedEffect(online) { viewModel.loadProfile(online) }
 
     ProfileContent(
-        state = state,
+        state = if (online) state else state.copy(selectedTab = ProfileTab.PROFILE),
         gemBalance = gemBalance,
         onTabSelected = viewModel::onTabSelected,
-        onRetryProfile = viewModel::loadProfile,
+        onRetryProfile = { viewModel.loadProfile(online) },
         onRetryFriends = viewModel::retryFriends,
         onRetryFamily = viewModel::retryFamily,
-        onNavigate = onNavigate
+        onNavigate = onNavigate,
+        online = online
     )
 }
 
@@ -81,7 +81,8 @@ private fun ProfileContent(
     onRetryFriends: () -> Unit,
     onRetryFamily: () -> Unit,
     onNavigate: (Any) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    online: Boolean = true
 ) {
     val profile = state.profile
 
@@ -93,6 +94,7 @@ private fun ProfileContent(
         when {
             state.isLoadingProfile -> TabLoading(modifier = Modifier.align(Alignment.Center))
 
+            profile == null && !online -> OfflineContent(R.string.offline_profile_missing)
             state.profileFailed || profile == null -> ProfileErrorContent(onRetry = onRetryProfile)
 
             else -> Column(
@@ -105,11 +107,12 @@ private fun ProfileContent(
                     profile = profile,
                     gemBalance = gemBalance ?: profile.gemBalance,
                     equippedCosmetics = state.equippedCosmetics,
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
+                    online = online
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-                SegmentedTabs(
+                if (online) SegmentedTabs(
                     options = listOf(
                         stringResource(R.string.profile_tab_profile),
                         stringResource(R.string.profile_tab_friends),
@@ -152,7 +155,8 @@ private fun ProfileHeader(
     profile: UserProfile,
     gemBalance: Int,
     equippedCosmetics: EquippedCosmetics,
-    onNavigate: (Any) -> Unit
+    onNavigate: (Any) -> Unit,
+    online: Boolean
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -167,7 +171,7 @@ private fun ProfileHeader(
                     .align(Alignment.Center)
                     .semantics { heading() }
             )
-            TextLink(
+            if (online) TextLink(
                 text = stringResource(R.string.profile_edit),
                 onClick = { onNavigate(EditProfileRoute) },
                 style = interTextStyle(13),

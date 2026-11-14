@@ -14,17 +14,22 @@ import pe.greenminds.ecomind.shared.application.GemBalanceStore
 import pe.greenminds.ecomind.notifications.application.RefreshUnreadCountUseCase
 import pe.greenminds.ecomind.notifications.application.UnreadNotificationsStore
 import javax.inject.Inject
+import pe.greenminds.ecomind.iam.domain.repositories.SessionRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class MainShellViewModel @Inject constructor(
     private val getCurrentProfile: GetCurrentProfileUseCase,
     private val gemBalanceStore: GemBalanceStore,
     private val refreshUnreadCount: RefreshUnreadCountUseCase,
-    private val unreadNotificationsStore: UnreadNotificationsStore
+    private val unreadNotificationsStore: UnreadNotificationsStore,
+    sessions: SessionRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainShellUiState())
     val state: StateFlow<MainShellUiState> = _state.asStateFlow()
+    val session = sessions.getSession().stateIn(viewModelScope, SharingStarted.Eagerly, null)
     private var profileRequest: Job? = null
     private var unreadRequest: Job? = null
 

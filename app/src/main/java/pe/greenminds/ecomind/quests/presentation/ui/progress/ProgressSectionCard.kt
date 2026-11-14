@@ -60,6 +60,7 @@ fun ProgressSectionCard(
     onAction: () -> Unit = {},
     onOpenEntry: ((ProgressEntry) -> Unit)? = null,
     emptyText: String? = null,
+    pendingAssignmentIds: Set<Long> = emptySet(),
     contentAfterEntries: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit = {}
 ) {
     val cardShape = RoundedCornerShape(18.dp)
@@ -76,7 +77,7 @@ fun ProgressSectionCard(
         ) {
             entries.forEach { entry ->
                 key(entry.questId) {
-                    ProgressRow(entry = entry, onOpen = onOpenEntry?.let { { it(entry) } })
+                    ProgressRow(entry, pending = entry.questUser.id in pendingAssignmentIds, onOpen = onOpenEntry?.let { { it(entry) } })
                 }
             }
             if (entries.isEmpty() && emptyText != null) {
@@ -147,7 +148,7 @@ private fun SectionLabel(text: String) {
 }
 
 @Composable
-internal fun ProgressRow(entry: ProgressEntry, onOpen: (() -> Unit)? = null) {
+internal fun ProgressRow(entry: ProgressEntry, pending: Boolean = false, onOpen: (() -> Unit)? = null) {
     var expanded by rememberSaveable(entry.questId) { mutableStateOf(false) }
     // The bar has no number on screen, so the screen reader gets the percentage as text
     val title = entry.title.ifBlank { stringResource(R.string.progress_unknown_quest) }
@@ -170,7 +171,14 @@ internal fun ProgressRow(entry: ProgressEntry, onOpen: (() -> Unit)? = null) {
                     style = interTextStyle(15, FontWeight.Medium),
                     color = TextPrimary
                 )
-                if (entry.questUser.status == QuestStatus.COMPLETED) {
+                if (pending) {
+                    Text(
+                        stringResource(R.string.offline_quest_pending_short),
+                        style = interTextStyle(13),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                } else if (entry.questUser.status == QuestStatus.COMPLETED) {
                     entry.questUser.endDate?.let { date ->
                         Text(
                             text = stringResource(R.string.progress_completed_on, progressDate(date)),

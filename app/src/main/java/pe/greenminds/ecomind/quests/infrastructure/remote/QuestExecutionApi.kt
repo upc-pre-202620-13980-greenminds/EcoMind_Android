@@ -2,6 +2,7 @@ package pe.greenminds.ecomind.quests.infrastructure.remote
 
 import retrofit2.Response
 import retrofit2.http.*
+import pe.greenminds.ecomind.iam.domain.model.Session
 
 data class ActivityDto(val id: Long, val questId: Long, val description: String, val order: Int,
     val type: String, val activityConfiguration: Map<String, Any>?, val image: String?)
@@ -11,13 +12,13 @@ data class ActivityUserDto(val id: Long, val questUserId: Long, val activityId: 
 data class ActivitySubmissionRequest(val data: Map<String, Any>)
 
 interface QuestExecutionApi {
-    @GET("quest-users/me/status/{status}") suspend fun getByStatus(@Path("status") status: String): List<QuestUserDto>
+    @GET("quest-users/me/status/{status}") suspend fun getByStatus(@Path("status") status: String, @Tag session: Session? = null): List<QuestUserDto>
     @GET("quest-users/me/quest/{questId}") suspend fun find(@Path("questId") id: Long): Response<QuestUserDto>
     @POST("quest-users") suspend fun start(@Body request: CreateQuestUserRequest): QuestUserDto
-    @GET("quest-users/{id}") suspend fun get(@Path("id") id: Long): QuestUserDto
+    @GET("quest-users/{id}") suspend fun get(@Path("id") id: Long, @Tag session: Session? = null): QuestUserDto
     @GET("activities/quest/{id}") suspend fun activities(@Path("id") id: Long): List<ActivityDto>
-    @GET("activity-users/quest-user/{id}") suspend fun activityUsers(@Path("id") id: Long): List<ActivityUserDto>
+    @GET("activity-users/quest-user/{id}") suspend fun activityUsers(@Path("id") id: Long, @Tag session: Session? = null): List<ActivityUserDto>
     @POST("activity-users/{id}/submit")
-    suspend fun submit(@Path("id") id: Long, @Body request: ActivitySubmissionRequest): ActivityUserDto
-    @POST("quest-users/{id}/complete") suspend fun finish(@Path("id") id: Long): QuestUserDto
+    suspend fun submit(@Path("id") id: Long, @Body request: ActivitySubmissionRequest, @Tag session: Session? = null): ActivityUserDto
+    @POST("quest-users/{id}/complete") suspend fun finish(@Path("id") id: Long, @Tag session: Session? = null): QuestUserDto
 }

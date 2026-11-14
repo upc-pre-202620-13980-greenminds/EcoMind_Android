@@ -11,25 +11,45 @@ import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.quests.application.usecase.GetQuestsUseCase
 import pe.greenminds.ecomind.quests.presentation.states.QuestsUiState
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuestStore
 
 @HiltViewModel
 class QuestsViewModel @Inject constructor(
-    private val getQuests: GetQuestsUseCase
+    private val getQuests: GetQuestsUseCase,
+    private val offlineQuests: OfflineQuestStore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(QuestsUiState())
     val state: StateFlow<QuestsUiState> = _state.asStateFlow()
 
+    private var loadJob: Job? = null
+
     init {
-        loadQuests()
+        viewModelScope.launch {
+            val account = offlineQuests.session() ?: return@launch
+            offlineQuests.observe(account.accountId).collect { quests ->
+                _state.update { it.copy(savedQuests = quests) }
+            }
+        }
     }
 
-    fun loadQuests() {
-        viewModelScope.launch {
+    fun loadQuests(online: Boolean = true) {
+        loadJob?.cancel()
+        if (!online) return
+        loadJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, hasError = false) }
             getQuests()
                 .onSuccess { quests ->
                     _state.update { it.copy(quests = quests, isLoading = false) }
+                    try {
+                        offlineQuests.prepare(quests)
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (_: Exception) {
+                        // Existing downloads are still available if a refresh is interrupted.
+                    }
                 }
                 .onFailure {
                     _state.update { it.copy(isLoading = false, hasError = true) }

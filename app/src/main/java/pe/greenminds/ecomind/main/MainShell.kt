@@ -18,6 +18,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -84,6 +94,16 @@ private fun MainShellContent(
     val navController = rememberNavController()
     val state = viewModel.state.collectAsStateWithLifecycle().value
     val settingsState = settingsViewModel.state.collectAsStateWithLifecycle().value
+    val session = viewModel.session.collectAsStateWithLifecycle().value
+    val online = isOnline()
+    var sessionExpired by androidx.compose.runtime.remember(session) {
+        androidx.compose.runtime.mutableStateOf(session?.isExpired(System.currentTimeMillis()) == true)
+    }
+    LaunchedEffect(session) {
+        val expiresAt = session?.expiresAtMillis ?: return@LaunchedEffect
+        kotlinx.coroutines.delay((expiresAt - System.currentTimeMillis()).coerceAtLeast(0))
+        sessionExpired = true
+    }
 
     val resetAccess = {
         NavigationItem.entries.forEach { navController.clearBackStack(it.route) }
@@ -108,10 +128,10 @@ private fun MainShellContent(
     val showTopBar = showBars && backStackEntry?.destination?.hasRoute<pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute>() != true &&
         backStackEntry?.destination?.hasRoute<FamilyQuestStartedRoute>() != true
 
-    LaunchedEffect(showTopBar, backStackEntry?.id) {
+    LaunchedEffect(showTopBar, backStackEntry?.id, online) {
         if (showTopBar) {
             viewModel.loadHeaderCounters()
-            viewModel.loadUnreadNotifications()
+            if (online && !sessionExpired) viewModel.loadUnreadNotifications()
         }
     }
 
@@ -120,6 +140,7 @@ private fun MainShellContent(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             if (showTopBar) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 EcoMindTopBar(
                     gemBalance = state.gemBalance,
                     streak = state.streak,
@@ -132,6 +153,21 @@ private fun MainShellContent(
                     modifier = Modifier.statusBarsPadding(),
                     unreadNotifications = state.unreadNotifications
                 )
+                if (sessionExpired && online) {
+                    TextButton(onClick = {
+                        viewModel.clearHeader()
+                        navController.navigate(SignInRoute) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    }) { Text(stringResource(R.string.offline_sign_in_again)) }
+                } else if (sessionExpired || !online) {
+                    Text(
+                        stringResource(if (sessionExpired) R.string.offline_session_expired else R.string.offline_saved_data),
+                        modifier = Modifier.padding(8.dp),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                }
             }
         },
         bottomBar = {

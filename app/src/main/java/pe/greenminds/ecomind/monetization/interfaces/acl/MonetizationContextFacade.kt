@@ -2,32 +2,23 @@ package pe.greenminds.ecomind.monetization.interfaces.acl
 
 import pe.greenminds.ecomind.monetization.domain.model.CosmeticType
 import pe.greenminds.ecomind.monetization.domain.model.EquippedCosmetics
-import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
+import pe.greenminds.ecomind.monetization.application.GetStoreItemsUseCase
+import pe.greenminds.ecomind.monetization.domain.model.CosmeticOwnership
 import javax.inject.Inject
 
 class MonetizationContextFacade @Inject constructor(
-    private val repository: StoreRepository
+    private val getStoreItems: GetStoreItemsUseCase
 ) {
     suspend fun getEquippedCosmetics(): EquippedCosmetics {
-        val catalog = repository.getCosmetics().getOrDefault(emptyList())
-        val equippedIds = repository.getUserCosmetics()
-            .getOrDefault(emptyList())
-            .filter { it.equipped }
-            .mapTo(mutableSetOf()) { it.cosmeticId }
+        val equipped = getStoreItems().getOrDefault(emptyList())
+            .filter { it.ownership == CosmeticOwnership.EQUIPPED }
+            .associate { it.cosmetic.type to it.cosmetic }
 
         return EquippedCosmetics(
-            avatar = catalog.firstOrNull {
-                it.id in equippedIds && it.type == CosmeticType.AVATAR
-            },
-            head = catalog.firstOrNull {
-                it.id in equippedIds && it.type == CosmeticType.HEAD
-            },
-            body = catalog.firstOrNull {
-                it.id in equippedIds && it.type == CosmeticType.BODY
-            },
-            accessory = catalog.firstOrNull {
-                it.id in equippedIds && it.type == CosmeticType.ACCESSORY
-            }
+            avatar = equipped[CosmeticType.AVATAR],
+            head = equipped[CosmeticType.HEAD],
+            body = equipped[CosmeticType.BODY],
+            accessory = equipped[CosmeticType.ACCESSORY]
         )
     }
 }

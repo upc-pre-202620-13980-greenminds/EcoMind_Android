@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.monetization.application.GetStoreItemsUseCase
 import pe.greenminds.ecomind.monetization.application.GetBoostItemsUseCase
@@ -46,8 +47,10 @@ class StoreViewModel @Inject constructor(
     private val _state = MutableStateFlow(StoreUiState())
     val state: StateFlow<StoreUiState> = _state.asStateFlow()
 
-    init {
-        loadStore()
+    private var loadJob: Job? = null
+
+    fun openInventory() {
+        _state.update { it.copy(selectedCategory = StoreCategory.COSMETICS, selectedCosmeticView = CosmeticView.INVENTORY) }
     }
 
     // Only the main screen is built: there are no error or empty states yet,
@@ -220,12 +223,20 @@ class StoreViewModel @Inject constructor(
         }
     }
 
-    private fun loadStore() {
-        viewModelScope.launch {
-            val items = getStoreItems().getOrDefault(emptyList())
+    fun loadStore(online: Boolean) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            getStoreItems.saved()?.let { cached ->
+                _state.update { it.copy(items = cached, isLoading = false, itemsFailed = false) }
+            }
+            val items = getStoreItems()
+            _state.update {
+                it.copy(items = items.getOrDefault(it.items), isLoading = false, itemsFailed = items.isFailure)
+            }
+            if (!online) return@launch
+            val profile = getCurrentProfile().getOrNull()
             val boosts = getBoostItems().getOrNull()
             val gemPackages = getGemPackages().getOrDefault(emptyList())
-            val profile = getCurrentProfile().getOrNull()
             val walletBalance = getGemBalance().getOrDefault(profile?.gemBalance ?: 0)
             gemBalanceStore.update(walletBalance)
 
@@ -234,7 +245,6 @@ class StoreViewModel @Inject constructor(
                     isLoading = false,
                     userId = profile?.id,
                     gemBalance = walletBalance,
-                    items = items,
                     multipliers = boosts?.multipliers.orEmpty(),
                     protectors = boosts?.protectors.orEmpty(),
                     gemPackages = gemPackages

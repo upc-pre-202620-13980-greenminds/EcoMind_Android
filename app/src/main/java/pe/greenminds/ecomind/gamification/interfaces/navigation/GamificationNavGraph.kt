@@ -11,6 +11,8 @@ import pe.greenminds.ecomind.iam.interfaces.navigation.SignInRoute
 import pe.greenminds.ecomind.gamification.interfaces.progress.*
 import pe.greenminds.ecomind.gamification.domain.model.AchievementGroup
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
+import pe.greenminds.ecomind.shared.interfaces.components.RequiresConnection
+import pe.greenminds.ecomind.R
 
 @Serializable
 data object RankingRoute
@@ -26,8 +28,10 @@ data class AchievementDetailRoute(val achievementId: String)
 // Ranking and achievement detail belong to Gamification; Profile owns the collection entry point.
 fun NavGraphBuilder.gamificationNavGraph(navController: NavController) {
     composable<RankingRoute> {
-        RankingScreen(onProgress = { navController.navigate(GamificationProgressRoute) },
-            onSignIn = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } })
+        RequiresConnection(R.string.offline_ranking) {
+            RankingScreen(onProgress = { navController.navigate(GamificationProgressRoute) },
+                onSignIn = { navController.navigate(SignInRoute) { popUpTo(navController.graph.id) { inclusive = true } } })
+        }
     }
     composable<GamificationProgressRoute> {
         ProgressScreen(onBack = { navController.popBackStack() },

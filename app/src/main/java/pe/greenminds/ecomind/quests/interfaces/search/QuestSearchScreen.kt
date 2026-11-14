@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
@@ -56,10 +57,14 @@ fun QuestSearchScreen(
     viewModel: QuestSearchViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val online = isOnline()
+    LaunchedEffect(online) { viewModel.setOnline(online) }
     var showFilters by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     androidx.activity.compose.BackHandler(showFilters) { showFilters = false }
     QuestSearchContent(
-        state = state,
+        state = if (state.online == online) state else state.copy(
+            online = online, quests = emptyList(), hasError = false, isLoading = true
+        ),
         onQueryChange = viewModel::onQueryChange,
         onSearch = { viewModel.searchNow(); showFilters = false },
         onOpenQuest = onOpenQuest,
@@ -119,7 +124,7 @@ internal fun QuestSearchContent(
                     )
                 }
 
-                state.quests.isEmpty() -> QuestSearchMessage(
+                state.quests.isEmpty() && state.online -> QuestSearchMessage(
                     message = stringResource(R.string.quest_list_empty)
                 )
 
@@ -127,11 +132,24 @@ internal fun QuestSearchContent(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    if (state.quests.isEmpty()) {
+                        item { QuestSearchMessage(message = stringResource(R.string.quest_list_empty)) }
+                    }
                     items(state.quests, key = { it.id }) { quest ->
                         QuestSearchResultCard(
                             quest = quest,
                             onOpen = { onOpenQuest(quest.id) }
                         )
+                    }
+                    if (!state.online) {
+                        item {
+                            Text(
+                                stringResource(R.string.offline_quest_results),
+                                style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            )
+                        }
                     }
                 }
             }

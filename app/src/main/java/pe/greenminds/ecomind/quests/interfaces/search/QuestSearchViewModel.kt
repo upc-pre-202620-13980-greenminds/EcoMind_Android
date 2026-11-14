@@ -13,15 +13,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pe.greenminds.ecomind.quests.application.usecase.SearchQuestsUseCase
+import pe.greenminds.ecomind.quests.domain.entity.Quest
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
+import pe.greenminds.ecomind.quests.infrastructure.offline.OfflineQuestStore
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestSearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val searchQuests: SearchQuestsUseCase,
-    private val filterQuests: pe.greenminds.ecomind.quests.application.FilterQuestsUseCase
+    private val filterQuests: pe.greenminds.ecomind.quests.application.FilterQuestsUseCase,
+    private val offlineQuests: OfflineQuestStore
 ) : ViewModel() {
 
     companion object {
@@ -52,8 +55,11 @@ class QuestSearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
-    init {
-        search(waitForTyping = false)
+    fun setOnline(online: Boolean) {
+        _state.update {
+            if (it.online == online) it else it.copy(online = online, quests = emptyList(), hasError = false, isLoading = true)
+        }
+        searchNow()
     }
 
     fun onQueryChange(query: String) {
@@ -78,22 +84,44 @@ class QuestSearchViewModel @Inject constructor(
         searchJob = viewModelScope.launch {
             if (waitForTyping) delay(TYPING_PAUSE_MILLIS)
             _state.update { it.copy(isLoading = true, hasError = false) }
+            val request = _state.value
+            val questType = routeQuestType
+            if (!request.online) {
+                val account = offlineQuests.session()
+                if (account == null) {
+                    showResults(Result.success(emptyList()))
+                    return@launch
+                }
+                offlineQuests.observe(account.accountId).collect { saved ->
+                    val query = request.query.trim()
+                    val matching = saved.filter {
+                        val quest = it.execution.quest
+                        it.isAvailableOffline && (questType == null || quest.type == questType) &&
+                            quest.title.contains(query, ignoreCase = true)
+                    }.associateBy { it.execution.quest.id }
+                    showResults(filterQuests(matching.values.map { it.execution.quest }, request.filters) { id ->
+                        matching.getValue(id).execution.activities
+                    })
+                }
+                return@launch
+            }
 
-            searchQuests(
-                query = _state.value.query,
+            val results = searchQuests(
+                query = request.query,
                 category = null,
-                questType = routeQuestType
+                questType = questType
             )
                 .fold(
-                    onSuccess = { filterQuests(it, _state.value.filters) },
+                    onSuccess = { filterQuests(it, request.filters) },
                     onFailure = { Result.failure(it) }
                 )
-                .onSuccess { quests ->
-                    _state.update { it.copy(quests = quests, isLoading = false) }
-                }
-                .onFailure {
-                    _state.update { it.copy(isLoading = false, hasError = true) }
-                }
+            showResults(results)
+        }
+    }
+
+    private fun showResults(results: Result<List<Quest>>) {
+        _state.update {
+            it.copy(quests = results.getOrDefault(emptyList()), isLoading = false, hasError = results.isFailure)
         }
     }
 }

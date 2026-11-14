@@ -19,7 +19,7 @@ enum class CosmeticView {
 data class StoreUiState(
     val isLoading: Boolean = true,
     val selectedCategory: StoreCategory = StoreCategory.COSMETICS,
-    val selectedCosmeticView: CosmeticView = CosmeticView.STORE,
+    val selectedCosmeticView: CosmeticView = CosmeticView.INVENTORY,
     val userId: Long? = null,
     val gemBalance: Int = 0,
     val insufficientRequiredGems: Int? = null,
@@ -31,5 +31,6 @@ data class StoreUiState(
     val items: List<StoreItem> = emptyList(),
     val multipliers: List<Multiplier> = emptyList(),
     val protectors: List<StreakProtector> = emptyList(),
-    val gemPackages: List<GemPackage> = emptyList()
+    val gemPackages: List<GemPackage> = emptyList(),
+    val itemsFailed: Boolean = false
 )

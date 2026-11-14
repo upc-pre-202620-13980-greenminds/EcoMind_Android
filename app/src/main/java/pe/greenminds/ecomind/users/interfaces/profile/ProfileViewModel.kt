@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +33,11 @@ class ProfileViewModel @Inject constructor(
     val gemBalance: StateFlow<Int?> = gemBalanceStore.balance
 
     init {
-        loadProfile()
+        viewModelScope.launch {
+            getCurrentProfile.observeSaved()?.collect { profile ->
+                _state.update { it.copy(isLoadingProfile = false, profileFailed = false, profile = profile) }
+            }
+        }
     }
 
     fun onTabSelected(tab: ProfileTab) {
@@ -42,10 +47,13 @@ class ProfileViewModel @Inject constructor(
     }
 
     // Also used by "Try again": everything is requested again from the start
-    fun loadProfile() {
-        viewModelScope.launch {
+    private var profileJob: Job? = null
+
+    fun loadProfile(online: Boolean = true) {
+        profileJob?.cancel()
+        profileJob = viewModelScope.launch {
             _state.update { currentState ->
-                currentState.copy(isLoadingProfile = true, profileFailed = false)
+                currentState.copy(isLoadingProfile = currentState.profile == null, profileFailed = false)
             }
 
             getCurrentProfile()
@@ -55,14 +63,16 @@ class ProfileViewModel @Inject constructor(
                         currentState.copy(isLoadingProfile = false, profile = profile)
                     }
                     // The other tabs need the id of the user, so they start after the profile
-                    loadFriends(profile.id)
-                    loadFamily(profile.id)
                     loadEquippedCosmetics()
-                    loadAchievements()
+                    if (online) {
+                        loadFriends(profile.id)
+                        loadFamily(profile.id)
+                        loadAchievements()
+                    }
                 }
                 .onFailure {
                     _state.update { currentState ->
-                        currentState.copy(isLoadingProfile = false, profileFailed = true)
+                        currentState.copy(isLoadingProfile = false, profileFailed = currentState.profile == null)
                     }
                 }
         }

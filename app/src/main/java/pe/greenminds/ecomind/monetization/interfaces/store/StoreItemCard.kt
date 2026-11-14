@@ -60,7 +60,8 @@ import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 fun StoreItemCard(
     item: StoreItem,
     onAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actionVisible: Boolean = true
 ) {
     val shape = RoundedCornerShape(10.dp)
     val isOwned = item.ownership != CosmeticOwnership.NOT_OWNED
@@ -139,7 +140,7 @@ fun StoreItemCard(
                 Spacer(modifier = Modifier.height(26.dp))
             }
 
-            ActionButton(
+            if (actionVisible) ActionButton(
                 text = stringResource(actionLabel(item.ownership)),
                 color = if (item.ownership == CosmeticOwnership.EQUIPPED) MutedGray else EcoGreen,
                 onClick = onAction

@@ -8,6 +8,8 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Tag
+import pe.greenminds.ecomind.iam.domain.model.Session
 
 // Profile, friend and family routes of the web services (Users context)
 interface UsersApi {
@@ -16,7 +18,7 @@ interface UsersApi {
     suspend fun getProfiles(): Response<List<UserProfileDto>>
 
     @GET("user/{id}")
-    suspend fun getProfile(@Path("id") userId: Long): Response<UserProfileDto>
+    suspend fun getProfile(@Path("id") userId: Long, @Tag session: Session? = null): Response<UserProfileDto>
 
     // Replaces name, streak, last streak date, ecopoints and gem balance at once
     @PUT("user/{id}")

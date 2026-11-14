@@ -1,5 +1,9 @@
 package pe.greenminds.ecomind.monetization.interfaces.store
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.TextButton
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,9 +60,19 @@ import pe.greenminds.ecomind.shared.interfaces.theme.poppinsTextStyle
 @Composable
 fun StoreScreen(viewModel: StoreViewModel = hiltViewModel()) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val online = isOnline()
+    LaunchedEffect(Unit) { viewModel.openInventory() }
+    LaunchedEffect(online) { viewModel.loadStore(online) }
 
     StoreContent(
-        state = state,
+        state = if (online) state else state.copy(
+            selectedCategory = StoreCategory.COSMETICS,
+            selectedCosmeticView = CosmeticView.INVENTORY,
+            selectedGemPackage = null,
+            insufficientRequiredGems = null
+        ),
+        online = online,
+        onRetry = { viewModel.loadStore(online) },
         onCategorySelected = viewModel::selectCategory,
         onCosmeticViewSelected = viewModel::selectCosmeticView,
         onCosmeticAction = viewModel::onCosmeticAction,
@@ -85,7 +99,9 @@ private fun StoreContent(
     onDismissPayment: () -> Unit,
     onDismissPaymentResult: () -> Unit,
     onDismissPurchaseNotice: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    online: Boolean = true,
+    onRetry: () -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -111,7 +127,7 @@ private fun StoreContent(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-        Row(
+        if (online) Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -136,7 +152,7 @@ private fun StoreContent(
             )
         }
 
-        if (state.selectedCategory == StoreCategory.COSMETICS) Row(
+        if (online && state.selectedCategory == StoreCategory.COSMETICS) Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -201,7 +217,18 @@ private fun StoreContent(
             } else {
                 state.items
             }
-            StoreGrid(items = visibleItems, onAction = onCosmeticAction)
+            if (visibleItems.isEmpty() && state.selectedCosmeticView == CosmeticView.INVENTORY) {
+                Text(stringResource(when {
+                    state.itemsFailed && !online -> R.string.offline_inventory_missing
+                    state.itemsFailed -> R.string.offline_load_error
+                    else -> R.string.offline_inventory_empty
+                }))
+                if (online && state.itemsFailed) {
+                    TextButton(onClick = onRetry) { Text(stringResource(R.string.quest_try_again)) }
+                }
+            } else {
+                StoreGrid(items = visibleItems, onAction = onCosmeticAction, actionsVisible = online && !state.itemsFailed)
+            }
         } else if (state.selectedCategory == StoreCategory.BOOSTS) {
             BoostList(
                 state = state,
@@ -311,7 +338,8 @@ private fun BoostList(
 @Composable
 private fun StoreGrid(
     items: List<StoreItem>,
-    onAction: (StoreItem) -> Unit
+    onAction: (StoreItem) -> Unit,
+    actionsVisible: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         items.chunked(2).forEach { rowItems ->
@@ -325,6 +353,7 @@ private fun StoreGrid(
                     StoreItemCard(
                         item = item,
                         onAction = { onAction(item) },
+                        actionVisible = actionsVisible,
                         modifier = Modifier.weight(1f)
                     )
                 }

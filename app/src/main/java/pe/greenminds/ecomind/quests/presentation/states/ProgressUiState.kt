@@ -11,5 +11,6 @@ data class ProgressUiState(
     val familyQuests: List<ProgressEntry> = emptyList(),
     val finished: List<ProgressEntry> = emptyList(),
     val history: List<ProgressEntry> = finished,
-    val isUpdating: Boolean = false
+    val isUpdating: Boolean = false,
+    val pendingAssignmentIds: Set<Long> = emptySet()
 )

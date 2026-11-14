@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline_community">Cuando vuelvas a conectarte, podrás ponerte al día con tu comunidad.</string>
+    <string name="offline_ranking">Vuelve a conectarte para ver cómo vas en el ranking.</string>
+    <string name="offline_quest_open">Conéctate para abrir este reto.</string>
+    <string name="offline_profile_missing">Abre tu perfil con internet una vez y podrás verlo sin conexión.</string>
+    <string name="offline_progress_missing">Abre Progreso con internet una vez para tener tu historial a mano.</string>
+    <string name="offline_back">Volver</string>
+    <string name="offline_saved_data">Estás sin conexión. Mostrando datos guardados.</string>
+    <string name="offline_inventory_missing">Abre tu inventario con internet una vez y podrás verlo sin conexión.</string>
+    <string name="offline_inventory_empty">Tu inventario está vacío.</string>
+    <string name="offline_load_error">No pudimos cargar estos datos.</string>
+    <string name="offline_quest_results">Aquí están tus retos guardados. Conéctate para verlos todos.</string>
+    <string name="offline_quest_pending">¡Terminaste el reto! Tu recompensa está pendiente de confirmación.</string>
+    <string name="offline_quest_pending_short">Recompensa pendiente</string>
+    <string name="offline_quest_rejected">No pudimos registrar este avance. Tus actividades siguen guardadas aquí.</string>
+    <string name="offline_quest_confirmed">Recompensa confirmada</string>
+    <string name="offline_quest_points">+%1$d ecoPoints</string>
+    <string name="offline_quest_gems">+%1$d gemas</string>
+    <string name="offline_sign_in_again">Vuelve a iniciar sesión para sincronizar</string>
+    <string name="offline_session_expired">Tu sesión venció. Todavía puedes ver tus datos guardados.</string>
+</resources>

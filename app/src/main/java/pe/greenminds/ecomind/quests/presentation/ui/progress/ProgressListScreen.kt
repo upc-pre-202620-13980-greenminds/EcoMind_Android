@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
 import pe.greenminds.ecomind.quests.presentation.viewmodel.FamilyPlansViewModel
 import pe.greenminds.ecomind.quests.application.ProgressEntry
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
+import pe.greenminds.ecomind.shared.infrastructure.offline.isOnline
 
 @Composable
 fun ProgressListScreen(
@@ -35,19 +37,26 @@ fun ProgressListScreen(
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
     val familyState = familyViewModel.state.collectAsStateWithLifecycle().value
+    val online = isOnline()
+    LaunchedEffect(online) {
+        viewModel.setOnline(online)
+        if (online) familyViewModel.refresh()
+    }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        if (viewModel.state.value.hasLoaded) viewModel.loadProgress()
-        familyViewModel.refresh()
+        if (online) {
+            viewModel.loadProgress()
+            familyViewModel.refresh()
+        }
     }
     ProgressListContent(section, state, onBack, onOpenQuest, viewModel::loadProgress, viewModel::refreshProgress,
         onOpenEntry = { entry ->
-            if (entry.questType == QuestType.FAMILY) {
+            if (entry.questType == QuestType.FAMILY && online) {
                 val plan = familyState.overview?.plans?.find { plan -> plan.items.any {
                     it.collaborativeSessionId != null && it.collaborativeSessionId == entry.questUser.collaborativeSessionId
                 } }
                 onOpenFamilyPlan(plan?.id)
             } else onOpenQuest(entry.questId)
-        })
+        }, online = online)
 }
 
 @Composable
@@ -58,7 +67,8 @@ internal fun ProgressListContent(
     onOpenQuest: (Long) -> Unit,
     onRetry: () -> Unit,
     onRefresh: () -> Unit,
-    onOpenEntry: ((ProgressEntry) -> Unit)? = null
+    onOpenEntry: ((ProgressEntry) -> Unit)? = null,
+    online: Boolean = true
 ) {
     val entries = when (section) {
         ProgressSection.IN_PROGRESS -> state.inProgress
@@ -70,19 +80,22 @@ internal fun ProgressListContent(
         ProgressSection.FAMILY -> R.string.progress_family_quest
         ProgressSection.HISTORY -> R.string.progress_history
     })
-    QuestRefreshContainer(state.isRefreshing, onRefresh, enabled = !state.isLoading) {
+    QuestRefreshContainer(online && state.isRefreshing, onRefresh, enabled = online && !state.isLoading) {
         Column(Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
             PartyBackButton(onBack, Modifier.offset(x = (-12).dp))
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (state.hasError) ProgressLoadError(onRetry, !state.isLoading)
-                ProgressSectionCard(
+                if (online && state.hasError) ProgressLoadError(onRetry, !state.isLoading)
+                val noSnapshot = !online && !state.hasLoaded
+                if (noSnapshot && !state.isLoading) ProgressOfflineHint()
+                if (!noSnapshot || entries.isNotEmpty()) ProgressSectionCard(
                     label = title,
                     entries = entries,
                     onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
-                    emptyText = if (state.isLoading) null else stringResource(when (section) {
+                    pendingAssignmentIds = if (section == ProgressSection.IN_PROGRESS) state.pendingAssignmentIds else emptySet(),
+                    emptyText = if (state.isLoading || noSnapshot) null else stringResource(when (section) {
                         ProgressSection.IN_PROGRESS -> R.string.progress_empty_active
                         ProgressSection.FAMILY -> R.string.progress_empty_family
                         ProgressSection.HISTORY -> R.string.progress_empty_finished
