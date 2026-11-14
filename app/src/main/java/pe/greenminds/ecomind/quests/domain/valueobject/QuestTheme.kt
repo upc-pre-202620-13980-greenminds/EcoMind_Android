@@ -4,4 +4,5 @@ enum class QuestTheme{
     CHECKBOX,
     MINIGAME,
     COLLABORATIVE,
+    WRITE,
 }

@@ -1,7 +1,6 @@
 package pe.greenminds.ecomind.users.interfaces.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -22,8 +19,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -32,14 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
-import pe.greenminds.ecomind.monetization.domain.model.CosmeticType
 import pe.greenminds.ecomind.monetization.domain.model.EquippedCosmetics
-import pe.greenminds.ecomind.monetization.interfaces.store.cosmeticImageResource
-import pe.greenminds.ecomind.shared.interfaces.components.InitialsAvatar
 import pe.greenminds.ecomind.shared.interfaces.components.PillButton
 import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
@@ -62,6 +53,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val gemBalance = viewModel.gemBalance.collectAsStateWithLifecycle().value
 
     // The Profile ViewModel can remain alive while the user equips an item in Store.
     // Refresh the overlay whenever this destination enters composition again.
@@ -71,6 +63,7 @@ fun ProfileScreen(
 
     ProfileContent(
         state = state,
+        gemBalance = gemBalance,
         onTabSelected = viewModel::onTabSelected,
         onRetryProfile = viewModel::loadProfile,
         onRetryFriends = viewModel::retryFriends,
@@ -82,6 +75,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(
     state: ProfileUiState,
+    gemBalance: Int?,
     onTabSelected: (ProfileTab) -> Unit,
     onRetryProfile: () -> Unit,
     onRetryFriends: () -> Unit,
@@ -109,6 +103,7 @@ private fun ProfileContent(
             ) {
                 ProfileHeader(
                     profile = profile,
+                    gemBalance = gemBalance ?: profile.gemBalance,
                     equippedCosmetics = state.equippedCosmetics,
                     onNavigate = onNavigate
                 )
@@ -155,6 +150,7 @@ private fun ProfileContent(
 @Composable
 private fun ProfileHeader(
     profile: UserProfile,
+    gemBalance: Int,
     equippedCosmetics: EquippedCosmetics,
     onNavigate: (Any) -> Unit
 ) {
@@ -217,7 +213,7 @@ private fun ProfileHeader(
                 modifier = Modifier.weight(1f)
             )
             ProfileStat(
-                value = profile.gemBalance,
+                value = gemBalance,
                 label = stringResource(R.string.profile_stat_gems),
                 modifier = Modifier.weight(1f)
             )
@@ -248,51 +244,6 @@ private fun ProfileHeader(
                 height = 48.dp,
                 textStyle = interTextStyle(16, FontWeight.Bold),
                 modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProfileAvatar(
-    name: String,
-    equippedCosmetics: EquippedCosmetics
-) {
-    val avatar = equippedCosmetics.avatar
-    val overlay = equippedCosmetics.overlay
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(100.dp)
-    ) {
-        if (avatar == null) {
-            InitialsAvatar(name = name, size = 76.dp)
-        } else {
-            Image(
-                painter = painterResource(cosmeticImageResource(avatar.imageReference)),
-                contentDescription = avatar.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(76.dp)
-            )
-        }
-
-        overlay?.let { cosmetic ->
-            val isHeadItem = cosmetic.type == CosmeticType.HEAD ||
-                cosmetic.imageReference == "cosmetic_bun"
-            Image(
-                painter = painterResource(cosmeticImageResource(cosmetic.imageReference)),
-                contentDescription = cosmetic.name,
-                contentScale = ContentScale.Fit,
-                modifier = if (isHeadItem) {
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .offset { IntOffset(0, -4.dp.roundToPx()) }
-                        .size(44.dp)
-                } else {
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(28.dp)
-                }
             )
         }
     }
@@ -343,6 +294,7 @@ private fun ProfileContentPreview() {
                 isLoadingFriends = false,
                 isLoadingFamily = false
             ),
+            gemBalance = previewProfile.gemBalance,
             onTabSelected = {},
             onRetryProfile = {},
             onRetryFriends = {},
@@ -358,6 +310,7 @@ private fun ProfileContentErrorPreview() {
     EcoMindTheme {
         ProfileContent(
             state = ProfileUiState(isLoadingProfile = false, profileFailed = true),
+            gemBalance = null,
             onTabSelected = {},
             onRetryProfile = {},
             onRetryFriends = {},

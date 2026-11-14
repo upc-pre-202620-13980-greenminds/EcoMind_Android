@@ -4,12 +4,17 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CancellationException
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.GemPurchase
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
+import pe.greenminds.ecomind.monetization.domain.model.PaymentStatus
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
 import pe.greenminds.ecomind.monetization.domain.repositories.StoreRepository
 import pe.greenminds.ecomind.monetization.infrastructure.remote.BuyItemDto
+import pe.greenminds.ecomind.monetization.infrastructure.remote.CreateGemPurchaseDto
 import pe.greenminds.ecomind.monetization.infrastructure.remote.MonetizationApi
+import pe.greenminds.ecomind.monetization.infrastructure.remote.PayGemPurchaseDto
 import pe.greenminds.ecomind.monetization.infrastructure.remote.toDomain
 import pe.greenminds.ecomind.shared.infrastructure.remote.ErrorDto
 import pe.greenminds.ecomind.shared.infrastructure.remote.toException
@@ -85,6 +90,33 @@ class RemoteStoreRepository @Inject constructor(
         request = { api.getGemPackages() },
         transform = { packages -> packages.map { it.toDomain() } }
     )
+
+    override suspend fun purchaseGemPackage(
+        packageId: String,
+        paymentMethod: PaymentMethod,
+        sourceToken: String,
+        email: String
+    ): Result<GemPurchase> {
+        val checkout = execute(
+            request = {
+                api.createGemPurchase(
+                    CreateGemPurchaseDto(packageId, paymentMethod.name, UUID.randomUUID().toString())
+                )
+            },
+            transform = { it.toDomain() }
+        ).getOrElse { return Result.failure(it) }
+
+        return execute(
+            request = { api.payGemPurchase(checkout.id, PayGemPurchaseDto(sourceToken, email)) },
+            transform = { it.toDomain() }
+        ).fold(
+            onSuccess = { purchase ->
+                if (purchase.paymentStatus == PaymentStatus.APPROVED) Result.success(purchase)
+                else Result.failure(IllegalStateException("Payment was rejected"))
+            },
+            onFailure = { Result.failure(it) }
+        )
+    }
 
     private suspend fun <Dto : Any, Model> execute(
         request: suspend () -> Response<Dto>,

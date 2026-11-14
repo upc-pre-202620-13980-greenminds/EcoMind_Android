@@ -3,6 +3,9 @@ package pe.greenminds.ecomind.monetization.infrastructure.local
 import kotlinx.coroutines.delay
 import pe.greenminds.ecomind.monetization.domain.model.Cosmetic
 import pe.greenminds.ecomind.monetization.domain.model.GemPackage
+import pe.greenminds.ecomind.monetization.domain.model.GemPurchase
+import pe.greenminds.ecomind.monetization.domain.model.PaymentMethod
+import pe.greenminds.ecomind.monetization.domain.model.PaymentStatus
 import pe.greenminds.ecomind.monetization.domain.model.Multiplier
 import pe.greenminds.ecomind.monetization.domain.model.StreakProtector
 import pe.greenminds.ecomind.monetization.domain.model.UserCosmetic
@@ -15,6 +18,8 @@ import javax.inject.Inject
 // Demo implementation used until the web services are deployed.
 // The data is fixed: it shows one card of each kind and nothing changes it.
 class LocalStoreRepository @Inject constructor() : StoreRepository {
+
+    private var gemBalance = 360
 
     companion object {
         private const val SIMULATED_DELAY_MILLIS = 400L
@@ -182,7 +187,7 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
         return Result.success(Unit)
     }
 
-    override suspend fun getGemBalance(): Result<Int> = Result.success(360)
+    override suspend fun getGemBalance(): Result<Int> = Result.success(gemBalance)
 
     override suspend fun getMultipliers(): Result<List<Multiplier>> {
         return Result.success(
@@ -281,6 +286,32 @@ class LocalStoreRepository @Inject constructor() : StoreRepository {
                     currency = "PEN",
                     imageReference = "gem_pack_4"
                 )
+            )
+        )
+    }
+
+    override suspend fun purchaseGemPackage(
+        packageId: String,
+        paymentMethod: PaymentMethod,
+        sourceToken: String,
+        email: String
+    ): Result<GemPurchase> {
+        val gemPackage = getGemPackages().getOrThrow().firstOrNull { it.id == packageId }
+            ?: return Result.failure(IllegalArgumentException("Gem package was not found"))
+        if (sourceToken.isBlank() || email.isBlank()) {
+            return Result.failure(IllegalArgumentException("Payment information is required"))
+        }
+        gemBalance += gemPackage.gemAmount
+        return Result.success(
+            GemPurchase(
+                id = java.util.UUID.randomUUID().toString(),
+                packageId = packageId,
+                gemAmount = gemPackage.gemAmount,
+                amountPaid = gemPackage.price,
+                currency = gemPackage.currency,
+                paymentMethod = paymentMethod,
+                paymentStatus = PaymentStatus.APPROVED,
+                paymentReference = "local-demo"
             )
         )
     }

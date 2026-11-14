@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Notifications</string>
+    <plurals name="notifications_unread">
+        <item quantity="one">%d unread</item>
+        <item quantity="other">%d unread</item>
+    </plurals>
+    <string name="notifications_all_read">All caught up</string>
+    <string name="notifications_mark_all">Mark all as read</string>
+    <string name="notifications_empty_title">No notifications yet</string>
+    <string name="notifications_empty_message">You’ll be notified about quests, materials, achievements and community activity.</string>
+    <string name="notifications_error_title">Couldn’t load your notifications</string>
+    <string name="notifications_error_message">Your notifications are currently unavailable. Try again to reload them.</string>
+    <string name="notifications_try_again">Try again</string>
+    <string name="notifications_channel_name">EcoMind notifications</string>
+    <string name="notifications_channel_description">Quests, materials, achievements and community activity.</string>
+    <string name="notifications_action_failed">Couldn’t update your notifications. Try again.</string>
+    <string name="notifications_label_quests">QUESTS</string>
+    <string name="notifications_label_learning">LEARNING</string>
+    <string name="notifications_label_achievements">ACHIEVEMENTS</string>
+    <string name="notifications_label_progress">PROGRESS</string>
+    <string name="notifications_label_events">EVENTS</string>
+    <string name="notifications_label_community">COMMUNITY</string>
+    <string name="notifications_time_minutes">%1$d min</string>
+    <string name="notifications_time_hours">%1$d h</string>
+    <string name="notifications_time_yesterday">Yesterday</string>
+    <plurals name="notifications_time_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="notifications_row_unread_description">Unread. %1$s. %2$s. %3$s. %4$s</string>
+    <string name="notifications_row_read_description">%1$s. %2$s. %3$s. %4$s</string>
+    <plurals name="top_bar_notifications_unread">
+        <item quantity="one">Notifications, %d unread</item>
+        <item quantity="other">Notifications, %d unread</item>
+    </plurals>
+</resources>

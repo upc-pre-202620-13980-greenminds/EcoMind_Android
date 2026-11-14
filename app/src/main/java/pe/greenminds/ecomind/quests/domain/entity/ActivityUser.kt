@@ -8,5 +8,14 @@ data class ActivityUser (
     val endDate: String?,
     val description: String,
     val configuration: Map<String, Any>,
-    val collaborativeSessionId: Long?=null
-)
+    val collaborativeSessionId: Long? = null,
+    val responseText: String? = null
+) {
+    val minCharacters: Int
+        get() = (configuration["minCharacters"] as? Number)?.toInt()?.coerceAtLeast(1) ?: 1
+
+    fun acceptsWrittenResponse(text: String): Boolean {
+        val trimmed = text.trim { Character.isWhitespace(it) }
+        return trimmed.codePointCount(0, trimmed.length) >= minCharacters
+    }
+}

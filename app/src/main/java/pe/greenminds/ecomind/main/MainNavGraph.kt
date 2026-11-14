@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import pe.greenminds.ecomind.learning.interfaces.navigation.LearningRoute
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestCategoryMenu
 import pe.greenminds.ecomind.quests.interfaces.categories.QuestListFilter
@@ -25,8 +26,18 @@ import pe.greenminds.ecomind.quests.interfaces.navigation.QuestDetailRoute
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import pe.greenminds.ecomind.quests.presentation.ui.QuestsScreen
 import pe.greenminds.ecomind.shared.interfaces.components.PlaceholderScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.SettingsScreen
+import pe.greenminds.ecomind.iam.interfaces.navigation.TermsRoute
+import pe.greenminds.ecomind.notifications.interfaces.NotificationsScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.LanguageScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.NotificationPreferencesScreen
+import pe.greenminds.ecomind.shared.interfaces.preferences.ThemeScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.SettingsViewModel
+import pe.greenminds.ecomind.iam.interfaces.settings.HelpSupportScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.FaqScreen
+import pe.greenminds.ecomind.iam.interfaces.settings.FaqDetailScreen
 
-fun NavGraphBuilder.mainNavGraph(navController: NavController) {
+fun NavGraphBuilder.mainNavGraph(navController: NavController, settingsViewModel: SettingsViewModel) {
     composable<MainMenuRoute> {
         // The category menu is drawn over the main menu, so it is state of this screen
         var showCategories by rememberSaveable { mutableStateOf(false) }
@@ -89,11 +100,72 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController) {
     }
 
     composable<NotificationsRoute> {
-        PlaceholderScreen()
+        NotificationsScreen(
+            onBack = { navController.popBackStack() },
+            // Only screens that already exist; full names keep the imports of the file as they are
+            onOpen = { destination ->
+                when (destination) {
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.MEDALS ->
+                        navController.navigate(pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute) { launchSingleTop = true }
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.FAVORITES ->
+                        navController.navigate(pe.greenminds.ecomind.users.interfaces.navigation.FavoritesRoute) { launchSingleTop = true }
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.PROGRESS_REWARDS ->
+                        navController.navigate(pe.greenminds.ecomind.gamification.interfaces.navigation.GamificationProgressRoute) { launchSingleTop = true }
+                    // Community is a section of the bottom bar, so it opens like its item does
+                    pe.greenminds.ecomind.notifications.interfaces.NotificationDestination.COMMUNITY ->
+                        navController.navigate(pe.greenminds.ecomind.community.interfaces.navigation.CommunityRoute) {
+                            popUpTo<MainMenuRoute> { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                }
+            }
+        )
     }
 
     composable<SettingsRoute> {
-        PlaceholderScreen()
+        SettingsScreen(
+            onBack = { navController.popBackStack() },
+            onOpenTerms = { navController.navigate(TermsRoute) { launchSingleTop = true } },
+            onOpenNotifications = {
+                navController.navigate(NotificationPreferencesRoute) { launchSingleTop = true }
+            },
+            onOpenLanguage = { navController.navigate(LanguageRoute) { launchSingleTop = true } },
+            onOpenTheme = { navController.navigate(ThemeRoute) { launchSingleTop = true } },
+            onOpenHelp = { navController.navigate(HelpSupportRoute) },
+            viewModel = settingsViewModel
+        )
+    }
+
+    composable<NotificationPreferencesRoute> {
+        NotificationPreferencesScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<LanguageRoute> {
+        LanguageScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<ThemeRoute> {
+        ThemeScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<HelpSupportRoute> {
+        HelpSupportScreen(
+            onBack = { navController.popBackStack() },
+            onOpenFaq = { navController.navigate(FaqRoute) }
+        )
+    }
+
+    composable<FaqRoute> {
+        FaqScreen(
+            onBack = { navController.popBackStack() },
+            onOpenQuestion = { navController.navigate(FaqDetailRoute(it)) }
+        )
+    }
+
+    composable<FaqDetailRoute> { entry ->
+        val route = entry.toRoute<FaqDetailRoute>()
+        FaqDetailScreen(route.questionId) { navController.popBackStack() }
     }
 
     composable<PlaceholderRoute> {

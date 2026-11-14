@@ -11,6 +11,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import pe.greenminds.ecomind.quests.application.ProgressSection
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.main.MainNavigationBar
 import pe.greenminds.ecomind.main.NavigationItem
@@ -25,11 +27,12 @@ import java.io.File
 class ProgressScreenTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun restoresSectionsAndKeepsPendingActionsAsDialogs() {
+    @Test fun showsProgressSectionsAndOpensFullList() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val overview = runBlocking {
             GetProgressOverviewUseCase(LocalQuestProgressRepository())().getOrThrow()
         }
+        var openedSection: ProgressSection? = null
         compose.setContent {
             EcoMindTheme {
                 Scaffold(
@@ -41,7 +44,8 @@ class ProgressScreenTest {
                             isLoading = false, inProgress = overview.inProgress,
                             familyQuests = overview.familyQuests, finished = overview.finished
                         ),
-                        modifier = Modifier.padding(padding)
+                        modifier = Modifier.padding(padding),
+                        onOpenList = { openedSection = it }
                     )
                 }
             }
@@ -56,6 +60,6 @@ class ProgressScreenTest {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
         compose.onNodeWithText(context.getString(R.string.progress_see_more)).performClick()
-        compose.onNodeWithText(context.getString(R.string.coming_soon_title)).assertIsDisplayed()
+        compose.runOnIdle { assertEquals(ProgressSection.IN_PROGRESS, openedSection) }
     }
 }

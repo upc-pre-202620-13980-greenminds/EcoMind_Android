@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pe.greenminds.ecomind.quests.application.GetQuestsUseCase
+import pe.greenminds.ecomind.quests.application.usecase.GetQuestsUseCase
 import pe.greenminds.ecomind.quests.presentation.states.QuestsUiState
 import javax.inject.Inject
 

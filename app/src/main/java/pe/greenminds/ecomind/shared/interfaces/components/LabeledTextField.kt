@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -28,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
+import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 
 @Composable
 fun LabeledTextField(
@@ -39,13 +41,16 @@ fun LabeledTextField(
     labelStyle: TextStyle = MaterialTheme.typography.labelMedium,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    labelColor: Color = MaterialTheme.colorScheme.onBackground,
+    // Hint shown inside the field while it is empty
+    placeholder: String? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = labelStyle,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = labelColor,
             modifier = Modifier.padding(start = 4.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -78,6 +83,13 @@ fun LabeledTextField(
                         )
                         .padding(horizontal = 12.dp)
                 ) {
+                    if (placeholder != null && value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextSecondary
+                        )
+                    }
                     innerTextField()
                 }
             }

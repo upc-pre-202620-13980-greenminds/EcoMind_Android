@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="minigame_title">Recoge residuos</string>
+    <string name="minigame_play">Iniciar minijuego</string>
+    <string name="minigame_replay">Volver a jugar</string>
+    <string name="minigame_instructions">Toca los residuos cuando aparezcan. Puntaje objetivo: %1$d.</string>
+    <string name="minigame_unavailable">Este minijuego no está disponible en este momento.</string>
+    <string name="minigame_unsupported_android">Este minijuego no está disponible en esta versión de la app de Android.</string>
+    <string name="minigame_time">Quedan %1$d s</string>
+    <string name="minigame_score">Puntaje de la partida: %1$d</string>
+    <string name="minigame_bottle">Recoger botella</string>
+    <string name="minigame_can">Recoger lata</string>
+    <string name="minigame_paper">Recoger periódico</string>
+    <string name="minigame_result">Resultado de la partida</string>
+    <string name="minigame_confirmed_reward">+%1$d ecopuntos</string>
+    <string name="minigame_zero_reward">Prueba otros minijuegos para seguir sumando ecopuntos.</string>
+    <string name="minigame_unsuccessful">No alcanzaste el puntaje objetivo. Esta partida terminó sin recompensa.</string>
+    <string name="minigame_reward_pending">Tu puntaje quedó registrado. Los ecopuntos están pendientes de confirmación.</string>
+    <string name="minigame_check_reward">Consultar recompensa de nuevo</string>
+    <string name="minigame_start_error">No se pudo iniciar la partida.</string>
+    <string name="minigame_active_attempt">Ya tienes una partida activa. Abre ese reto para jugarla o cancelarla.</string>
+    <string name="minigame_finish_error">No se pudo confirmar el resultado de la partida.</string>
+    <string name="minigame_cancel_error">No se pudo cancelar la partida.</string>
+</resources>

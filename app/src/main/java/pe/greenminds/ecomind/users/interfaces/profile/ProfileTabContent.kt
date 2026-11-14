@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -24,43 +23,64 @@ import pe.greenminds.ecomind.shared.interfaces.theme.CardBorder
 import pe.greenminds.ecomind.shared.interfaces.theme.TextPrimary
 import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
-import pe.greenminds.ecomind.users.domain.model.SocialRole
+import pe.greenminds.ecomind.gamification.interfaces.navigation.AchievementDetailRoute
 import pe.greenminds.ecomind.users.domain.model.UserProfile
-import pe.greenminds.ecomind.users.domain.model.WeeklyReport
 import pe.greenminds.ecomind.users.interfaces.navigation.AddCommitmentRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.EditCommitmentRoute
-import pe.greenminds.ecomind.users.interfaces.navigation.FamilyWeeklyReportRoute
 import pe.greenminds.ecomind.users.interfaces.navigation.MyMedalsRoute
 
-// Profile tab: a parent sees the weekly report of the family, a student sees their commitment
+// The profile only shows a few earned medals; the full list is in "View all"
+private const val MEDALS_IN_PROFILE = 3
+
+// Profile tab: the same for students and parents, their commitment and their medals
 @Composable
 fun ProfileTabContent(
     profile: UserProfile,
     state: ProfileUiState,
     onNavigate: (Any) -> Unit
 ) {
-    if (profile.socialRole == SocialRole.PARENT) {
-        when {
-            state.isLoadingFamily -> TabLoading()
-            else -> WeeklyReportCard(
-                report = state.family?.weeklyReport,
-                onViewReport = { onNavigate(FamilyWeeklyReportRoute) }
-            )
-        }
-    } else {
-        CommitmentCard(
-            commitment = profile.commitment,
-            onAdd = { onNavigate(AddCommitmentRoute) },
-            onEdit = { onNavigate(EditCommitmentRoute) }
+    CommitmentCard(
+        commitment = profile.commitment,
+        onAdd = { onNavigate(AddCommitmentRoute) },
+        onEdit = { onNavigate(EditCommitmentRoute) }
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+    SectionHeaderRow(
+        title = stringResource(R.string.profile_medals_title),
+        action = stringResource(R.string.profile_view_all),
+        onAction = { onNavigate(MyMedalsRoute) }
+    )
+    MedalsContent(
+        state = state,
+        onOpenMedal = { achievementId -> onNavigate(AchievementDetailRoute(achievementId)) }
+    )
+}
+
+// If the medals fail to load, only the title and "View all" stay on screen
+@Composable
+private fun MedalsContent(
+    state: ProfileUiState,
+    onOpenMedal: (String) -> Unit
+) {
+    when {
+        state.isLoadingAchievements -> TabLoading()
+
+        state.achievementsFailed -> Unit
+
+        state.myAchievements.isEmpty() -> Text(
+            text = stringResource(R.string.profile_medals_empty),
+            style = interTextStyle(13),
+            color = TextSecondary,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-        // The design only shows the title of this block; the medals are in their own screen
-        SectionHeaderRow(
-            title = stringResource(R.string.profile_medals_title),
-            action = stringResource(R.string.profile_view_all),
-            onAction = { onNavigate(MyMedalsRoute) }
-        )
+        else -> state.myAchievements.take(MEDALS_IN_PROFILE).forEach { medal ->
+            MedalRow(
+                name = medal.name,
+                onClick = { onOpenMedal(medal.achievementId) }
+            )
+        }
     }
 }
 
@@ -102,48 +122,6 @@ private fun CommitmentCard(
                 style = interTextStyle(13),
                 color = TextPrimary,
                 modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun WeeklyReportCard(
-    report: WeeklyReport?,
-    onViewReport: () -> Unit
-) {
-    ProfileCard {
-        SectionHeaderRow(
-            title = stringResource(R.string.profile_weekly_report_title),
-            action = stringResource(R.string.profile_view_report),
-            onAction = onViewReport
-        )
-        if (report == null) {
-            Text(
-                text = stringResource(R.string.profile_weekly_report_empty),
-                style = interTextStyle(13),
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        } else {
-            Text(
-                text = stringResource(
-                    R.string.profile_weekly_report_quests,
-                    report.questsCompleted,
-                    report.questsTotal
-                ),
-                style = interTextStyle(13),
-                color = TextPrimary
-            )
-            Text(
-                text = pluralStringResource(
-                    R.plurals.profile_weekly_report_achievements,
-                    report.achievementsEarned,
-                    report.achievementsEarned
-                ),
-                style = interTextStyle(13),
-                color = TextPrimary,
-                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
             )
         }
     }

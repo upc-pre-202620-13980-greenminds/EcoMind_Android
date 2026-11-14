@@ -13,12 +13,61 @@
     <string name="quest_view">Ver reto</string>
     <string name="quest_chip_minutes">%1$d min</string>
     <string name="quest_chip_ecopoints">%1$d ecoPoints</string>
+    <plurals name="quest_chip_gems">
+        <item quantity="one">%1$d gema</item>
+        <item quantity="other">%1$d gemas</item>
+    </plurals>
     <string name="quest_theme_checkbox">casillas</string>
     <string name="quest_theme_minigame">minijuego</string>
     <string name="quest_theme_collaborative">colaborativo</string>
     <string name="quest_list_empty">No se encontraron retos.</string>
     <string name="quest_list_error">No se pudieron cargar los retos.</string>
     <string name="quest_try_again">Reintentar</string>
+
+    <!-- Collaborative quest invitations -->
+    <string name="quest_invitations_title">Invitaciones a retos</string>
+    <string name="quest_invitations_empty">No tienes invitaciones pendientes.</string>
+    <string name="quest_invitations_error">No pudimos cargar tus invitaciones.</string>
+    <string name="quest_invitation_message">Te han invitado a participar</string>
+    <string name="quest_invitations_back">Volver</string>
+
+    <!-- Collaborative party detail -->
+    <string name="quest_party_pending">Invitaciones pendientes</string>
+    <string name="quest_party_participants">Participantes</string>
+    <string name="quest_party_awaiting_reply">%1$s, invitación pendiente</string>
+    <string name="quest_party_manage">Administrar grupo</string>
+    <string name="quest_party_accept">Aceptar</string>
+    <string name="quest_party_decline">Rechazar invitación</string>
+    <string name="quest_party_accept_blocked">Termina tu reto actual o sal de tu grupo antes de aceptar otra invitación.</string>
+    <string name="quest_party_pending_count">Invitaciones pendientes: %1$d</string>
+    <string name="quest_party_user">Usuario %1$d</string>
+    <string name="quest_party_you">Tú</string>
+    <string name="quest_party_owner">Organizador</string>
+    <string name="quest_party_remove">Quitar a %1$s del grupo</string>
+    <string name="quest_party_start">Iniciar reto</string>
+    <string name="quest_party_invite">Invitar amigos</string>
+    <string name="quest_party_leave">Salir del grupo</string>
+    <string name="quest_party_cancel_party">Cancelar grupo</string>
+    <string name="quest_party_load_error">No pudimos cargar el grupo y las invitaciones.</string>
+    <string name="quest_party_confirm_title">¿Continuar?</string>
+    <string name="quest_party_continue">Continuar</string>
+    <string name="quest_party_cancel">Cancelar</string>
+    <string name="quest_party_received_warning">Tienes invitaciones pendientes para este reto. ¿Quieres continuar?</string>
+    <string name="quest_party_start_warning">Algunos amigos aún no respondieron. Si inicias, ya no podrán unirse a este grupo.</string>
+    <string name="quest_party_leave_warning">¿Quieres salir de tu grupo actual?</string>
+    <string name="quest_party_cancel_warning">Se eliminarán el grupo pendiente y todas sus invitaciones. ¿Quieres continuar?</string>
+
+    <string name="quest_party_resume">Continuar reto</string>
+    <string name="quest_party_friends">Amigos</string>
+    <string name="quest_party_no_friends">Aún no tienes amigos aceptados.</string>
+    <string name="quest_party_no_matches">Ningún amigo coincide con tu búsqueda.</string>
+    <string name="quest_party_invite_one">Invitar</string>
+    <string name="quest_party_invited">Invitado</string>
+    <string name="quest_party_joined">Inscrito</string>
+    <string name="quest_party_unavailable">No disponible</string>
+    <string name="quest_party_capacity">%1$d/%2$d plazas reservadas</string>
+    <string name="quest_party_action_error">No pudimos completar la acción o actualizar el reto. Actualiza y comprueba su estado antes de volver a intentarlo.</string>
+    <string name="quest_party_unsupported">Este reto usa actividades que aún no están disponibles en la app.</string>
 
     <!-- Progress -->
     <string name="progress_in_progress">En curso</string>
@@ -27,4 +76,26 @@
     <string name="progress_see_more">Ver más</string>
     <string name="progress_see_family_quest">Ver reto familiar</string>
     <string name="progress_entry_description">%1$s, %2$d por ciento</string>
+    <string name="progress_view_history">Ver historial</string>
+    <string name="progress_history">Historial de retos</string>
+    <string name="progress_empty_active">No tienes ninguna actividad activa.</string>
+    <string name="progress_empty_family">No tienes retos familiares en curso.</string>
+    <string name="progress_empty_finished">No has completado ninguna actividad. ¡Empieza una!</string>
+    <string name="progress_view_progress">Ver progreso</string>
+    <string name="progress_empty_list">Aún no hay retos en esta lista.</string>
+    <string name="progress_load_error">No pudimos actualizar tu progreso. Desliza hacia abajo o vuelve a intentarlo.</string>
+    <string name="progress_unknown_quest">Reto no disponible</string>
+    <string name="progress_percent">%1$d%%</string>
+    <string name="progress_end_date">Finalizó: %1$s</string>
+    <string name="progress_completed_on">Completado el %1$s</string>
+    <string name="progress_show_completions">Mostrar otras fechas de finalización</string>
+    <string name="progress_hide_completions">Ocultar otras fechas de finalización</string>
+    <string name="progress_completion_date_unknown">Fecha de finalización no disponible</string>
+    <string name="progress_status_ready">Listo para finalizar</string>
+    <string name="progress_status_completed">Completado</string>
+    <string name="progress_status_expired">Vencido</string>
+    <string name="progress_status_cancelled">Cancelado</string>
+    <string name="progress_activities">Actividades</string>
+    <string name="progress_no_activities">No hay actividades registradas para este intento.</string>
+    <string name="progress_activity_number">Actividad %1$d</string>
 </resources>

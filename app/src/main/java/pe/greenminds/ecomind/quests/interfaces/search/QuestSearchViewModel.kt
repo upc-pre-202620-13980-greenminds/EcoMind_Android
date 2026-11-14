@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pe.greenminds.ecomind.quests.application.SearchQuestsUseCase
-import pe.greenminds.ecomind.quests.domain.valueobject.QuestCategory
+import pe.greenminds.ecomind.quests.application.usecase.SearchQuestsUseCase
 import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 import pe.greenminds.ecomind.quests.interfaces.navigation.QuestSearchRoute
 import javax.inject.Inject

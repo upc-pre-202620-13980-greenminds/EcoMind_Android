@@ -25,7 +25,8 @@ class GetFriendsUseCase @Inject constructor(
                     Friend(
                         userId = profile.id,
                         name = profile.name,
-                        socialRole = profile.socialRole
+                        socialRole = profile.socialRole,
+                        avatarImageReference = profile.avatarImageReference
                     )
                 }
             }

@@ -98,6 +98,7 @@ fun FriendsTabContent(
                                 R.string.profile_role_student
                             }
                         ),
+                        avatarImageReference = friend.avatarImageReference,
                         onClick = { onNavigate(FriendProfileRoute(friend.userId)) }
                     )
                 }

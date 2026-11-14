@@ -1,109 +1,136 @@
 package pe.greenminds.ecomind.quests.presentation.ui.progress
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.greenminds.ecomind.R
+import pe.greenminds.ecomind.quests.application.ProgressSection
 import pe.greenminds.ecomind.quests.presentation.states.ProgressUiState
+import pe.greenminds.ecomind.quests.presentation.ui.invitations.QuestRefreshContainer
 import pe.greenminds.ecomind.quests.presentation.viewmodel.ProgressViewModel
-import pe.greenminds.ecomind.shared.interfaces.components.ComingSoonDialog
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
+import pe.greenminds.ecomind.quests.presentation.viewmodel.FamilyPlansViewModel
+import pe.greenminds.ecomind.quests.presentation.states.FamilyPlansUiState
+import pe.greenminds.ecomind.quests.presentation.ui.family.FamilyPlanProgressSection
+import pe.greenminds.ecomind.quests.application.ProgressEntry
+import pe.greenminds.ecomind.quests.domain.valueobject.QuestType
 
-// The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
-fun ProgressScreen(viewModel: ProgressViewModel = hiltViewModel()) {
+fun ProgressScreen(
+    onOpenList: (ProgressSection) -> Unit = {},
+    onOpenQuest: (Long) -> Unit = {},
+    onCreateFamilyPlan: () -> Unit = {},
+    onLoadFamilyPlans: () -> Unit = {},
+    onOpenFamilyPlan: (Long) -> Unit = {},
+    viewModel: ProgressViewModel = hiltViewModel(),
+    familyViewModel: FamilyPlansViewModel = hiltViewModel()
+) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
-
-    ProgressContent(state = state, onRetry = viewModel::loadProgress)
+    val familyState = familyViewModel.state.collectAsStateWithLifecycle().value
+    // Refresh once when returning from another screen, never on a timer.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (viewModel.state.value.hasLoaded) viewModel.loadProgress()
+        familyViewModel.refresh()
+    }
+    ProgressContent(
+        state = state, onRetry = viewModel::loadProgress,
+        onRefresh = { viewModel.refreshProgress(); familyViewModel.refresh() },
+        onOpenList = onOpenList, onOpenQuest = onOpenQuest, familyState = familyState,
+        onCreateFamilyPlan = onCreateFamilyPlan, onLoadFamilyPlans = onLoadFamilyPlans,
+        onOpenFamilyPlan = onOpenFamilyPlan, onRetryFamily = familyViewModel::refresh,
+        onOpenEntry = { entry ->
+            if (entry.questType == QuestType.FAMILY) {
+                val plan = familyState.overview?.plans?.find { plan ->
+                    plan.items.any { it.collaborativeSessionId != null && it.collaborativeSessionId == entry.questUser.collaborativeSessionId }
+                }
+                if (plan != null) onOpenFamilyPlan(plan.id) else onLoadFamilyPlans()
+            } else onOpenQuest(entry.questId)
+        }
+    )
 }
 
 @Composable
 internal fun ProgressContent(
     state: ProgressUiState,
     modifier: Modifier = Modifier,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
+    onRefresh: () -> Unit = onRetry,
+    onOpenList: (ProgressSection) -> Unit = {},
+    onOpenQuest: (Long) -> Unit = {},
+    familyState: FamilyPlansUiState? = null,
+    onCreateFamilyPlan: () -> Unit = {},
+    onLoadFamilyPlans: () -> Unit = {},
+    onOpenFamilyPlan: (Long) -> Unit = {},
+    onRetryFamily: () -> Unit = {},
+    onOpenEntry: ((ProgressEntry) -> Unit)? = null
 ) {
-    // The two actions of this screen are drawn but not built yet
-    var showComingSoon by rememberSaveable { mutableStateOf(false) }
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        if (state.isLoading) {
-            val loadingDescription = stringResource(R.string.loading)
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .semantics { contentDescription = loadingDescription }
+    QuestRefreshContainer(state.isRefreshing, onRefresh, enabled = !state.isLoading) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState()).padding(horizontal = 28.dp, vertical = 24.dp)
+        ) {
+            if (state.hasError) ProgressLoadError(onRetry, !state.isLoading)
+            ProgressSectionCard(
+                label = stringResource(R.string.progress_in_progress), entries = state.inProgress.take(2),
+                actionLabel = stringResource(R.string.progress_see_more),
+                onAction = { onOpenList(ProgressSection.IN_PROGRESS) },
+                onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
+                emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_active)
             )
-        } else if (state.hasError) {
-            Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.quest_list_error))
-                TextButton(onClick = onRetry) { Text(stringResource(R.string.quest_try_again)) }
-            }
-        } else {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 28.dp, vertical = 24.dp)
-            ) {
+            if (familyState != null) {
+                FamilyPlanProgressSection(familyState, state.familyQuests, onCreateFamilyPlan,
+                    onOpenFamilyPlan, onRetryFamily)
+            } else if (state.familyQuests.isNotEmpty()) {
                 ProgressSectionCard(
-                    label = stringResource(R.string.progress_in_progress),
-                    entries = state.inProgress,
-                    actionLabel = stringResource(R.string.progress_see_more),
-                    onAction = { showComingSoon = true }
-                )
-                ProgressSectionCard(
-                    label = stringResource(R.string.progress_family_quest),
-                    entries = state.familyQuests,
+                    label = stringResource(R.string.progress_family_quest), entries = state.familyQuests.take(2),
                     actionLabel = stringResource(R.string.progress_see_family_quest),
-                    onAction = { showComingSoon = true }
-                )
-                ProgressSectionCard(
-                    label = stringResource(R.string.progress_finished),
-                    entries = state.finished
+                    onAction = { onOpenList(ProgressSection.FAMILY) },
+                    onOpenEntry = { onOpenQuest(it.questId) }
                 )
             }
+            ProgressSectionCard(
+                label = stringResource(R.string.progress_finished), entries = state.finished.take(2),
+                actionLabel = stringResource(R.string.progress_view_history),
+                onAction = { onOpenList(ProgressSection.HISTORY) },
+                onOpenEntry = onOpenEntry ?: { onOpenQuest(it.questId) },
+                emptyText = if (state.isLoading) null else stringResource(R.string.progress_empty_finished)
+            )
         }
-    }
-
-    if (showComingSoon) {
-        ComingSoonDialog(onDismiss = { showComingSoon = false })
+        if (!state.isRefreshing && (state.isLoading || state.isUpdating || familyState?.busy == true)) {
+            LinearProgressIndicator(Modifier.fillMaxWidth().height(2.dp).align(Alignment.TopCenter))
+        }
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+internal fun ProgressLoadError(onRetry: () -> Unit, enabled: Boolean = true) {
+    Column {
+        Text(stringResource(R.string.progress_load_error), color = MaterialTheme.colorScheme.error)
+        TextButton(onClick = onRetry, enabled = enabled) { Text(stringResource(R.string.quest_try_again)) }
+    }
+}
+
+@Preview(name = "Progress · English", locale = "en", showBackground = true, widthDp = 360, heightDp = 800)
+@Preview(name = "Progreso · Español", locale = "es-rPE", showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 private fun ProgressContentPreview() {
     val sample = stringResource(R.string.app_name)
-
     EcoMindTheme {
         ProgressContent(
             state = ProgressUiState(

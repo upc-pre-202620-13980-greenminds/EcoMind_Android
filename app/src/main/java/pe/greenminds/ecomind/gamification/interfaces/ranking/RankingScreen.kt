@@ -16,6 +16,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -30,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import pe.greenminds.ecomind.R
 import pe.greenminds.ecomind.gamification.domain.model.Ranking
 import pe.greenminds.ecomind.gamification.domain.model.RankingEntry
@@ -40,20 +44,40 @@ import pe.greenminds.ecomind.shared.interfaces.components.SegmentedTabs
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreen
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoGreenDark
 import pe.greenminds.ecomind.shared.interfaces.theme.EcoMindTheme
-import pe.greenminds.ecomind.shared.interfaces.theme.TextSecondary
 import pe.greenminds.ecomind.shared.interfaces.theme.interTextStyle
 
 // The top bar and the bottom bar are drawn by MainShell; this is only the center of the screen
 @Composable
-fun RankingScreen(viewModel: RankingViewModel = hiltViewModel()) {
+fun RankingScreen(onProgress: () -> Unit = {}, onSignIn: () -> Unit = {}, viewModel: RankingViewModel = hiltViewModel()) {
+    val scope = rememberCoroutineScope()
+    LifecycleResumeEffect(Unit) {
+        viewModel.onResume()
+        val refresh = scope.launch {
+            while (true) {
+                delay(30_000)
+                viewModel.refresh()
+            }
+        }
+        onPauseOrDispose { refresh.cancel() }
+    }
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
-    RankingContent(
+    Column(Modifier.fillMaxSize()) {
+        if (state.refreshFailed) {
+            Text(stringResource(R.string.ranking_refresh_failed),
+                color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp))
+        }
+        androidx.compose.material3.TextButton(onClick = onProgress, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.gamification_progress))
+        }
+        RankingContent(
         state = state,
         onTypeSelected = viewModel::onTypeSelected,
         onPeriodSelected = viewModel::onPeriodSelected,
-        onRetry = viewModel::load
-    )
+        onRetry = viewModel::load,
+        onSignIn = onSignIn
+        )
+    }
 }
 
 @Composable
@@ -62,6 +86,7 @@ private fun RankingContent(
     onTypeSelected: (RankingType) -> Unit,
     onPeriodSelected: (RankingPeriod) -> Unit,
     onRetry: () -> Unit,
+    onSignIn: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -121,14 +146,14 @@ private fun RankingContent(
                 // Tabs and chips stay on screen, so another ranking can be tried
                 state.hasError || ranking == null -> {
                     RankingMessage(
-                        title = stringResource(R.string.ranking_error_title),
-                        message = stringResource(R.string.ranking_error_message),
+                        title = stringResource(if (state.sessionRequired) R.string.achievements_session_required else R.string.ranking_error_title),
+                        message = if (state.sessionRequired) null else stringResource(R.string.ranking_error_message),
                         titleSizeSp = 19,
                         modifier = Modifier.weight(1f)
                     )
                     PillButton(
-                        text = stringResource(R.string.ranking_try_again),
-                        onClick = onRetry,
+                        text = stringResource(if (state.sessionRequired) R.string.achievements_sign_in else R.string.ranking_try_again),
+                        onClick = if (state.sessionRequired) onSignIn else onRetry,
                         faceColor = EcoGreen,
                         baseColor = EcoGreenDark,
                         height = 48.dp,
@@ -198,7 +223,7 @@ private fun RankingList(
             Text(
                 text = stringResource(R.string.ranking_points_header),
                 style = interTextStyle(12),
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 12.dp)
             )
         }
@@ -252,7 +277,7 @@ private fun RankingMessage(
                 Text(
                     text = message,
                     style = interTextStyle(13),
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp)
                 )

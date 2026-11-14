@@ -10,6 +10,7 @@ import pe.greenminds.ecomind.iam.infrastructure.remote.AuthInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import java.util.concurrent.TimeUnit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -18,7 +19,12 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
-        return OkHttpClient.Builder().addInterceptor(authInterceptor).build()
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            // The first request can include a Container Apps cold start.
+            .readTimeout(90, TimeUnit.SECONDS)
+            .callTimeout(120, TimeUnit.SECONDS)
+            .build()
     }
 
     @Provides
